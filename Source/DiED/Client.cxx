@@ -320,6 +320,11 @@ void DiED::Client::vHandlePosition(int iLineRelative, int iCharacterRelative, in
 	m_InternalEnvironment.vHandlePosition(*this, iLineRelative, iCharacterRelative, iLineAbsolute, iCharacterAbsolute);
 }
 
+void DiED::Client::vHandleLogOutNotification(void)
+{
+	m_InternalEnvironment.vHandleLogOutNotification(*this);
+}
+
 void DiED::Client::vHandleAnswer(void)
 {
 	if(m_AwaitingConfirmationQueue.size() == 0)
@@ -535,6 +540,11 @@ void DiED::Client::vDelete(int iLineRelative, int iCharacterRelative, int iLineA
 void DiED::Client::vPosition(int iLineRelative, int iCharacterRelative, int iLineAbsolute, int iCharacterAbsolute, const DiED::messageid_t & EventID)
 {
 	vSend(boost::shared_ptr< DiED::BasicMessage >(new DiED::PositionEvent(m_InternalEnvironment.pGetClient(0)->GetID(), EventID, 0, iLineRelative, iCharacterRelative, iLineAbsolute, iCharacterAbsolute)));
+}
+
+void DiED::Client::vLogOutNotification(const DiED::messageid_t & EventID)
+{
+	vSend(boost::shared_ptr< DiED::BasicMessage >(new DiED::LogOutNotificationEvent(m_InternalEnvironment.pGetClient(0)->GetID(), EventID, 0)));
 }
 
 DiED::messageid_t DiED::Client::GetNextEventCounter(void)

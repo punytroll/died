@@ -52,6 +52,7 @@ namespace DiED
 		void vInsert(const Glib::ustring & sText, const DiED::messageid_t & EventID);
 		void vDelete(int iLineRelative, int iCharacterRelative, int iLineAbsolute, int iCharacterAbsolute, const DiED::messageid_t & EventID);
 		void vPosition(int iLineRelative, int iCharacterRelative, int iLineAbsolute, int iCharacterAbsolute, const DiED::messageid_t & EventID);
+		void vLogOutNotification(const DiED::messageid_t & EventID);
 		
 		// eventcounter
 		DiED::messageid_t GetNextEventCounter(void);
@@ -82,9 +83,12 @@ namespace DiED
 		virtual void vHandlePong(const DiED::messageid_t & PingID);
 		virtual void vHandleEvent(const DiED::clientid_t & CreatorID, const DiED::messageid_t & EventID, const DiED::clientid_t & LostClientID, boost::shared_ptr< DiED::EventAction > EventAction);
 		virtual void vHandleEventReceived(const DiED::clientid_t & CreatorID, const DiED::messageid_t & EventID);
+		
+		// action handler
 		virtual void vHandleInsert(const Glib::ustring & sString);
 		virtual void vHandleDelete(int iLineRelative, int iCharacterRelative, int iLineAbsolute, int iCharacterAbsolute);
 		virtual void vHandlePosition(int iLineRelative, int iCharacterRelative, int iLineAbsolute, int iCharacterAbsolute);
+		virtual void vHandleLogOutNotification(void);
 		
 		// timeout callbacks
 		virtual void vHandleConnectionRequestConfirmationTimeout(boost::shared_ptr< DiED::ConfirmationParameters > ConfirmationParameters);
