@@ -28,6 +28,7 @@ namespace DiED
 		void vInsert(const Glib::ustring & sString);
 		void vDelete(int iLine, int iCharacter);
 		void vPosition(int iLine, int iCharacter);
+		void vLogOut(void);
 		
 		// helper functions
 		virtual std::set< DiED::clientid_t > GetConnectedClientIDs(void);
@@ -37,8 +38,9 @@ namespace DiED
 		virtual DiED::Client * pGetClient(const DiED::clientid_t & ClientID);
 		
 		// "Announce" functions will forward the message in question to all connected clients
-		virtual void vAnnounceMessage(boost::shared_ptr< DiED::BasicMessage > Message);
 		virtual void vAnnounceConnectionLost(const DiED::clientid_t & ClientID);
+		virtual void vAnnounceLogOutNotification(const DiED::messageid_t & EventID);
+		virtual void vAnnounceMessage(boost::shared_ptr< DiED::BasicMessage > Message);
 		
 		// signals
 		sigc::signal< void, DiED::Client & > ClientConnected;
@@ -60,6 +62,7 @@ namespace DiED
 		virtual void vHandleInsert(DiED::User & User, const Glib::ustring & sString);
 		virtual void vHandleDelete(DiED::User & User, int iLineRelative, int iCharacterRelative, int iLineAbsolute, int iCharacterAbsolute);
 		virtual void vHandlePosition(DiED::User & User, int iLineRelative, int iCharacterRelative, int iLineAbsolute, int iCharacterAbsolute);
+		virtual void vHandleLogOutNotification(DiED::User & User);
 		
 		// status manipulation ... TODO@ replace this with a symmetric map of references.
 		virtual void vSetStatus(const DiED::clientid_t & ClientID1, const DiED::clientid_t & ClientID2, const DiED::clientstatus_t & Status);

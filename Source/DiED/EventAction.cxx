@@ -6,12 +6,12 @@ DiED::EventAction::~EventAction(void)
 {
 }
 
-DiED::InsertAction::~InsertAction(void)
+DiED::InsertAction::InsertAction(const Glib::ustring & sText) :
+	m_sText(sText)
 {
 }
 
-DiED::InsertAction::InsertAction(const Glib::ustring & sText) :
-	m_sText(sText)
+DiED::InsertAction::~InsertAction(void)
 {
 }
 
@@ -47,6 +47,11 @@ boost::shared_ptr< DiED::BasicMessage > DiED::DeleteAction::GetMessage(const DiE
 	return boost::shared_ptr< DiED::BasicMessage >(new DiED::DeleteEvent(CreatorID, EventID, LostClientID, m_iLineRelative, m_iCharacterRelative, m_iLineAbsolute, m_iCharacterAbsolute));
 }
 
+
+///////////////////////////////////////////////////////////////////////////////////////////////////
+///                                     PositionAction                                          ///
+///////////////////////////////////////////////////////////////////////////////////////////////////
+
 DiED::PositionAction::PositionAction(int iLineRelative, int iCharacterRelative, int iLineAbsolute, int iCharacterAbsolute) :
 	m_iLineRelative(iLineRelative),
 	m_iCharacterRelative(iCharacterRelative),
@@ -67,4 +72,27 @@ void DiED::PositionAction::vExecute(DiED::ActionTarget & ActionTarget)
 boost::shared_ptr< DiED::BasicMessage > DiED::PositionAction::GetMessage(const DiED::clientid_t & CreatorID, const DiED::messageid_t & EventID, const DiED::clientid_t & LostClientID)
 {
 	return boost::shared_ptr< DiED::BasicMessage >(new DiED::PositionEvent(CreatorID, EventID, LostClientID, m_iLineRelative, m_iCharacterRelative, m_iLineAbsolute, m_iCharacterAbsolute));
+}
+
+
+///////////////////////////////////////////////////////////////////////////////////////////////////
+///                                 LogOutNotificationAction                                    ///
+///////////////////////////////////////////////////////////////////////////////////////////////////
+
+DiED::LogOutNotificationAction::LogOutNotificationAction(void)
+{
+}
+
+DiED::LogOutNotificationAction::~LogOutNotificationAction(void)
+{
+}
+
+void DiED::LogOutNotificationAction::vExecute(DiED::ActionTarget & ActionTarget)
+{
+	ActionTarget.vHandleLogOutNotification();
+}
+
+boost::shared_ptr< DiED::BasicMessage > DiED::LogOutNotificationAction::GetMessage(const DiED::clientid_t & CreatorID, const DiED::messageid_t & EventID, const DiED::clientid_t & LostClientID)
+{
+	return boost::shared_ptr< DiED::BasicMessage >(new DiED::LogOutNotificationEvent(CreatorID, EventID, LostClientID));
 }

@@ -25,6 +25,7 @@ namespace DiED
 		_InsertEvent,
 		_DeleteEvent,
 		_PositionEvent,
+		_LogOutNotificationEvent
 	};
 	
 	class NoMessage : public DiED::BasicMessage
@@ -240,6 +241,17 @@ namespace DiED
 		Network::Value< int > m_CharacterRelative;
 		Network::Value< int > m_LineAbsolute;
 		Network::Value< int > m_CharacterAbsolute;
+	};
+	
+	class LogOutNotificationEvent : public DiED::EventMessage
+	{
+	public:
+		LogOutNotificationEvent(void);
+		LogOutNotificationEvent(const DiED::clientid_t & CreatorID, const DiED::messageid_t & EventID, const DiED::clientid_t & LostClientID);
+		virtual Glib::ustring sGetString(void);
+		virtual boost::shared_ptr< DiED::BasicMessage > Clone(void);
+	protected:
+		virtual boost::shared_ptr< DiED::EventAction > GetAction(void);
 	};
 }
 

@@ -54,6 +54,15 @@ namespace DiED
 		int m_iLineAbsolute;
 		int m_iCharacterAbsolute;
 	};
+	
+	class LogOutNotificationAction : public DiED::EventAction
+	{
+	public:
+		LogOutNotificationAction(void);
+		virtual ~LogOutNotificationAction(void);
+		virtual void vExecute(DiED::ActionTarget & ActionTarget);
+		virtual boost::shared_ptr< DiED::BasicMessage > GetMessage(const DiED::clientid_t & CreatorID, const DiED::messageid_t & EventID, const DiED::clientid_t & LostClientID);
+	};
 }
 
 #endif

@@ -26,6 +26,7 @@ namespace DiED
 		virtual void vHandleInsert(DiED::User & User, const Glib::ustring & sString) = 0;
 		virtual void vHandleDelete(DiED::User & User, int iLineRelative, int iCharacterRelative, int iLineAbsolute, int iCharacterAbsolute) = 0;
 		virtual void vHandlePosition(DiED::User & User, int iLineRelative, int iCharacterRelative, int iLineAbsolute, int iCharacterAbsolute) = 0;
+		virtual void vHandleLogOutNotification(DiED::User & User) = 0;
 		
 		// helper functions
 		virtual std::set< DiED::clientid_t > GetConnectedClientIDs(void) = 0;

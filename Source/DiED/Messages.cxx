@@ -860,3 +860,37 @@ boost::shared_ptr< DiED::EventAction > DiED::PositionEvent::GetAction(void)
 {
 	return boost::shared_ptr< DiED::EventAction >(new DiED::PositionAction(m_LineRelative, m_CharacterRelative, m_LineAbsolute, m_CharacterAbsolute));
 }
+
+
+///////////////////////////////////////////////////////////////////////////////////////////////////
+///                                 LogOutNotificationEvent                                     ///
+///////////////////////////////////////////////////////////////////////////////////////////////////
+
+DiED::LogOutNotificationEvent::LogOutNotificationEvent(void) :
+	DiED::EventMessage(DiED::_LogOutNotificationEvent)
+{
+}
+
+DiED::LogOutNotificationEvent::LogOutNotificationEvent(const DiED::clientid_t & CreatorID, const DiED::messageid_t & EventID, const DiED::clientid_t & LostClientID) :
+	DiED::EventMessage(DiED::_LogOutNotificationEvent, CreatorID, EventID, LostClientID)
+{
+}
+
+Glib::ustring DiED::LogOutNotificationEvent::sGetString(void)
+{
+	std::stringstream ssString;
+	
+	ssString << "LogOutNotification [ " << DiED::EventMessage::sGetString() << " ]";
+	
+	return ssString.str();
+}
+
+boost::shared_ptr< DiED::EventAction > DiED::LogOutNotificationEvent::GetAction(void)
+{
+	return boost::shared_ptr< DiED::EventAction >(new DiED::LogOutNotificationAction());
+}
+
+boost::shared_ptr< DiED::BasicMessage > DiED::LogOutNotificationEvent::Clone(void)
+{
+	return boost::shared_ptr< DiED::BasicMessage >(new DiED::LogOutNotificationEvent(m_CreatorID, m_EventID, m_LostClientID));
+}

@@ -332,3 +332,10 @@ void GUI::MainWindow::vRowInsertedForClient(const Gtk::TreePath & Path, const Gt
 {
 	pTreeView->scroll_to_row(Path);
 }
+
+bool GUI::MainWindow::on_delete_event(GdkEventAny * pEvent)
+{
+	m_System.vLogOut();
+	
+	return false;
+}

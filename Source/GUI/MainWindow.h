@@ -50,6 +50,7 @@ namespace GUI
 		void vNextButtonClicked(boost::reference_wrapper< GUI::Client > Client);
 		void vRowInsertedForClient(const Gtk::TreePath & Path, const Gtk::TreeIter & Iterator, Gtk::TreeView * pTreeView);
 	private:
+		virtual bool on_delete_event(GdkEventAny * pEvent);
 		DiED::System & m_System;
 #ifndef NODEBUG
 		Gtk::VPaned m_Pane;

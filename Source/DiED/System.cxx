@@ -360,6 +360,13 @@ void DiED::System::vPosition(int iLine, int iCharacter)
 	}
 }
 
+void DiED::System::vLogOut(void)
+{
+	DiED::messageid_t EventCounter(m_Client->GetNextEventCounter());
+	
+	vAnnounceLogOutNotification(EventCounter);
+}
+
 void DiED::System::vHandleConnectionRequest(DiED::User & User, const DiED::clientid_t & ClientID, const Network::port_t & Port)
 {
 	LOG(Debug, "DiED/System", "Processing ConnectionRequest message from " << User.GetID());
@@ -839,6 +846,11 @@ void DiED::System::vHandlePosition(DiED::User & User, int iLineRelative, int iCh
 	LOG(Debug, "DiED/System", "           Position message from " << User.GetID() << '\n');
 }
 
+void DiED::System::vHandleLogOutNotification(DiED::User & User)
+{
+	// TODO: handle it
+}
+
 void DiED::System::vPongTimeout(boost::shared_ptr< DiED::Client > Client)
 {
 	LOG(Debug, "DiED/System", "Pong missing from " << Client->GetID() << ".");
@@ -992,6 +1004,20 @@ void DiED::System::vAnnounceConnectionLost(const DiED::clientid_t & ClientID)
 		if(m_Client->GetStatus(iClient->first) == DiED::Connected)
 		{
 			iClient->second->vConnectionLost(ClientID, Client->GetAddress(), Client->GetPort());
+		}
+		++iClient;
+	}
+}
+
+void DiED::System::vAnnounceLogOutNotification(const DiED::messageid_t & EventID)
+{
+	std::map< DiED::clientid_t, boost::shared_ptr< DiED::Client > >::iterator iClient(m_Clients.begin());
+	
+	while(iClient != m_Clients.end())
+	{
+		if(m_Client->GetStatus(iClient->first) == DiED::Connected)
+		{
+			iClient->second->vLogOutNotification(EventID);
 		}
 		++iClient;
 	}

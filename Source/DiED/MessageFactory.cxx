@@ -60,6 +60,10 @@ boost::shared_ptr< Network::BasicMessage > DiED::MessageFactory::GetMessage(u_in
 		{
 			return boost::shared_ptr< Network::BasicMessage >(new DiED::PositionEvent());
 		}
+	case DiED::_LogOutNotificationEvent:
+		{
+			return boost::shared_ptr< Network::BasicMessage >(new DiED::LogOutNotificationEvent());
+		}
 	case DiED::_NoMessage:
 	default:
 		{
