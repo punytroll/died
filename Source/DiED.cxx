@@ -54,7 +54,10 @@ int main(int argc, char ** argv)
 	boost::shared_ptr< GUI::ClientFactory > ClientFactory(new GUI::ClientFactory(DiEDSystem));
 	
 	DiEDSystem.vSetClientFactory(ClientFactory);
-	DiEDSystem.bListen(ServerPort);
+	if(ServerPort != 0)
+	{
+		DiEDSystem.bListen(ServerPort);
+	}
 	if(ConnectAddress != "")
 	{
 		DiEDSystem.bConnectTo(ConnectAddress, ConnectPort);
