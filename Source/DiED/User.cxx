@@ -47,12 +47,12 @@ DiED::clientid_t DiED::User::GetID(void)
 	return m_ID;
 }
 
-void DiED::User::vSetStatus(const DiED::clientid_t & ClientID, DiED::User::Status Status)
+void DiED::User::vSetStatus(const DiED::clientid_t & ClientID, const DiED::clientstatus_t & Status)
 {
 //~ 	std::cout << "[DiED/User]: Client " << GetID() << " is setting client " << ClientID << " to " << sStatusToString(Status) << std::endl;
-	std::map< DiED::clientid_t, DiED::User::Status >::iterator iClient(m_Status.find(ClientID));
+	std::map< DiED::clientid_t, DiED::clientstatus_t >::iterator iClient(m_Status.find(ClientID));
 	
-	if(Status == Deleted)
+	if(Status == DiED::Deleted)
 	{
 		if(iClient != m_Status.end())
 		{
@@ -88,27 +88,27 @@ void DiED::User::vSetStatus(const DiED::clientid_t & ClientID, DiED::User::Statu
 	StatusChanged(ClientID, Status);
 }
 
-DiED::User::Status DiED::User::GetStatus(const DiED::clientid_t & ClientID)
+DiED::clientstatus_t DiED::User::GetStatus(const DiED::clientid_t & ClientID)
 {
-	std::map< DiED::clientid_t, DiED::User::Status >::iterator iClient(m_Status.find(ClientID));
+	std::map< DiED::clientid_t, DiED::clientstatus_t >::iterator iClient(m_Status.find(ClientID));
 	
 	if(iClient != m_Status.end())
 	{
 		return iClient->second;
 	}
 	
-	return Deleted;
+	return DiED::Deleted;
 }
 
 std::set< DiED::clientid_t > DiED::User::GetConnectedClientIDs(void)
 {
 	std::set< DiED::clientid_t > ClientIDs;
-	std::map< DiED::clientid_t, DiED::User::Status >::iterator iClient(m_Status.begin());
+	std::map< DiED::clientid_t, DiED::clientstatus_t >::iterator iClient(m_Status.begin());
 	
 	while(iClient != m_Status.end())
 	{
 //~ 		std::cout << "[DiED/User]: Status of " << iClient->first << ": " << sStatusToString(iClient->second) << std::endl;
-		if(iClient->second == DiED::User::Connected)
+		if(iClient->second == DiED::Connected)
 		{
 			ClientIDs.insert(iClient->first);
 		}
@@ -121,12 +121,12 @@ std::set< DiED::clientid_t > DiED::User::GetConnectedClientIDs(void)
 std::set< DiED::clientid_t > DiED::User::GetDisconnectedClientIDs(void)
 {
 	std::set< DiED::clientid_t > ClientIDs;
-	std::map< DiED::clientid_t, DiED::User::Status >::iterator iClient(m_Status.begin());
+	std::map< DiED::clientid_t, DiED::clientstatus_t >::iterator iClient(m_Status.begin());
 	
 	while(iClient != m_Status.end())
 	{
 //~ 		std::cout << "[DiED/User]: Status of " << iClient->first << ": " << iClient->second << std::endl;
-		if(iClient->second == DiED::User::Disconnected)
+		if(iClient->second == DiED::Disconnected)
 		{
 			ClientIDs.insert(iClient->first);
 		}

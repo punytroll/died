@@ -8,21 +8,13 @@
 
 #include <sigc++/sigc++.h>
 
+#include <Common.h>
+
 namespace DiED
 {
-	typedef u_int32_t clientid_t;
-	
 	class User
 	{
 	public:
-		enum Status
-		{
-			Connecting,
-			Connected,
-			Disconnected,
-			Deleted
-		};
-		
 		User(void);
 		virtual ~User(void);
 		
@@ -31,11 +23,11 @@ namespace DiED
 		DiED::clientid_t GetID(void);
 		
 		// Status stuff
-		virtual void vSetStatus(const DiED::clientid_t & ClientID, DiED::User::Status Status);
-		Status GetStatus(const DiED::clientid_t & ClientID);
+		virtual void vSetStatus(const DiED::clientid_t & ClientID, const DiED::clientstatus_t & Status);
+		DiED::clientstatus_t GetStatus(const DiED::clientid_t & ClientID);
 		std::set< DiED::clientid_t > GetConnectedClientIDs(void);
 		std::set< DiED::clientid_t > GetDisconnectedClientIDs(void);
-		sigc::signal< void, DiED::clientid_t, DiED::User::Status > StatusChanged;
+		sigc::signal< void, DiED::clientid_t, DiED::clientstatus_t > StatusChanged;
 		
 		// caret position stuff
 		void vModifyCaretPosition(int iDeltaLine, int iDeltaCharacter);
@@ -46,7 +38,7 @@ namespace DiED
 		int m_iLine;
 		int m_iCharacter;
 		DiED::clientid_t m_ID;
-		std::map< DiED::clientid_t, DiED::User::Status > m_Status;
+		std::map< DiED::clientid_t, DiED::clientstatus_t > m_Status;
 	};
 }
 

@@ -27,7 +27,7 @@ namespace GUI
 		virtual void vInsertText(const Glib::ustring & sString, int iLine, int iCharacter);
 		
 		// callbacks
-		void vClientStatusChanged(const DiED::clientid_t & ClientID, const DiED::User::Status & Status, boost::reference_wrapper< DiED::Client > Client);
+		void vClientStatusChanged(const DiED::clientid_t & ClientID, const DiED::clientstatus_t & Status, boost::reference_wrapper< DiED::Client > Client);
 		void vHoldFlowButtonClicked(Gtk::Button * pHoldFlowButton, Gtk::Button * pNextButton, boost::reference_wrapper< GUI::Client > Client);
 		void vPingButtonClicked(boost::reference_wrapper< GUI::Client > Client);
 		void vNextButtonClicked(boost::reference_wrapper< GUI::Client > Client);
