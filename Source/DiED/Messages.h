@@ -79,7 +79,7 @@ namespace DiED
 		Network::Value< DiED::messageid_t > m_MessageID;
 		Network::VectorValue< DiED::ClientInfo > m_ClientInfos;
 		Network::Value< bool > m_DocumentValid;
-		Network::Value< Glib::ustring > m_Document;
+		Network::StringValue m_Document;
 	};
 	
 	class ClientsRegisteredMessage : public DiED::BasicMessage
