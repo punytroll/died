@@ -39,8 +39,7 @@ void DiED::System::vSetClientFactory(boost::shared_ptr< DiED::ClientFactory > Cl
 
 bool DiED::System::bListen(const Network::port_t & ServicePort)
 {
-	m_ServicePort = ServicePort;
-	m_Server.vOpen(m_ServicePort);
+	m_Server.vOpen(ServicePort);
 	if(m_Server.bIsOpen() == false)
 	{
 		std::cerr << "[Server]: Error setting up the server. [" << sErrorCodeToString(m_Server.iGetError()) << "]." << std::endl;
@@ -49,11 +48,12 @@ bool DiED::System::bListen(const Network::port_t & ServicePort)
 	}
 	else
 	{
+		m_ServicePort = ServicePort;
 		m_Server.Accepted.connect(sigc::mem_fun(*this, &DiED::System::vAccepted));
 	}
 	if(m_Client.get() != 0)
 	{
-		m_Client->vSetPort(ServicePort);
+		m_Client->vSetPort(m_ServicePort);
 	}
 	
 	return true;
