@@ -2,6 +2,8 @@
 
 #include <iostream>
 
+#include <boost/weak_ptr.hpp>
+
 #include "BasicMessage.h"
 
 DiED::Client::Client(DiED::InternalEnvironment & InternalEnvironment) :
@@ -238,12 +240,13 @@ void DiED::Client::vSend(boost::shared_ptr< DiED::BasicMessage > Message)
 	{
 		if((m_MessageStream.get() != 0) && (m_MessageStream->bIsOpen() == true))
 		{
-			// m_MessageStream->vEmptyBuffer();
 			m_MessageStream->operator<<(*Message);
 			if(Message->bRequiresConfirmation() == true)
 			{
 				m_AwaitingConfirmationQueue.push_back(Message);
 			}
+			m_QueuedQueue.push_back(Message);
+			MessageQueued(Message);
 		}
 		else
 		{
@@ -263,6 +266,8 @@ void DiED::Client::vSend(boost::shared_ptr< DiED::BasicMessage > Message)
 				{
 					m_AwaitingConfirmationQueue.push_back(*iEventMessage);
 				}
+				m_QueuedQueue.push_back(*iEventMessage);
+				MessageQueued(*iEventMessage);
 				m_EventQueue.erase(iEventMessage);
 				iEventMessage = m_EventQueue.begin();
 			}
@@ -350,7 +355,21 @@ void DiED::Client::vPing(sigc::slot< void > PongSlot)
 
 void DiED::Client::vBytesSent(size_t stSize)
 {
-	// TODO
+	std::deque< boost::shared_ptr< DiED::BasicMessage > >::iterator iMessage(m_QueuedQueue.begin());
+	
+	while(iMessage != m_QueuedQueue.end())
+	{
+		size_t stMessageSize((*iMessage)->stGetSize());
+		
+		if(stSize < stMessageSize)
+		{
+			return;
+		}
+		stSize -= stMessageSize;
+		MessageSent(*iMessage);
+		m_QueuedQueue.erase(iMessage);
+		iMessage = m_QueuedQueue.begin();
+	}
 }
 
 void DiED::Client::vOnDisconnected(void)
