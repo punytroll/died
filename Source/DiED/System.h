@@ -54,6 +54,9 @@ namespace DiED
 		boost::shared_ptr< DiED::Client > GetNewPreliminaryClient(void);
 		boost::shared_ptr< DiED::Client > RegisterClient(boost::shared_ptr< DiED::Client > Client, const DiED::clientid_t & _ClientID = 0);
 		
+		// private callbacks
+		void vPongReceived(boost::shared_ptr< DiED::Client > Client);
+		
 		boost::shared_ptr< DiED::MessageFactory > m_MessageFactory;
 		boost::shared_ptr< DiED::ClientFactory > m_ClientFactory;
 		boost::shared_ptr< DiED::Client > m_Client;
