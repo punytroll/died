@@ -174,7 +174,7 @@ void DiED::Client::vHandleEvent(const DiED::clientid_t & CreatorID, const DiED::
 			{
 				pLostClient->vSend(Message);
 			}
-			if((pLostClient == 0) || (m_InternalEnvironment.GetStatus(LostClientID, 0) == DiED::User::Disconnected))
+			if((pLostClient == 0) || (m_InternalEnvironment.GetStatus(LostClientID, 0) == DiED::Disconnected))
 			{
 				std::set< DiED::clientid_t > ConnectedClientIDs(m_InternalEnvironment.GetConnectedClientIDs());
 				std::set< DiED::clientid_t >::iterator iClient(ConnectedClientIDs.begin());
@@ -204,7 +204,7 @@ void DiED::Client::vHandleEvent(const DiED::clientid_t & CreatorID, const DiED::
 		boost::shared_ptr< DiED::BasicMessage > Message(EventAction->GetMessage(CreatorID, EventID, 0));
 		std::set< DiED::clientid_t > ClientIDs(GetDisconnectedClientIDs());
 		
-		if((LostClientID != 0) && (GetStatus(LostClientID) == DiED::User::Connected))
+		if((LostClientID != 0) && (GetStatus(LostClientID) == DiED::Connected))
 		{
 			ClientIDs.insert(LostClientID);
 		}
@@ -398,7 +398,7 @@ void DiED::Client::vSend(boost::shared_ptr< DiED::BasicMessage > Message)
 			std::cout << "BAD: " << __FILE__ << ':' << __LINE__ << std::endl;
 		}
 	}
-	if(m_InternalEnvironment.GetStatus(GetID()) == DiED::User::Connected)
+	if(m_InternalEnvironment.GetStatus(GetID()) == DiED::Connected)
 	{
 		if((m_MessageStream.get() != 0) && (m_MessageStream->bIsOpen() == true))
 		{
@@ -543,10 +543,10 @@ void DiED::Client::vBytesSent(size_t stSize)
 
 void DiED::Client::vOnDisconnected(void)
 {
-	m_InternalEnvironment.vSetStatus(0, GetID(), DiED::User::Disconnected);
+	m_InternalEnvironment.vSetStatus(0, GetID(), DiED::Disconnected);
 }
 
-void DiED::Client::vSetStatus(const DiED::clientid_t & ClientID, DiED::User::Status Status)
+void DiED::Client::vSetStatus(const DiED::clientid_t & ClientID, DiED::clientstatus_t Status)
 {
 	DiED::User::vSetStatus(ClientID, Status);
 }

@@ -39,7 +39,7 @@ namespace DiED
 		// helper functions
 		virtual std::set< DiED::clientid_t > GetConnectedClientIDs(void);
 		virtual std::set< DiED::clientid_t > GetDisconnectedClientIDs(void);
-		virtual DiED::User::Status GetStatus(const DiED::clientid_t & ClientID1, const DiED::clientid_t & ClientID2);
+		virtual DiED::clientstatus_t GetStatus(const DiED::clientid_t & ClientID1, const DiED::clientid_t & ClientID2);
 		virtual DiED::Client * pGetClient(const DiED::clientid_t & ClientID);
 		
 		// "Announce" functions will forward the message in question to all connected clients
@@ -52,10 +52,10 @@ namespace DiED
 		void vSendMessage(boost::shared_ptr< DiED::BasicMessage > Message, bool bSendOnlyToConnected = false);
 		void vInsertText(DiED::User & User, const Glib::ustring & sString, bool bWriteToEnvironment);
 		virtual void vAccepted(boost::shared_ptr< Network::MessageStream > MessageStream);
-		void vClientStatusChanged(const DiED::clientid_t & ClientID, const DiED::User::Status & Status);
+		void vClientStatusChanged(const DiED::clientid_t & ClientID, const DiED::clientstatus_t & Status);
 		bool bTryReconnect(const DiED::clientid_t & ClientID);
 	private:
-		virtual void vSetStatus(const DiED::clientid_t & ClientID1, const DiED::clientid_t & ClientID2, const DiED::User::Status & Status);
+		virtual void vSetStatus(const DiED::clientid_t & ClientID1, const DiED::clientid_t & ClientID2, const DiED::clientstatus_t & Status);
 		
 		boost::shared_ptr< DiED::Client > GetNewPreliminaryClient(void);
 		boost::shared_ptr< DiED::Client > RegisterClient(boost::shared_ptr< DiED::Client > Client, const DiED::clientid_t & _ClientID = 0);

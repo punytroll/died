@@ -30,7 +30,7 @@ namespace DiED
 		void vSetPort(const Network::port_t & Port);
 		
 		// status
-		virtual void vSetStatus(const DiED::clientid_t & ClientID, DiED::User::Status Status);
+		virtual void vSetStatus(const DiED::clientid_t & ClientID, DiED::clientstatus_t Status);
 		
 		// sending messages
 		void vSend(boost::shared_ptr< DiED::BasicMessage > Message);

@@ -255,7 +255,7 @@ void DiED::System::vConnectionRequest(DiED::User & User, const DiED::clientid_t 
 	else
 	{
 		// => the local client is known in the network it is connecting to
-		if(GetStatus(0, Client->GetID()) == DiED::User::Connected)
+		if(GetStatus(0, Client->GetID()) == DiED::Connected)
 		{
 			std::cout << "TODO: test connection with ping." << std::endl;
 		}
@@ -344,7 +344,7 @@ void DiED::System::vKnownClients(DiED::User & User, const DiED::messageid_t & Me
 			std::cout << "VERY BAD: " << __FILE__ << ':' << __LINE__ << ": ClientID = " << *iClient << std::endl;
 		}
 		// RegisterClient will give a client that is Disconnected to ALL clients.
-		vSetStatus(User.GetID(), Client->GetID(), DiED::User::Connected);
+		vSetStatus(User.GetID(), Client->GetID(), DiED::Connected);
 		++iClient;
 	}
 	iClient = DisconnectedClientIDs.begin();
@@ -368,13 +368,13 @@ void DiED::System::vKnownClients(DiED::User & User, const DiED::messageid_t & Me
 	else
 	{
 		Client->vClientsRegistered(MessageID);
-		vSetStatus(User.GetID(), m_Client->GetID(), DiED::User::Connected);
+		vSetStatus(User.GetID(), m_Client->GetID(), DiED::Connected);
 		
 		std::map< DiED::clientid_t, boost::shared_ptr< DiED::Client > >::iterator iClient(m_Clients.begin());
 		
 		while(iClient != m_Clients.end())
 		{
-			if((iClient->first == User.GetID()) || (iClient->first == m_Client->GetID()) || (m_Client->GetStatus(iClient->first) == DiED::Client::Disconnected))
+			if((iClient->first == User.GetID()) || (iClient->first == m_Client->GetID()) || (m_Client->GetStatus(iClient->first) == DiED::Disconnected))
 			{
 				++iClient;
 				
@@ -391,7 +391,7 @@ void DiED::System::vClientsRegistered(DiED::User & User, const DiED::messageid_t
 {
 	std::cout << "Processing ClientsRegistered message from " << User.GetID() << std::endl;
 	
-	vSetStatus(User.GetID(), m_Client->GetID(), DiED::User::Connected);
+	vSetStatus(User.GetID(), m_Client->GetID(), DiED::Connected);
 	
 	boost::shared_ptr< DiED::Client > Client(m_Clients.find(User.GetID())->second);
 	std::map< DiED::clientid_t, boost::shared_ptr< DiED::Client > >::iterator iClient(m_Clients.begin());
@@ -399,7 +399,7 @@ void DiED::System::vClientsRegistered(DiED::User & User, const DiED::messageid_t
 	// send via SendMessage
 	while(iClient != m_Clients.end())
 	{
-		if((iClient->first == User.GetID()) || (iClient->first == m_Client->GetID()) || (m_Client->GetStatus(iClient->first) != DiED::Client::Connected))
+		if((iClient->first == User.GetID()) || (iClient->first == m_Client->GetID()) || (m_Client->GetStatus(iClient->first) != DiED::Connected))
 		{
 			++iClient;
 			
@@ -430,11 +430,11 @@ void DiED::System::vConnectionEstablished(DiED::User & User, const DiED::clienti
 	{
 		Client = iClient->second;
 	}
-	vSetStatus(User.GetID(), Client->GetID(), DiED::Client::Connected);
+	vSetStatus(User.GetID(), Client->GetID(), DiED::Connected);
 	// "Client" is set to an existing client with the client ID "ClientID"
 	switch(m_Client->GetStatus(ClientID))
 	{
-	case DiED::Client::Connected:
+	case DiED::Connected:
 		{
 			if((ClientAddress != Client->GetAddress()) || (ClientPort != Client->GetPort()))
 			{
@@ -443,7 +443,7 @@ void DiED::System::vConnectionEstablished(DiED::User & User, const DiED::clienti
 			
 			break;
 		}
-	case DiED::Client::Disconnected:
+	case DiED::Disconnected:
 		{
 			if(ClientPort == 0)
 			{
@@ -451,7 +451,7 @@ void DiED::System::vConnectionEstablished(DiED::User & User, const DiED::clienti
 				
 				while(iClient != m_Clients.end())
 				{
-					if((iClient->second != m_Client) && (m_Client->GetStatus(iClient->first) == DiED::User::Connected))
+					if((iClient->second != m_Client) && (m_Client->GetStatus(iClient->first) == DiED::Connected))
 					{
 						iClient->second->vConnectionLost(Client->GetID(), ClientAddress, ClientPort);
 					}
@@ -469,7 +469,7 @@ void DiED::System::vConnectionEstablished(DiED::User & User, const DiED::clienti
 					
 					while(iClient != m_Clients.end())
 					{
-						if((iClient->second != m_Client) && (m_Client->GetStatus(iClient->first) == DiED::User::Connected))
+						if((iClient->second != m_Client) && (m_Client->GetStatus(iClient->first) == DiED::Connected))
 						{
 							iClient->second->vConnectionLost(Client->GetID(), ClientAddress, ClientPort);
 						}
@@ -480,14 +480,14 @@ void DiED::System::vConnectionEstablished(DiED::User & User, const DiED::clienti
 				{
 					Client->vSetMessageStream(MessageStream);
 					Client->vSetPort(ClientPort);
-					vSetStatus(m_Client->GetID(), Client->GetID(), DiED::User::Connecting);
+					vSetStatus(m_Client->GetID(), Client->GetID(), DiED::Connecting);
 					Client->vConnectionRequest(m_Client->GetID(), m_ServicePort);
 				}
 			}
 			
 			break;
 		}
-	case DiED::User::Connecting:
+	case DiED::Connecting:
 		{
 			std::cout << "Already connecting to client " << Client->GetID() << std::endl;
 			
@@ -507,10 +507,10 @@ void DiED::System::vConnectionLost(DiED::User & User, const DiED::clientid_t & C
 	
 	boost::shared_ptr< DiED::Client > Client(RegisterClient(boost::shared_ptr< DiED::Client >(), ClientID));
 	
-	vSetStatus(User.GetID(), Client->GetID(), DiED::User::Disconnected);
+	vSetStatus(User.GetID(), Client->GetID(), DiED::Disconnected);
 	switch(m_Client->GetStatus(Client->GetID()))
 	{
-	case DiED::User::Disconnected:
+	case DiED::Disconnected:
 		{
 			// if we are disconnected to the specific client
 			if((ClientPort != 0) && ((ClientAddress != Client->GetAddress()) || ClientPort != Client->GetPort()))
@@ -527,7 +527,7 @@ void DiED::System::vConnectionLost(DiED::User & User, const DiED::clientid_t & C
 					
 					while(iClient != m_Clients.end())
 					{
-						if((iClient->second != m_Client) && (m_Client->GetStatus(iClient->first) == DiED::User::Connected))
+						if((iClient->second != m_Client) && (m_Client->GetStatus(iClient->first) == DiED::Connected))
 						{
 							iClient->second->vConnectionLost(Client->GetID(), ClientAddress, ClientPort);
 						}
@@ -538,14 +538,14 @@ void DiED::System::vConnectionLost(DiED::User & User, const DiED::clientid_t & C
 				{
 					Client->vSetMessageStream(MessageStream);
 					Client->vSetPort(ClientPort);
-					vSetStatus(m_Client->GetID(), Client->GetID(), DiED::User::Connecting);
+					vSetStatus(m_Client->GetID(), Client->GetID(), DiED::Connecting);
 					Client->vConnectionRequest(m_Client->GetID(), m_ServicePort);
 				}
 			}
 			
 			break;
 		}
-	case DiED::User::Connected:
+	case DiED::Connected:
 		{
 			boost::shared_ptr< DiED::Client > UserClient(RegisterClient(boost::shared_ptr< DiED::Client >(), User.GetID()));
 			
@@ -557,7 +557,7 @@ void DiED::System::vConnectionLost(DiED::User & User, const DiED::clientid_t & C
 			
 			break;
 		}
-	case DiED::User::Connecting:
+	case DiED::Connecting:
 		{
 			break;
 		}
@@ -584,7 +584,7 @@ void DiED::System::vPongTimeoutOnConnectionEstablished(boost::shared_ptr< DiED::
 		
 		while(iClient != m_Clients.end())
 		{
-			if((iClient->second != m_Client) && (m_Client->GetStatus(iClient->first) == DiED::User::Connected))
+			if((iClient->second != m_Client) && (m_Client->GetStatus(iClient->first) == DiED::Connected))
 			{
 				iClient->second->vConnectionLost(Client->GetID(), ClientAddress, ClientPort);
 			}
@@ -602,7 +602,7 @@ void DiED::System::vPongTimeoutOnConnectionEstablished(boost::shared_ptr< DiED::
 			
 			while(iClient != m_Clients.end())
 			{
-				if((iClient->second != m_Client) && (m_Client->GetStatus(iClient->first) == DiED::User::Connected))
+				if((iClient->second != m_Client) && (m_Client->GetStatus(iClient->first) == DiED::Connected))
 				{
 					iClient->second->vConnectionLost(Client->GetID(), ClientAddress, ClientPort);
 				}
@@ -613,7 +613,7 @@ void DiED::System::vPongTimeoutOnConnectionEstablished(boost::shared_ptr< DiED::
 		{
 			Client->vSetMessageStream(MessageStream);
 			Client->vSetPort(ClientPort);
-			vSetStatus(m_Client->GetID(), Client->GetID(), DiED::User::Connecting);
+			vSetStatus(m_Client->GetID(), Client->GetID(), DiED::Connecting);
 			Client->vConnectionRequest(m_Client->GetID(), m_ServicePort);
 		}
 	}
@@ -629,7 +629,7 @@ std::set< DiED::clientid_t > DiED::System::GetDisconnectedClientIDs(void)
 	return m_Client->GetDisconnectedClientIDs();
 }
 
-DiED::User::Status DiED::System::GetStatus(const DiED::clientid_t & ClientID1, const DiED::clientid_t & ClientID2)
+DiED::clientstatus_t DiED::System::GetStatus(const DiED::clientid_t & ClientID1, const DiED::clientid_t & ClientID2)
 {
 	boost::shared_ptr< DiED::Client > Client2;
 	
@@ -643,7 +643,7 @@ DiED::User::Status DiED::System::GetStatus(const DiED::clientid_t & ClientID1, c
 		
 		if(iClient == m_Clients.end())
 		{
-			return DiED::User::Deleted;
+			return DiED::Deleted;
 		}
 		Client2 = iClient->second;
 	}
@@ -682,7 +682,7 @@ void DiED::System::vAnnounceConnectionLost(const DiED::clientid_t & ClientID)
 	iClient = m_Clients.begin();
 	while(iClient != m_Clients.end())
 	{
-		if(m_Client->GetStatus(iClient->first) == DiED::User::Connected)
+		if(m_Client->GetStatus(iClient->first) == DiED::Connected)
 		{
 			iClient->second->vConnectionLost(ClientID, Client->GetAddress(), Client->GetPort());
 		}
@@ -696,7 +696,7 @@ void DiED::System::vAnnounceMessage(boost::shared_ptr< DiED::BasicMessage > Mess
 	
 	while(iClient != m_Clients.end())
 	{
-		if(m_Client->GetStatus(iClient->first) == DiED::User::Connected)
+		if(m_Client->GetStatus(iClient->first) == DiED::Connected)
 		{
 			iClient->second->vSend(Message);
 		}
@@ -704,9 +704,9 @@ void DiED::System::vAnnounceMessage(boost::shared_ptr< DiED::BasicMessage > Mess
 	}
 }
 
-void DiED::System::vClientStatusChanged(const DiED::clientid_t & ClientID, const DiED::User::Status & Status)
+void DiED::System::vClientStatusChanged(const DiED::clientid_t & ClientID, const DiED::clientstatus_t & Status)
 {
-	if(Status == DiED::User::Disconnected)
+	if(Status == DiED::Disconnected)
 	{
 		Glib::signal_timeout().connect(sigc::bind(sigc::mem_fun(*this, &DiED::System::bTryReconnect), ClientID), g_uiReconnectTryTimeout + rand() % 2000);
 	}
@@ -720,7 +720,7 @@ bool DiED::System::bTryReconnect(const DiED::clientid_t & ClientID)
 	{
 		return false;
 	}
-	if(GetStatus(ClientID, 0) != DiED::User::Disconnected)
+	if(GetStatus(ClientID, 0) != DiED::Disconnected)
 	{
 		return false;
 	}
@@ -735,7 +735,7 @@ bool DiED::System::bTryReconnect(const DiED::clientid_t & ClientID)
 	else
 	{
 		Client->vSetMessageStream(MessageStream);
-		vSetStatus(m_Client->GetID(), Client->GetID(), DiED::User::Connecting);
+		vSetStatus(m_Client->GetID(), Client->GetID(), DiED::Connecting);
 		Client->vConnectionRequest(m_Client->GetID(), m_ServicePort);
 	}
 	
@@ -756,7 +756,7 @@ bool DiED::System::bTryReconnect(const DiED::clientid_t & ClientID)
  *
  * Since the Status relation is defined to be not reflexive, passing two identical client IDs or, in any case, two client IDs which represent the same client object, will result in no setting action. However keep in mind that the function needs time ( O(log(n)) ) to compute the client objects from the client IDs.
  **/
-void DiED::System::vSetStatus(const DiED::clientid_t & _ClientID1, const DiED::clientid_t & _ClientID2, const DiED::User::Status & Status)
+void DiED::System::vSetStatus(const DiED::clientid_t & _ClientID1, const DiED::clientid_t & _ClientID2, const DiED::clientstatus_t & Status)
 {
 	boost::shared_ptr< DiED::Client > Client1;
 	boost::shared_ptr< DiED::Client > Client2;
@@ -813,7 +813,7 @@ void DiED::System::vSendMessage(boost::shared_ptr< DiED::BasicMessage > Message,
 	
 	while(iClient != m_Clients.end())
 	{
-		if((iClient->second != m_Client) && ((bSendOnlyToConnected == false) || (m_Client->GetStatus(iClient->first) == DiED::User::Connected)))
+		if((iClient->second != m_Client) && ((bSendOnlyToConnected == false) || (m_Client->GetStatus(iClient->first) == DiED::Connected)))
 		{
 			iClient->second->vSend(Message);
 		}
@@ -928,8 +928,8 @@ boost::shared_ptr< DiED::Client > DiED::System::RegisterClient(boost::shared_ptr
 	while(iClient != m_Clients.end())
 	{
 		// curerntly we cannot use the vSetStatus function of the system as the new client is not yet in the client list
-		iClient->second->vSetStatus(ClientID, DiED::User::Disconnected);
-		Client->vSetStatus(iClient->first, DiED::User::Disconnected);
+		iClient->second->vSetStatus(ClientID, DiED::Disconnected);
+		Client->vSetStatus(iClient->first, DiED::Disconnected);
 		++iClient;
 	}
 	// now add the client
