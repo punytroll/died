@@ -78,6 +78,10 @@ std::string sLogLevelToString(LogLevel LogLevel)
 		return "Info";
 	case Debug:
 		return "Debug";
+	case DebugGUI:
+		return "DebugGUI";
+	case DebugSystem:
+		return "DebugSystem";
 	case Object:
 		return "Object";
 	case Verbose:

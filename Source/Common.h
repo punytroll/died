@@ -18,6 +18,8 @@ enum LogLevel
 	Warning,
 	Info,
 	Debug,
+	DebugGUI,
+	DebugSystem,
 	Object,
 	Verbose,
 	TODO,
