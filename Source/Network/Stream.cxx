@@ -33,6 +33,7 @@ void Network::Stream::vOpen(const Network::address_t & ConnectAddress, const Net
 	{
 		return;
 	}
+	m_bOnDisconnected = false;
 	// -1 instead of g_iInvalidSocket because the two things are not connected to each other
 	if((m_iSocket = ::socket(PF_INET, SOCK_STREAM, 0)) == -1)
 	{
@@ -56,8 +57,7 @@ void Network::Stream::vOpen(const Network::address_t & ConnectAddress, const Net
 	{
 		if(::inet_aton(ConnectAddress.c_str(), &(SocketInformation.sin_addr)) == 0)
 		{
-			::close(m_iSocket);
-			m_iSocket = g_iInvalidSocket;
+			vClose();
 			vGetError();
 			
 			return;
@@ -65,20 +65,20 @@ void Network::Stream::vOpen(const Network::address_t & ConnectAddress, const Net
     }
 	if(::connect(m_iSocket, &SocketAddress, sizeof(sockaddr_in)) == -1)
 	{
-		::close(m_iSocket);
-		m_iSocket = g_iInvalidSocket;
+		vClose();
 		vGetError();
 		
 		return;
 	}
 	if(::fcntl(m_iSocket, F_SETFL, O_NONBLOCK) == -1)
 	{
-		::close(m_iSocket);
-		m_iSocket = g_iInvalidSocket;
+		vClose();
 		vGetError();
 		
 		return;
 	}
+	OnConnected();
+	m_bOnDisconnected = true;
 	vMonitor();
 }
 
@@ -111,7 +111,7 @@ void Network::Stream::vOnIn(void)
 	}
 	if(stSize == 0)
 	{
-		std::cout << "Remote disconnected." << std::endl;
+		std::cout << "Remote disconnected. " << GetAddress() << ':' << GetPort() << std::endl;
 		vClose();
 		
 		return;
@@ -151,7 +151,7 @@ void Network::Stream::vOnOut(void)
 //~ 	std::cout << "Ought to send: " << m_OBuffer.stGetSize() << " bytes." << std::endl;
 	
 	u_int8_t * pu8Temporary = new u_int8_t[m_OBuffer.stGetSize() + 1];
-	size_t stSize = m_OBuffer.stRead(pu8Temporary, Network::BasicBuffer::npos);
+	ssize_t stSize = m_OBuffer.stRead(pu8Temporary, Network::BasicBuffer::npos);
 	
 //~ 	std::cout << "Read " << stSize << " bytes from m_OBuffer." << std::endl;
 //~ 	std::cout << std::hex;
@@ -160,19 +160,28 @@ void Network::Stream::vOnOut(void)
 //~ 		std::cout << static_cast< u_int32_t >(pu8Temporary[stI]) << ' ';
 //~ 	}
 //~ 	std::cout << std::endl;
-	size_t stSentSize = send(m_iSocket, pu8Temporary, stSize, 0);
+	ssize_t stSentSize = send(m_iSocket, pu8Temporary, stSize, 0);
 	
+	if(stSentSize == -1)
+	{
+		vGetError();
+		std::cout << "[Network/Stream]: " << __FILE__ << ':' << __LINE__ << ": " << sErrorCodeToString(m_iError) << std::endl;
+		
+		return;
+	}
 	if(stSize != stSentSize)
 	{
-		std::cout << "VERY BAD: " << __FILE__ << ':' << __LINE__ << std::endl;
+		std::cout << "VERY BAD: " << __FILE__ << ':' << __LINE__ << ": Sent only " << stSentSize << " from " << stSize << " bytes." << std::endl;
 		
 		throw;
-		
 		// TODO: write overhang back to m_OBuffer
+	}
+	else
+	{
+		vIgnoreOnOut();
 	}
 //~ 	std::cout << "Sent " << std::dec << stSize << " bytes through socket." << std::endl;
 	delete[] pu8Temporary;
-	vIgnoreOnOut();
 	BytesSent(stSentSize);
 }
 

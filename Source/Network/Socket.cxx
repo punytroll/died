@@ -10,7 +10,8 @@ const int Network::g_iInvalidSocket = -1;
 
 Network::Socket::Socket(void) :
 	m_iSocket(g_iInvalidSocket),
-	m_iError(0)
+	m_iError(0),
+	m_bOnDisconnected(true)
 {
 //~ 	std::cout << "[Network/Socket]: Created socket." << std::endl;
 }
@@ -46,6 +47,10 @@ void Network::Socket::vClose(void)
 {
 	close(m_iSocket);
 	m_iSocket = g_iInvalidSocket;
+	if(m_bOnDisconnected != true)
+	{
+		OnDisconnected();
+	}
 }
 
 void Network::Socket::vMonitor(void)
@@ -108,20 +113,17 @@ bool Network::Socket::bNotify(const Glib::IOCondition & Condition)
 	return true;
 }
 
-void Network::Socket::vOnConnect(void)
-{
-}
-
-void Network::Socket::vOnDisconnect(void)
-{
-}
-
 void Network::Socket::vOnIn(void)
 {
 }
 
 void Network::Socket::vOnOut(void)
 {
+	// if we get here it probably is a logical programming failure
+	// somebody requested a OnOut event but didn't override vOnOut function
+	std::cout << "[Network/Socket]: vOnOut in " << __FILE__ << ':' << __LINE__ << " called. Forgot to override vOnOut?" << std::endl;
+	//  => to avoid a busy wait state we disconnect the OnOut event again
+	vIgnoreOnOut();
 }
 
 void Network::Socket::vGetError(void)
@@ -139,7 +141,7 @@ void Network::Socket::vSetSocket(int iSocket)
 	vMonitor();
 }
 
-Glib::ustring Network::Socket::GetAddress(void)
+Network::address_t Network::Socket::GetAddress(void)
 {
 	sockaddr SocketAddress;
 	sockaddr_in & SocketInformation = reinterpret_cast< sockaddr_in & >(SocketAddress);
@@ -151,4 +153,18 @@ Glib::ustring Network::Socket::GetAddress(void)
 	}
 	
 	return "";
+}
+
+Network::port_t Network::Socket::GetPort(void)
+{
+	sockaddr SocketAddress;
+	sockaddr_in & SocketInformation = reinterpret_cast< sockaddr_in & >(SocketAddress);
+	socklen_t Length = sizeof(sockaddr);
+	
+	if(::getpeername(m_iSocket, &SocketAddress, &Length) == 0)
+	{
+		return SocketInformation.sin_port;
+	}
+	
+	return 0;
 }
