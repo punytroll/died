@@ -37,12 +37,22 @@ int DiED::User::iGetCharacter(void) const
 	return m_iCharacter;
 }
 
-void DiED::User::vSetID(DiED::clientid_t ID)
+void DiED::User::vSetLine(int iLine)
+{
+	m_iLine = iLine;
+}
+
+void DiED::User::vSetCharacter(int iCharacter)
+{
+	m_iCharacter = iCharacter;
+}
+
+void DiED::User::vSetID(const DiED::clientid_t & ID)
 {
 	m_ID = ID;
 }
 
-DiED::clientid_t DiED::User::GetID(void)
+DiED::clientid_t DiED::User::GetID(void) const
 {
 	return m_ID;
 }

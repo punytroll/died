@@ -12,6 +12,15 @@
 
 namespace DiED
 {
+	struct ClientInfo
+	{
+		DiED::clientid_t ClientID;
+		DiED::clientstatus_t Status;
+		DiED::messageid_t EventCounter;
+		int iLine;
+		int iCharacter;
+	};
+	
 	class User
 	{
 	public:
@@ -19,8 +28,8 @@ namespace DiED
 		virtual ~User(void);
 		
 		// ClientID stuff
-		void vSetID(DiED::clientid_t ID);
-		DiED::clientid_t GetID(void);
+		void vSetID(const DiED::clientid_t & ID);
+		DiED::clientid_t GetID(void) const;
 		
 		// Status stuff
 		virtual void vSetStatus(const DiED::clientid_t & ClientID, const DiED::clientstatus_t & Status);
@@ -33,6 +42,8 @@ namespace DiED
 		void vModifyCaretPosition(int iDeltaLine, int iDeltaCharacter);
 		int iGetLine(void) const;
 		int iGetCharacter(void) const;
+		void vSetLine(int iLine);
+		void vSetCharacter(int iCharacter);
 		sigc::signal< void > CaretPositionChanged;
 	private:
 		int m_iLine;
