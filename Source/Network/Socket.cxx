@@ -88,6 +88,14 @@ void Network::Socket::vIgnoreOnOut(void)
 bool Network::Socket::bNotify(const Glib::IOCondition & Condition)
 {
 	std::cout << this << " :  ";
+	if((Condition & Glib::IO_ERR) != 0)
+	{
+		std::cout << "IO_ERR" << std::endl;
+	}
+	if((Condition & Glib::IO_HUP) != 0)
+	{
+		std::cout << "IO_HUP" << std::endl;
+	}
 	if((Condition & Glib::IO_IN) != 0)
 	{
 		std::cout << "IO_IN" << std::endl;
@@ -101,14 +109,6 @@ bool Network::Socket::bNotify(const Glib::IOCondition & Condition)
 	if((Condition & Glib::IO_PRI) != 0)
 	{
 		std::cout << "IO_PRI" << std::endl;
-	}
-	if((Condition & Glib::IO_ERR) != 0)
-	{
-		std::cout << "IO_ERR" << std::endl;
-	}
-	if((Condition & Glib::IO_HUP) != 0)
-	{
-		std::cout << "IO_HUP" << std::endl;
 	}
 	if((Condition & Glib::IO_NVAL) != 0)
 	{
@@ -161,7 +161,7 @@ Network::address_t Network::Socket::GetAddress(void)
 	else
 	{
 		vGetError();
-		std::cout << "Error with getpeername() " << sErrorCodeToString(m_iError) << std::endl;
+		std::cout << "[Network/Socket]: GetAddress: Error with getpeername() " << sErrorCodeToString(m_iError) << std::endl;
 	}
 	
 	return "";
@@ -180,7 +180,7 @@ Network::port_t Network::Socket::GetPort(void)
 	else
 	{
 		vGetError();
-		std::cout << "Error with getpeername() " << sErrorCodeToString(m_iError) << std::endl;
+		std::cout << "[Network/Socket]: GetPort: Error with getpeername() " << sErrorCodeToString(m_iError) << std::endl;
 	}
 	
 	return 0;
