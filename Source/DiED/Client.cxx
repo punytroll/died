@@ -36,6 +36,7 @@ void DiED::Client::vSetMessageStream(boost::shared_ptr< Network::MessageStream >
 	// if we have a valid new MessageStream set up new relations
 	if(m_MessageStream.get() != 0)
 	{
+		m_Address = m_MessageStream->GetAddress();
 		m_BytesSentConnection = m_MessageStream->BytesSent.connect(sigc::mem_fun(*this, &DiED::Client::vBytesSent));
 		m_MessageBeginConnection = m_MessageStream->MessageBegin.connect(sigc::mem_fun(*this, &DiED::Client::vOnMessageBegin));
 		m_MessageReadyConnection = m_MessageStream->MessageReady.connect(sigc::mem_fun(*this, &DiED::Client::vOnMessageReady));
@@ -55,7 +56,7 @@ Network::port_t DiED::Client::GetPort(void)
 
 Network::address_t DiED::Client::GetAddress(void)
 {
-	if(m_MessageStream.get() != 0)
+	if((m_MessageStream.get() != 0) && (m_MessageStream->bIsOpen() == true))
 	{
 		m_Address = m_MessageStream->GetAddress();
 	}
@@ -136,13 +137,6 @@ void DiED::Client::vHandlePing(const DiED::messageid_t & PingID)
 void DiED::Client::vHandlePong(const DiED::messageid_t & PingID)
 {
 	vHandleAnswer();
-	
-	std::map< DiED::messageid_t, boost::shared_ptr< sigc::signal< void > > >::iterator iPongSignal(m_PongTimeoutSignals.find(PingID));
-	
-	if(iPongSignal != m_PongTimeoutSignals.end())
-	{
-		m_PongTimeoutSignals.erase(iPongSignal);
-	}
 }
 
 void DiED::Client::vHandleEvent(const DiED::clientid_t & CreatorID, const DiED::messageid_t & EventID, const DiED::clientid_t & LostClientID)
@@ -167,35 +161,41 @@ void DiED::Client::vHandleAnswer(void)
 	
 //~ 	std::cout << "ClientID = " << m_InternalEnvironment.pGetClient(0)->GetID() << std::endl;
 	std::cout << "HandleAnswers: " << m_AwaitingConfirmationQueue.size() << " elements waiting for confirmation from " << GetID() << "." << std::endl;
-	std::deque< boost::shared_ptr< DiED::BasicMessage > >::iterator iDebugMessage(m_AwaitingConfirmationQueue.begin());
+	std::deque< DiED::Client::WaitingMessage >::iterator iDebugMessage(m_AwaitingConfirmationQueue.begin());
 	
 	while(iDebugMessage != m_AwaitingConfirmationQueue.end())
 	{
-		std::cout << "                   " << (*iDebugMessage)->sGetString() << std::endl;
+		std::cout << "                   " << iDebugMessage->m_Message->sGetString() << std::endl;
 		++iDebugMessage;
 	}
 	
 	// TODO: this front() does not look good
-	boost::shared_ptr< DiED::ConfirmationParameters > ConfirmationParameters(boost::dynamic_pointer_cast< DiED::BasicMessage >(m_MessageStream->front())->GetConfirmationParameters());
-	
-	if(ConfirmationParameters.get() == 0)
-	{
-		return;
-	}
-	
-	std::deque< boost::shared_ptr< DiED::BasicMessage > >::iterator iMessage(m_AwaitingConfirmationQueue.begin());
-	
-	while(iMessage != m_AwaitingConfirmationQueue.end())
-	{
-		if((*iMessage)->bIsConfirmedBy(ConfirmationParameters) == true)
-		{
-			m_AwaitingConfirmationQueue.erase(iMessage);
-			
-			break;
-		}
-		++iMessage;
-	}
+	RemoveWaitingMessage(boost::dynamic_pointer_cast< DiED::BasicMessage >(m_MessageStream->front())->GetConfirmationParameters());
 	std::cout << "             : " << m_AwaitingConfirmationQueue.size() << " elements." << std::endl;
+}
+
+DiED::Client::WaitingMessage DiED::Client::RemoveWaitingMessage(boost::shared_ptr< DiED::ConfirmationParameters > ConfirmationParameters)
+{
+	DiED::Client::WaitingMessage Return;
+	
+	if(ConfirmationParameters.get() != 0)
+	{
+		std::deque< DiED::Client::WaitingMessage >::iterator iMessage(m_AwaitingConfirmationQueue.begin());
+		
+		while(iMessage != m_AwaitingConfirmationQueue.end())
+		{
+			if(iMessage->m_Message->bIsConfirmedBy(ConfirmationParameters) == true)
+			{
+				Return = *iMessage;
+				m_AwaitingConfirmationQueue.erase(iMessage);
+				
+				break;
+			}
+			++iMessage;
+		}
+	}
+	
+	return Return;
 }
 
 void DiED::Client::vOnMessageReady(void)
@@ -209,6 +209,20 @@ void DiED::Client::vOnMessageBegin(void)
 
 void DiED::Client::vOnMessageExecuted(void)
 {
+}
+
+void DiED::Client::vHandlePingConfirmationTimeout(boost::shared_ptr< DiED::ConfirmationParameters > ConfirmationParameters)
+{
+	DiED::Client::WaitingMessage WaitingMessage(RemoveWaitingMessage(ConfirmationParameters));
+	
+	if(WaitingMessage.m_TimeoutSignal.get() != 0)
+	{
+		WaitingMessage.m_TimeoutSignal->emit();
+	}
+	if(m_MessageStream.get() != 0)
+	{
+		m_MessageStream->vClose();
+	}
 }
 
 void DiED::Client::vExecuteTopMessage(void)
@@ -253,14 +267,17 @@ void DiED::Client::vSend(boost::shared_ptr< DiED::BasicMessage > Message)
 			m_MessageStream->operator<<(*Message);
 			if(Message->bRequiresConfirmation() == true)
 			{
-				m_AwaitingConfirmationQueue.push_back(Message);
+				DiED::Client::WaitingMessage WaitingMessage;
+				
+				WaitingMessage.m_Message = Message;
+				m_AwaitingConfirmationQueue.push_back(WaitingMessage);
 			}
 			m_QueuedQueue.push_back(Message);
 			MessageQueued(Message);
 		}
 		else
 		{
-			std::cout << "VERY BAD: " << __FILE__ << ':' << __LINE__ << std::endl;
+			std::cout << "BAD: " << __FILE__ << ':' << __LINE__ << std::endl;
 		}
 	}
 	if(m_InternalEnvironment.GetStatus(GetID()) == DiED::User::Connected)
@@ -274,7 +291,10 @@ void DiED::Client::vSend(boost::shared_ptr< DiED::BasicMessage > Message)
 				m_MessageStream->operator<<(**iEventMessage);
 				if((*iEventMessage)->bRequiresConfirmation() == true)
 				{
-					m_AwaitingConfirmationQueue.push_back(*iEventMessage);
+					DiED::Client::WaitingMessage WaitingMessage;
+					
+					WaitingMessage.m_Message = *iEventMessage;
+					m_AwaitingConfirmationQueue.push_back(WaitingMessage);
 				}
 				m_QueuedQueue.push_back(*iEventMessage);
 				MessageQueued(*iEventMessage);
@@ -284,7 +304,7 @@ void DiED::Client::vSend(boost::shared_ptr< DiED::BasicMessage > Message)
 		}
 		else
 		{
-			std::cout << "VERY BAD: " << __FILE__ << ':' << __LINE__ << std::endl;
+			std::cout << "BAD: " << __FILE__ << ':' << __LINE__ << std::endl;
 		}
 	}
 }
@@ -347,15 +367,20 @@ void DiED::Client::vConnectionLost(const DiED::clientid_t & ClientID, const Netw
 
 void DiED::Client::vPing(sigc::slot< void > PongSlot)
 {
-	DiED::messageid_t PingID;
+	vSend(boost::shared_ptr< DiED::BasicMessage >(new DiED::PingMessage(++m_StatusMessageCounter)));
 	
-	do
+	if(m_AwaitingConfirmationQueue.size() > 0)
 	{
-		PingID = rand();
-	} while(m_PongTimeoutSignals.find(PingID) != m_PongTimeoutSignals.end());
-	m_PongTimeoutSignals[PingID] = boost::shared_ptr< sigc::signal< void > >(new sigc::signal< void >());
-	m_PongTimeoutSignals[PingID]->connect(PongSlot);
-	vSend(boost::shared_ptr< DiED::BasicMessage >(new DiED::PingMessage(PingID)));
+		DiED::Client::WaitingMessage & WaitingPing(m_AwaitingConfirmationQueue.back());
+		
+		WaitingPing.m_TimeoutSignal = boost::shared_ptr< sigc::signal< void > >(new sigc::signal< void >());
+		WaitingPing.m_TimeoutSignal->connect(PongSlot);
+	}
+}
+
+void DiED::Client::vPing(void)
+{
+	vSend(boost::shared_ptr< DiED::BasicMessage >(new DiED::PingMessage(++m_StatusMessageCounter)));
 }
 
 void DiED::Client::vBytesSent(size_t stSize)

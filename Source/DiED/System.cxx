@@ -6,6 +6,8 @@
 #include "Client.h"
 #include "Messages.h"
 
+const unsigned int g_uiReconnectTryTimeout = 4000;
+
 DiED::System::System(void) :
 	m_MessageFactory(new DiED::MessageFactory()),
 	m_Server(m_MessageFactory),
@@ -15,6 +17,15 @@ DiED::System::System(void) :
 
 DiED::System::~System(void)
 {
+	std::map< DiED::clientid_t, boost::shared_ptr< DiED::Client > >::iterator iClient(m_Clients.begin());
+	
+	while(iClient != m_Clients.end())
+	{
+		boost::shared_ptr< DiED::Client > Client(iClient->second);
+		
+		m_Clients.erase(iClient);
+		iClient = m_Clients.begin();
+	}
 }
 
 void DiED::System::vSetExternalEnvironment(DiED::ExternalEnvironment * pExternalEnvironment)
@@ -34,6 +45,7 @@ void DiED::System::vSetClientFactory(boost::shared_ptr< DiED::ClientFactory > Cl
 	{
 		m_Client = GetNewPreliminaryClient();
 		m_Client->vSetPort(m_ServicePort);
+		m_Client->StatusChanged.connect(sigc::mem_fun(*this, &DiED::System::vClientStatusChanged));
 	}
 }
 
@@ -543,7 +555,7 @@ void DiED::System::vConnectionLost(DiED::User & User, const DiED::clientid_t & C
 
 void DiED::System::vPongTimeout(boost::shared_ptr< DiED::Client > Client)
 {
-//~ 	std::cout << "Pong received from " << Client->GetID() << "." << std::endl;
+	std::cout << "Pong missing from " << Client->GetID() << "." << std::endl;
 }
 
 std::vector< DiED::clientid_t > DiED::System::GetConnectedClientIDs(void)
@@ -593,6 +605,49 @@ DiED::Client * DiED::System::pGetClient(const DiED::clientid_t & ClientID)
 	}
 	
 	return iClient->second.get();
+}
+
+void DiED::System::vClientStatusChanged(const DiED::clientid_t & ClientID, const DiED::User::Status & Status)
+{
+	if(Status == DiED::User::Disconnected)
+	{
+		Glib::signal_timeout().connect(sigc::bind(sigc::mem_fun(*this, &DiED::System::bTryReconnect), ClientID), g_uiReconnectTryTimeout + rand() % 2000);
+	}
+}
+
+bool DiED::System::bTryReconnect(const DiED::clientid_t & ClientID)
+{
+	boost::shared_ptr< DiED::Client > Client(RegisterClient(boost::shared_ptr< DiED::Client >(), ClientID));
+	
+	if(Client.get() == 0)
+	{
+		return false;
+	}
+	
+	boost::shared_ptr< Network::MessageStream > MessageStream(new Network::MessageStream(m_MessageFactory));
+	
+	MessageStream->vOpen(Client->GetAddress(), Client->GetPort());
+	if(MessageStream->bIsOpen() == false)
+	{
+		std::map< DiED::clientid_t, boost::shared_ptr< DiED::Client > >::iterator iClient(m_Clients.begin());
+		
+		while(iClient != m_Clients.end())
+		{
+			if((iClient->second != m_Client) && (m_Client->GetStatus(iClient->first) == DiED::User::Connected))
+			{
+				iClient->second->vConnectionLost(Client->GetID(), Client->GetAddress(), Client->GetPort());
+			}
+			++iClient;
+		}
+	}
+	else
+	{
+		Client->vSetMessageStream(MessageStream);
+		vSetStatus(m_Client->GetID(), Client->GetID(), DiED::User::Connecting);
+		Client->vConnectionRequest(m_Client->GetID(), m_ServicePort);
+	}
+	
+	return false;
 }
 
 /**
@@ -646,8 +701,14 @@ void DiED::System::vSetStatus(const DiED::clientid_t & ClientID1, const DiED::cl
 	{
 		return;
 	}
-	Client1->vSetStatus(ClientID2, Status);
-	Client2->vSetStatus(ClientID1, Status);
+	if(Client1.get() != 0)
+	{
+		Client1->vSetStatus(ClientID2, Status);
+	}
+	if(Client2.get() != 0)
+	{
+		Client2->vSetStatus(ClientID1, Status);
+	}
 }
 
 void DiED::System::vSendMessage(boost::shared_ptr< DiED::BasicMessage > Message, bool bSendOnlyToConnected)

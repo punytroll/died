@@ -1,16 +1,13 @@
 #ifndef DIED_BASICMASSAGE_H
 #define DIED_BASICMASSAGE_H
 
-#include <boost/any.hpp>
-
+#include <Common.h>
 #include <Network/BasicMessage.h>
 
 #include "MessageTarget.h"
 
 namespace DiED
 {
-	typedef std::map< Glib::ustring, boost::any > ConfirmationParameters;
-	
 	class BasicMessage : public Network::BasicMessage
 	{
 	public:
