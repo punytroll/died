@@ -9,7 +9,7 @@ Network::BufferWriter::BufferWriter(Network::BasicBuffer & Buffer) :
 
 bool Network::BufferWriter::bWrite(const bool & bValue)
 {
-//~ 	std::cerr << "Writing bool to the circular buffer. [" << bValue << ']' << std::endl;
+//~ 	std::cerr << "Writing bool to the circular buffer. [value = '" << bValue << "'; size = " << sizeof(bool) << "]" << std::endl;
 	
 	m_Buffer.vWrite(reinterpret_cast< const u_int8_t * >(&bValue), sizeof(bool));
 	
@@ -54,7 +54,7 @@ bool Network::BufferWriter::bWrite(const int16_t & s16Value)
 
 bool Network::BufferWriter::bWrite(const u_int32_t & u32Value)
 {
-//~ 	std::cerr << "Writing u_int32_t to the circular buffer. [" << u32Value << ']' << std::endl;
+//~ 	std::cerr << "Writing u_int32_t to the circular buffer. [value = '" << u32Value << "' ; size = " << sizeof(u_int32_t) << "]" << std::endl;
 	
 	m_Buffer.vWrite(reinterpret_cast< const u_int8_t * >(&u32Value), sizeof(u_int32_t));
 	
@@ -72,7 +72,7 @@ bool Network::BufferWriter::bWrite(const int32_t & s32Value)
 
 bool Network::BufferWriter::bWrite(const Glib::ustring & sValue)
 {
-//~ 	std::cerr << "Writing Glib::ustring to the circular buffer. [" << sValue << ']' << std::endl;
+//~ 	std::cerr << "Writing Glib::ustring to the circular buffer. [value = \"" << sValue << "\" ; size = " << (sValue.bytes() + 1) << "]" << std::endl;
 	
 	u_int8_t * pu8Buffer = new u_int8_t[sValue.bytes() + 1];
 	
@@ -84,6 +84,8 @@ bool Network::BufferWriter::bWrite(const Glib::ustring & sValue)
 
 bool Network::BufferWriter::bWrite(const void * pvMemory, std::size_t stSize)
 {
+//~ 	std::cerr << "Writing raw to the circular buffer. [size = " << stSize << "]" << std::endl;
+	
 	m_Buffer.vWrite(reinterpret_cast< const u_int8_t * >(pvMemory), stSize);
 	
 	return true;
