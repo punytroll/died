@@ -39,7 +39,7 @@ namespace DiED
 		void vClientsRegistered(const DiED::messageid_t & MessageID);
 		void vConnectionEstablished(const DiED::clientid_t & ClientID, const Network::address_t & ClientAddress, const Network::port_t & ClientPort);
 		void vConnectionLost(const DiED::clientid_t & ClientID, const Network::address_t & ClientAddress, const Network::port_t & ClientPort);
-		void vPing(sigc::slot< void > PongSlot);
+		void vPing(sigc::slot< void > PongTimeoutSlot);
 		virtual void vExecuteTopMessage(void);
 		
 		//signals
@@ -71,8 +71,8 @@ namespace DiED
 		void vHandleAnswer(void);
 		
 		bool m_bRequestingConnection;
-		Network::port_t m_Port;
 		Network::address_t m_Address;
+		Network::port_t m_Port;
 		sigc::connection m_BytesSentConnection;
 		sigc::connection m_MessageBeginConnection;
 		sigc::connection m_MessageReadyConnection;
@@ -81,7 +81,7 @@ namespace DiED
 		// message queues
 		std::deque< boost::shared_ptr< DiED::BasicMessage > > m_AwaitingConfirmationQueue;
 		std::deque< boost::shared_ptr< DiED::EventMessage > > m_EventQueue;
-		std::map< DiED::messageid_t, boost::shared_ptr< sigc::signal< void > > > m_PongSignals;
+		std::map< DiED::messageid_t, boost::shared_ptr< sigc::signal< void > > > m_PongTimeoutSignals;
 	};
 }
 

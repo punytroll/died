@@ -7,6 +7,7 @@
 DiED::Client::Client(DiED::InternalEnvironment & InternalEnvironment) :
 	m_InternalEnvironment(InternalEnvironment),
 	m_bRequestingConnection(0),
+	m_Address("localhost"),
 	m_Port(0)
 {
 //~ 	std::cout << "[DiED/Client]: Created new Client." << std::endl;
@@ -93,9 +94,18 @@ void DiED::Client::vHandleClientsRegistered(const DiED::messageid_t & MessageID)
 	m_InternalEnvironment.vClientsRegistered(*this, MessageID);
 }
 
-void DiED::Client::vHandleConnectionEstablished(const DiED::clientid_t & ClientID, const Network::address_t & ClientAddress, const Network::port_t & ClientPort)
+void DiED::Client::vHandleConnectionEstablished(const DiED::clientid_t & ClientID, const Network::address_t & _ClientAddress, const Network::port_t & ClientPort)
 {
 	vHandleAnswer();
+	
+	Network::address_t ClientAddress(_ClientAddress);
+	Network::address_t ThisClientAddress(GetAddress());
+	
+	std::cout << "ConnectionEstablished: ClientAddress = " << ClientAddress << " ; ThisClientAddress = " << ThisClientAddress << std::endl;
+	if(((ClientAddress == "127.0.0.1") || (ClientAddress == "localhost")) && (ThisClientAddress != "127.0.0.1") && (ThisClientAddress != "localhost"))
+	{
+		ClientAddress = ThisClientAddress;
+	}
 	m_InternalEnvironment.vConnectionEstablished(*this, ClientID, ClientAddress, ClientPort);
 }
 
@@ -115,13 +125,11 @@ void DiED::Client::vHandlePong(const DiED::messageid_t & PingID)
 {
 	vHandleAnswer();
 	
-	std::map< DiED::messageid_t, boost::shared_ptr< sigc::signal< void > > >::iterator iPongSignal(m_PongSignals.find(PingID));
+	std::map< DiED::messageid_t, boost::shared_ptr< sigc::signal< void > > >::iterator iPongSignal(m_PongTimeoutSignals.find(PingID));
 	
-//~ 	std::cout << "Pong message with ID " << PingID << " dropped in. Calling the signals." << std::endl;
-	if(iPongSignal != m_PongSignals.end())
+	if(iPongSignal != m_PongTimeoutSignals.end())
 	{
-		iPongSignal->second->emit();
-		m_PongSignals.erase(iPongSignal);
+		m_PongTimeoutSignals.erase(iPongSignal);
 	}
 }
 
@@ -334,9 +342,9 @@ void DiED::Client::vPing(sigc::slot< void > PongSlot)
 	do
 	{
 		PingID = rand();
-	} while(m_PongSignals.find(PingID) != m_PongSignals.end());
-	m_PongSignals[PingID] = boost::shared_ptr< sigc::signal< void > >(new sigc::signal< void >());
-	m_PongSignals[PingID]->connect(PongSlot);
+	} while(m_PongTimeoutSignals.find(PingID) != m_PongTimeoutSignals.end());
+	m_PongTimeoutSignals[PingID] = boost::shared_ptr< sigc::signal< void > >(new sigc::signal< void >());
+	m_PongTimeoutSignals[PingID]->connect(PongSlot);
 	vSend(boost::shared_ptr< DiED::BasicMessage >(new DiED::PingMessage(PingID)));
 }
 
