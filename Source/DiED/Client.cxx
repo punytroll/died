@@ -6,6 +6,7 @@
 
 DiED::Client::Client(DiED::InternalEnvironment & InternalEnvironment) :
 	m_InternalEnvironment(InternalEnvironment),
+	m_bRequestingConnection(0),
 	m_Port(0)
 {
 //~ 	std::cout << "[DiED/Client]: Created new Client." << std::endl;
@@ -18,11 +19,12 @@ DiED::Client::~Client(void)
 
 void DiED::Client::vSetMessageStream(boost::shared_ptr< Network::MessageStream > MessageStream)
 {
-//~ 	std::cout << "Setting the MessageStream for " << GetID() << " to " << MessageStream.get() << std::endl;
+	std::cout << "Setting the MessageStream for " << GetID() << " to " << MessageStream.get() << std::endl;
 	// disconnect old relations to the current MessageStream
 	m_BytesSentConnection.disconnect();
 	m_MessageBeginConnection.disconnect();
 	m_MessageReadyConnection.disconnect();
+	m_OnDisconnectedConnection.disconnect();
 	// set the new MessageStream (the old one will get deleted by boost::shared_ptr if appropriate)
 	m_MessageStream = MessageStream;
 	// if we have a valid new MessageStream set up new relations
@@ -31,6 +33,7 @@ void DiED::Client::vSetMessageStream(boost::shared_ptr< Network::MessageStream >
 		m_BytesSentConnection = m_MessageStream->BytesSent.connect(sigc::mem_fun(*this, &DiED::Client::vBytesSent));
 		m_MessageBeginConnection = m_MessageStream->MessageBegin.connect(sigc::mem_fun(*this, &DiED::Client::vOnMessageBegin));
 		m_MessageReadyConnection = m_MessageStream->MessageReady.connect(sigc::mem_fun(*this, &DiED::Client::vOnMessageReady));
+		m_OnDisconnectedConnection = m_MessageStream->OnDisconnected.connect(sigc::mem_fun(*this, &DiED::Client::vOnDisconnected));
 	}
 }
 
@@ -142,7 +145,15 @@ void DiED::Client::vHandleAnswer(void)
 		return;
 	}
 	
-	std::cout << "HandleAnswers: " << m_AwaitingConfirmationQueue.size() << " elements in the confirmation queue." << std::endl;
+	std::cout << "ClientID = " << m_InternalEnvironment.pGetClient(0)->GetID() << std::endl;
+	std::cout << "HandleAnswers: " << m_AwaitingConfirmationQueue.size() << " elements waiting for confirmation from " << GetID() << "." << std::endl;
+	std::deque< boost::shared_ptr< DiED::BasicMessage > >::iterator iDebugMessage(m_AwaitingConfirmationQueue.begin());
+	
+	while(iDebugMessage != m_AwaitingConfirmationQueue.end())
+	{
+		std::cout << "                   " << (*iDebugMessage)->sGetString() << std::endl;
+		++iDebugMessage;
+	}
 	
 	// TODO: this front() does not look good
 	boost::shared_ptr< DiED::ConfirmationParameters > ConfirmationParameters(boost::dynamic_pointer_cast< DiED::BasicMessage >(m_MessageStream->front())->GetConfirmationParameters());
@@ -164,7 +175,7 @@ void DiED::Client::vHandleAnswer(void)
 		}
 		++iMessage;
 	}
-	std::cout << "             : " << m_AwaitingConfirmationQueue.size() << " elements in the confirmation queue." << std::endl;
+	std::cout << "             : " << m_AwaitingConfirmationQueue.size() << " elements." << std::endl;
 }
 
 void DiED::Client::vOnMessageReady(void)
@@ -257,6 +268,11 @@ void DiED::Client::vSend(boost::shared_ptr< DiED::BasicMessage > Message)
 
 void DiED::Client::vConnectionRequest(const DiED::clientid_t & ClientID, const Network::port_t & ListenPort)
 {
+	if(m_bRequestingConnection == true)
+	{
+		return;
+	}
+	m_bRequestingConnection = true;
 	vSend(boost::shared_ptr< DiED::BasicMessage >(new DiED::ConnectionRequestMessage(ClientID, ListenPort)));
 }
 
@@ -327,4 +343,18 @@ void DiED::Client::vPing(sigc::slot< void > PongSlot)
 void DiED::Client::vBytesSent(size_t stSize)
 {
 	// TODO
+}
+
+void DiED::Client::vOnDisconnected(void)
+{
+	m_InternalEnvironment.vSetStatus(0, GetID(), DiED::User::Disconnected);
+}
+
+void DiED::Client::vSetStatus(const DiED::clientid_t & ClientID, DiED::User::Status Status)
+{
+	DiED::User::vSetStatus(ClientID, Status);
+	if((m_InternalEnvironment.pGetClient(0)->GetID() == ClientID) && (Status == DiED::User::Connected))
+	{
+		m_bRequestingConnection = false;
+	}
 }

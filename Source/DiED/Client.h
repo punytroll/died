@@ -28,6 +28,9 @@ namespace DiED
 		Network::address_t GetAddress(void);
 		void vSetPort(const Network::port_t & Port);
 		
+		// status
+		virtual void vSetStatus(const DiED::clientid_t & ClientID, DiED::User::Status Status);
+		
 		// messages
 		void vSend(boost::shared_ptr< DiED::BasicMessage > Message);
 		void vConnectionRequest(const DiED::clientid_t & ClientID, const Network::port_t & Port);
@@ -45,6 +48,7 @@ namespace DiED
 		virtual void vOnMessageReady(void);
 		virtual void vOnMessageBegin(void);
 		virtual void vOnMessageExecuted(void);
+		void vOnDisconnected(void);
 		void vBytesSent(size_t stSize);
 		
 		// message handler
@@ -66,11 +70,13 @@ namespace DiED
 	private:
 		void vHandleAnswer(void);
 		
+		bool m_bRequestingConnection;
 		Network::port_t m_Port;
 		Network::address_t m_Address;
 		sigc::connection m_BytesSentConnection;
 		sigc::connection m_MessageBeginConnection;
 		sigc::connection m_MessageReadyConnection;
+		sigc::connection m_OnDisconnectedConnection;
 		
 		// message queues
 		std::deque< boost::shared_ptr< DiED::BasicMessage > > m_AwaitingConfirmationQueue;
