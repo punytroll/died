@@ -21,6 +21,8 @@ namespace Network
 		
 		virtual size_t stGetSize(void) const
 		{
+			LOG(Verbose, "Network/Value", typeid(Type).name() << ": " << sizeof(Type));
+			
 			return sizeof(Type);
 		}
 		
