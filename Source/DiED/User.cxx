@@ -2,6 +2,8 @@
 
 #include <iostream>
 
+#include <Common.h>
+
 DiED::User::User(void) :
 	m_iLine(0),
 	m_iCharacter(0),
@@ -51,7 +53,8 @@ DiED::clientid_t DiED::User::GetClientID(void)
 
 void DiED::User::vSetStatus(const DiED::clientid_t & ClientID, DiED::User::Status Status)
 {
-	if(Status == Delete)
+	std::cout << "[DiED/User]: Client " << GetClientID() << " is setting client " << ClientID << " to " << sStatusToString(Status) << std::endl;
+	if(Status == Deleted)
 	{
 		std::map< DiED::clientid_t, DiED::User::Status >::iterator iClient(m_Status.find(ClientID));
 		
@@ -75,7 +78,7 @@ DiED::User::Status DiED::User::GetStatus(const DiED::clientid_t & ClientID)
 		return iClient->second;
 	}
 	
-	return Delete;
+	return Deleted;
 }
 
 std::vector< DiED::clientid_t > DiED::User::GetConnectedClientIDs(void)
@@ -85,7 +88,7 @@ std::vector< DiED::clientid_t > DiED::User::GetConnectedClientIDs(void)
 	
 	while(iClient != m_Status.end())
 	{
-//~ 		std::cout << "[DiED/User]: Status of " << iClient->first << ": " << iClient->second << std::endl;
+		std::cout << "[DiED/User]: Status of " << iClient->first << ": " << sStatusToString(iClient->second) << std::endl;
 		if(iClient->second == DiED::User::Connected)
 		{
 			ClientIDs.push_back(iClient->first);

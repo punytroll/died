@@ -5,12 +5,12 @@
 GUI::ClientFactory::ClientFactory(DiED::InternalEnvironment & InternalEnvironment) :
 	DiED::ClientFactory(InternalEnvironment)
 {
-	std::cout << "[GUI/ClientFactory]: Create ClientFactory." << std::endl;
+//~ 	std::cout << "[GUI/ClientFactory]: Create ClientFactory." << std::endl;
 }
 
 GUI::ClientFactory::~ClientFactory(void)
 {
-	std::cout << "[GUI/ClientFactory]: Delete ClientFactory." << std::endl;
+//~ 	std::cout << "[GUI/ClientFactory]: Delete ClientFactory." << std::endl;
 }
 
 boost::shared_ptr< DiED::Client > GUI::ClientFactory::GetClient(void)

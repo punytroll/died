@@ -9,12 +9,12 @@ GUI::Client::Client(DiED::InternalEnvironment & InternalEnvironment) :
 	m_bHoldMessagesBack(false),
 	m_MessageListStore(GUI::MessageListStore::create())
 {
-	std::cout << "[GUI/Client]: Created new Client." << std::endl;
+//~ 	std::cout << "[GUI/Client]: Created new Client." << std::endl;
 }
 
 GUI::Client::~Client(void)
 {
-	std::cout << "[GUI/Client]: Deleted Client." << std::endl;
+//~ 	std::cout << "[GUI/Client]: Deleted Client." << std::endl;
 }
 
 Glib::RefPtr< GUI::MessageListStore > GUI::Client::GetMessageListStore(void)
@@ -24,15 +24,19 @@ Glib::RefPtr< GUI::MessageListStore > GUI::Client::GetMessageListStore(void)
 
 void GUI::Client::vOnMessageReady(void)
 {
-//~ 	std::cout << "Message ready:\n\t" << boost::dynamic_pointer_cast< DiED::BasicMessage >(m_MessageStream->back())->sGetString() << std::endl;
+//~ 	std::cout << "[GUI/Client]: Message ready for Client " << GetClientID() << " with MessageStream " << m_MessageStream.get() << std::endl;
 	
 	Gtk::TreeRow Row(*(m_MessageListStore->children().begin()));
 	
-	Row[m_MessageListStore->Columns.Name] = boost::dynamic_pointer_cast< DiED::BasicMessage >(m_MessageStream->back())->sGetString();
-	Row[m_MessageListStore->Columns.Status] = "Ready";
-	if(m_bHoldMessagesBack == false)
+	if(m_MessageStream->size() > 0)
 	{
-		DiED::Client::vOnMessageReady();
+		std::cout << "[GUI/Client]: " << boost::dynamic_pointer_cast< DiED::BasicMessage >(m_MessageStream->back())->sGetString() << std::endl;
+		Row[m_MessageListStore->Columns.Name] = boost::dynamic_pointer_cast< DiED::BasicMessage >(m_MessageStream->back())->sGetString();
+		Row[m_MessageListStore->Columns.Status] = "Ready";
+		if(m_bHoldMessagesBack == false)
+		{
+			DiED::Client::vOnMessageReady();
+		}
 	}
 }
 

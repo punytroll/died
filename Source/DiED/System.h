@@ -29,6 +29,9 @@ namespace DiED
 		// implementation of the InternalEnvironment interface
 		virtual void vConnectionRequest(DiED::User & User, const DiED::clientid_t & ClientID);
 		virtual void vConnectionAccept(DiED::User & User, const DiED::clientid_t & LocalClientID, const DiED::clientid_t & RemoteClientID);
+		virtual void vKnownClients(DiED::User & User, const DiED::messageid_t & MessageID, const std::vector< DiED::clientid_t > & ConnectedClientIDs, const std::vector< DiED::clientid_t > & DisconnectedClientIDs);
+		virtual void vClientsRegistered(DiED::User & User, const DiED::messageid_t & MessageID);
+		virtual void vConnectionEstablished(DiED::User & User, const DiED::clientid_t & ClientID, const Network::address_t & ClientAddress, const Network::port_t & ClientPort);
 		virtual void vInsertText(DiED::User & User, const Glib::ustring & sString);
 		virtual std::vector< DiED::clientid_t > GetConnectedClientIDs(void);
 		virtual std::vector< DiED::clientid_t > GetDisconnectedClientIDs(void);
@@ -41,7 +44,7 @@ namespace DiED
 		virtual void vAccepted(boost::shared_ptr< Network::MessageStream > MessageStream);
 	private:
 		void vAssignClientID(DiED::Client & Client, const DiED::clientid_t & ClientID);
-		void vRegisterClient(boost::shared_ptr< DiED::Client > Client);
+		boost::shared_ptr< DiED::Client > RegisterClient(const DiED::clientid_t & ClientID = 0);
 		boost::shared_ptr< DiED::MessageFactory > m_MessageFactory;
 		boost::shared_ptr< DiED::ClientFactory > m_ClientFactory;
 		boost::shared_ptr< DiED::Client > m_Client;

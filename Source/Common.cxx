@@ -56,3 +56,18 @@ std::string sErrorCodeToString(int iError)
 		return "Unknown";
 	}
 }
+
+std::string sStatusToString(int iStatus)
+{
+	switch(iStatus)
+	{
+	case 0:
+		return "Connected";
+	case 1:
+		return "Disconnected";
+	case 2:
+		return "Deleted";
+	default:
+		return "Unknown";
+	}
+}

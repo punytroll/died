@@ -1,5 +1,9 @@
 #include "Socket.h"
 
+#include <arpa/inet.h>
+#include <netinet/ip.h>
+#include <sys/socket.h>
+
 #include <iostream>
 
 const int Network::g_iInvalidSocket = -1;
@@ -8,14 +12,14 @@ Network::Socket::Socket(void) :
 	m_iSocket(g_iInvalidSocket),
 	m_iError(0)
 {
-	std::cout << "[Network/Socket]: Created socket." << std::endl;
+//~ 	std::cout << "[Network/Socket]: Created socket." << std::endl;
 }
 
 Network::Socket::Socket(int iSocket) :
 	m_iSocket(iSocket),
 	m_iError(0)
 {
-	std::cout << "[Network/Socket]: Created socket from iSocket." << std::endl;
+//~ 	std::cout << "[Network/Socket]: Created socket from iSocket." << std::endl;
 	vMonitor();
 }
 
@@ -133,4 +137,18 @@ void Network::Socket::vSetSocket(int iSocket)
 	}
 	m_iSocket = iSocket;
 	vMonitor();
+}
+
+Glib::ustring Network::Socket::GetAddress(void)
+{
+	sockaddr SocketAddress;
+	sockaddr_in & SocketInformation = reinterpret_cast< sockaddr_in & >(SocketAddress);
+	socklen_t Length = sizeof(sockaddr);
+	
+	if(::getpeername(m_iSocket, &SocketAddress, &Length) == 0)
+	{
+		return inet_ntoa(SocketInformation.sin_addr);
+	}
+	
+	return "";
 }
