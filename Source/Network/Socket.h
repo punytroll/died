@@ -17,6 +17,7 @@ namespace Network
 		virtual ~Socket(void);
 		bool bIsOpen(void) const;
 		int iGetError(void) const;
+		void vClose(void);
 	protected:
 		void vMonitor(void);
 		void vGetError(void);

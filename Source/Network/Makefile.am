@@ -7,6 +7,7 @@ noinst_LIBRARIES = \
 libnetwork_a_SOURCES = \
 	BasicMessage.cxx \
 	BufferReader.cxx \
+	BufferWriter.cxx \
 	CircularBuffer.cxx \
 	MessageStream.cxx \
 	Server.cxx \
@@ -19,6 +20,7 @@ EXTRA_DIST = \
 	BasicReader.h \
 	BasicValue.h \
 	BufferReader.h \
+	BufferWriter.h \
 	CircularBuffer.h \
 	MessageFactory.h \
 	MessageStream.h \

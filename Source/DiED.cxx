@@ -18,8 +18,8 @@ void vAccepted(boost::shared_ptr< Network::Socket > Client)
 
 int main(int argc, char ** argv)
 {
-	u_int16_t u16ServerPort = 6666;
-	u_int16_t u16ConnectPort = 6666;
+	u_int16_t u16ServerPort = 5867;
+	u_int16_t u16ConnectPort = 5867;
 	std::string sConnectAddress = "";
 	int iI = 1;
 	
@@ -77,6 +77,7 @@ int main(int argc, char ** argv)
 			std::cout << "[Client]: Connected to " << sConnectAddress << ':' << u16ConnectPort << std::endl;
 			
 			Client << DiED::HelloMessage();
+//~ 			Client.vClose();
 		}
 	}
 	while(g_bDone == false)

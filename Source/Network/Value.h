@@ -14,16 +14,24 @@ namespace Network
 		{
 		}
 		
+		Value(Type & Value) :
+			m_Value(Value)
+		{
+		}
+		
 		operator const Type &(void)
 		{
 			return m_Value;
 		}
 		
-		virtual void vReadFrom(boost::shared_ptr< Network::BasicReader > ReaderPtr)
+		virtual void vReadFrom(boost::shared_ptr< Network::BasicReader > Reader)
 		{
-			Network::BasicReader & Reader(*ReaderPtr);
-			
-			m_bReady = Reader.bRead(m_Value);
+			m_bReady = Reader->bRead(m_Value);
+		}
+		
+		virtual void vWriteTo(boost::shared_ptr< Network::BasicWriter > Writer) const
+		{
+			Writer->bWrite(m_Value);
 		}
 	protected:
 		Type m_Value;

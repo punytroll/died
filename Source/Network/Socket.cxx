@@ -35,12 +35,17 @@ int Network::Socket::iGetError(void) const
 	return m_iError;
 }
 
+void Network::Socket::vClose(void)
+{
+	close(m_iSocket);
+}
+
 void Network::Socket::vMonitor(void)
 {
 	Glib::RefPtr< Glib::IOSource > IOSource = Glib::IOSource::create(m_iSocket, Glib::IO_IN | Glib::IO_PRI | Glib::IO_ERR | Glib::IO_HUP | Glib::IO_NVAL);
 		
 	IOSource->connect(sigc::mem_fun(*this, &Network::Socket::bNotify));
-	IOSource->attach(Glib::MainContext::get_default());
+	IOSource->attach();
 }
 
 bool Network::Socket::bNotify(const Glib::IOCondition & Condition)
