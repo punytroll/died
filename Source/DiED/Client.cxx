@@ -103,7 +103,7 @@ void DiED::Client::vHandlePong(const DiED::messageid_t & PingID)
 {
 	std::map< DiED::messageid_t, boost::shared_ptr< sigc::signal< void > > >::iterator iPongSignal(m_PongSignals.find(PingID));
 	
-	std::cout << "Pong message with ID " << PingID << " dropped in. Calling the signals." << std::endl;
+//~ 	std::cout << "Pong message with ID " << PingID << " dropped in. Calling the signals." << std::endl;
 	if(iPongSignal != m_PongSignals.end())
 	{
 		iPongSignal->second->emit();
