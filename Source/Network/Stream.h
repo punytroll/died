@@ -36,6 +36,7 @@ namespace Network
 		u_int8_t * m_pu8Buffer;
 		Network::CircularBuffer m_IBuffer;
 		Network::CircularBuffer m_OBuffer;
+		bool m_bConnectingInProgress;
 		std::deque< boost::reference_wrapper< Network::BasicValue > > m_Values;
 	};
 }
