@@ -11,6 +11,7 @@ namespace DiED
 	public:
 		BasicMessage(u_int32_t u32Type, bool bForSending);
 		virtual void vExecute(DiED::Client & Client) = 0;
+		virtual Glib::ustring sGetString(void) = 0;
 	};
 }
 

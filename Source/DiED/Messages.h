@@ -26,6 +26,7 @@ namespace DiED
 		virtual bool bIsReady(void) const;
 		virtual void vReadFrom(Network::Stream & Stream);
 		virtual void vExecute(DiED::Client & Client);
+		virtual Glib::ustring sGetString(void);
 	protected:
 		virtual void vWriteToInternal(Network::Stream & Stream) const;
 	};
@@ -38,6 +39,7 @@ namespace DiED
 		virtual bool bIsReady(void) const;
 		virtual void vReadFrom(Network::Stream & Stream);
 		virtual void vExecute(DiED::Client & Client);
+		virtual Glib::ustring sGetString(void);
 	protected:
 		virtual void vWriteToInternal(Network::Stream & Stream) const;
 	private:
@@ -53,6 +55,7 @@ namespace DiED
 		virtual bool bIsReady(void) const;
 		virtual void vReadFrom(Network::Stream & Stream);
 		virtual void vExecute(DiED::Client & Client);
+		virtual Glib::ustring sGetString(void);
 	protected:
 		virtual void vWriteToInternal(Network::Stream & Stream) const;
 	private:
@@ -66,6 +69,7 @@ namespace DiED
 		virtual bool bIsReady(void) const;
 		virtual void vReadFrom(Network::Stream & Stream);
 		virtual void vExecute(DiED::Client & Client);
+		virtual Glib::ustring sGetString(void);
 	protected:
 		virtual void vWriteToInternal(Network::Stream & Stream) const;
 	};
@@ -77,6 +81,7 @@ namespace DiED
 		virtual bool bIsReady(void) const;
 		virtual void vReadFrom(Network::Stream & Stream);
 		virtual void vExecute(DiED::Client & Client);
+		virtual Glib::ustring sGetString(void);
 	protected:
 		virtual void vWriteToInternal(Network::Stream & Stream) const;
 	};
@@ -89,6 +94,7 @@ namespace DiED
 		virtual bool bIsReady(void) const;
 		virtual void vReadFrom(Network::Stream & Stream);
 		virtual void vExecute(DiED::Client & Client);
+		virtual Glib::ustring sGetString(void);
 	protected:
 		virtual void vWriteToInternal(Network::Stream & Stream) const;
 	private:
@@ -105,6 +111,7 @@ namespace DiED
 		virtual bool bIsReady(void) const;
 		virtual void vReadFrom(Network::Stream & Stream);
 		virtual void vExecute(DiED::Client & Client);
+		virtual Glib::ustring sGetString(void);
 	protected:
 		virtual void vWriteToInternal(Network::Stream & Stream) const;
 	private:
@@ -118,6 +125,7 @@ namespace DiED
 		virtual bool bIsReady(void) const;
 		virtual void vReadFrom(Network::Stream & Stream);
 		virtual void vExecute(DiED::Client & Client);
+		virtual Glib::ustring sGetString(void);
 	protected:
 		virtual void vWriteToInternal(Network::Stream & Stream) const;
 	private:
