@@ -32,6 +32,10 @@ boost::shared_ptr< Network::BasicMessage > DiED::MessageFactory::GetMessage(u_in
 		{
 			return boost::shared_ptr< Network::BasicMessage >(new DiED::ConnectionLostMessage());
 		}
+	case DiED::_StatusConfirmMessage:
+		{
+			return boost::shared_ptr< Network::BasicMessage >(new DiED::StatusConfirmMessage());
+		}
 	case DiED::_PingMessage:
 		{
 			return boost::shared_ptr< Network::BasicMessage >(new DiED::PingMessage());
