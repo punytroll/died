@@ -73,6 +73,7 @@ void GUI::MainWindow::vNewClient(DiED::Client & DiEDClient)
 	Gtk::HButtonBox * pButtonBox(manage(new Gtk::HButtonBox()));
 	Gtk::Button * pHoldFlowButton(manage(new Gtk::Button("Hold/Flow")));
 	Gtk::Button * pNextButton(manage(new Gtk::Button("Next")));
+	Gtk::Button * pPingButton(manage(new Gtk::Button("Ping")));
 	std::stringstream ssName;
 	
 	ssName << Client.GetID();
@@ -92,10 +93,13 @@ void GUI::MainWindow::vNewClient(DiED::Client & DiEDClient)
 	pHoldFlowButton->set_label(((Client.bIsHoldingMessagesBack() == true) ? ("Flow") : ("Hold")));
 	pHoldFlowButton->signal_clicked().connect(sigc::bind(sigc::bind(sigc::mem_fun(*this, &GUI::MainWindow::vHoldFlowButtonClicked), boost::ref(Client)), pHoldFlowButton, pNextButton));
 	pHoldFlowButton->show();
+	pPingButton->signal_clicked().connect(sigc::bind(sigc::mem_fun(*this, &GUI::MainWindow::vPingButtonClicked), boost::ref(Client)));
+	pPingButton->show();
 	pNextButton->set_sensitive(Client.bIsHoldingMessagesBack());
 	pNextButton->signal_clicked().connect(sigc::bind(sigc::mem_fun(*this, &GUI::MainWindow::vNextButtonClicked), boost::ref(Client)));
 	pNextButton->show();
 	pButtonBox->pack_start(*pHoldFlowButton);
+	pButtonBox->pack_start(*pPingButton);
 	pButtonBox->pack_start(*pNextButton);
 	pButtonBox->show();
 	pBox->pack_start(*pScrolledWindow, true, true);
@@ -192,6 +196,11 @@ void GUI::MainWindow::vHoldFlowButtonClicked(Gtk::Button * pHoldFlowButton, Gtk:
 void GUI::MainWindow::vNextButtonClicked(boost::reference_wrapper< GUI::Client > Client)
 {
 	Client.get().vExecuteTopMessage();
+}
+
+void GUI::MainWindow::vPingButtonClicked(boost::reference_wrapper< GUI::Client > Client)
+{
+	Client.get().vPing();
 }
 
 void GUI::MainWindow::vRowInsertedForClient(const Gtk::TreePath & Path, const Gtk::TreeIter & Iterator, Gtk::TreeView * pTreeView)
