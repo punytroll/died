@@ -15,7 +15,8 @@ const size_t g_stInitialBufferSize = 1024;
 Network::Stream::Stream(void) :
 	m_pu8Buffer(new u_int8_t[2048]),
 	m_IBuffer(g_stInitialBufferSize),
-	m_OBuffer(g_stInitialBufferSize)
+	m_OBuffer(g_stInitialBufferSize),
+	m_bConnectingInProgress(false)
 {
 	m_bOnDisconnected = true;
 }
@@ -24,7 +25,8 @@ Network::Stream::Stream(int iSocket) :
 	Socket(iSocket),
 	m_pu8Buffer(new u_int8_t[2048]),
 	m_IBuffer(g_stInitialBufferSize),
-	m_OBuffer(g_stInitialBufferSize)
+	m_OBuffer(g_stInitialBufferSize),
+	m_bConnectingInProgress(false)
 {
 	m_bOnDisconnected = true;
 }
@@ -65,19 +67,27 @@ void Network::Stream::vOpen(const Network::address_t & ConnectAddress, const Net
 			return;
 		}
     }
-	if(::connect(m_iSocket, &SocketAddress, sizeof(sockaddr_in)) == -1)
-	{
-		vClose();
-		vGetError();
-		
-		return;
-	}
 	if(::fcntl(m_iSocket, F_SETFL, O_NONBLOCK) == -1)
 	{
 		vClose();
 		vGetError();
 		
 		return;
+	}
+	if(::connect(m_iSocket, &SocketAddress, sizeof(sockaddr_in)) == -1)
+	{
+		vGetError();
+		if(m_iError != EINPROGRESS)
+		{
+			vClose();
+			
+			return;
+		}
+		else
+		{
+			m_bConnectingInProgress = true;
+			vRequestOnOut();
+		}
 	}
 	OnConnected();
 	m_bOnDisconnected = true;
@@ -150,6 +160,28 @@ void Network::Stream::vOnIn(void)
 
 void Network::Stream::vOnOut(void)
 {
+	if(m_bConnectingInProgress == true)
+	{
+		int iError = 0;
+		socklen_t slSize = sizeof(int);
+		
+		if(::getsockopt(m_iSocket, SOL_SOCKET, SO_ERROR, &iError, &slSize) != 0)
+		{
+			vClose();
+			vGetError();
+			std::cout << "VERY BAD: " << __FILE__ << ':' << __LINE__ << "  " << sErrorCodeToString(m_iError) << std::endl;
+			
+			throw;
+		}
+		if(iError != 0)
+		{
+			vClose();
+			std::cout << "VERY BAD: " << __FILE__ << ':' << __LINE__ << "  " << sErrorCodeToString(iError) << std::endl;
+			
+			throw;
+		}
+		m_bConnectingInProgress = false;
+	}
 //~ 	std::cout << "Ought to send: " << m_OBuffer.stGetSize() << " bytes." << std::endl;
 	
 	u_int8_t * pu8Temporary = new u_int8_t[m_OBuffer.stGetSize() + 1];
