@@ -67,29 +67,29 @@ bool Network::Socket::bNotify(const Glib::IOCondition & Condition)
 {
 	if((Condition & Glib::IO_IN) != 0)
 	{
-		std::cout << "IO_IN" << std::endl;
+//~ 		std::cout << "IO_IN" << std::endl;
 		vOnIn();
 	}
 	if((Condition & Glib::IO_OUT) != 0)
 	{
-		std::cout << "IO_OUT" << std::endl;
+//~ 		std::cout << "IO_OUT" << std::endl;
 		vOnOut();
 	}
 	if((Condition & Glib::IO_PRI) != 0)
 	{
-		std::cout << "IO_PRI" << std::endl;
+//~ 		std::cout << "IO_PRI" << std::endl;
 	}
 	if((Condition & Glib::IO_ERR) != 0)
 	{
-		std::cout << "IO_ERR" << std::endl;
+//~ 		std::cout << "IO_ERR" << std::endl;
 	}
 	if((Condition & Glib::IO_HUP) != 0)
 	{
-		std::cout << "IO_HUP" << std::endl;
+//~ 		std::cout << "IO_HUP" << std::endl;
 	}
 	if((Condition & Glib::IO_NVAL) != 0)
 	{
-		std::cout << "IO_NVAL" << std::endl;
+//~ 		std::cout << "IO_NVAL" << std::endl;
 		
 		return false;
 	}

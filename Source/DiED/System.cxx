@@ -54,6 +54,7 @@ bool DiED::System::bConnectTo(const std::string & sConnectAddress, u_int16_t u16
 		std::cout << "[Client]: Connected to " << sConnectAddress << ':' << u16ConnectPort << std::endl;
 		
 		pClient->operator<<(DiED::HelloMessage());
+		pClient->operator<<(DiED::HelloMessage());
 	}
 	m_Clients.push_back(Client);
 }

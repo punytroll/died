@@ -1,10 +1,11 @@
-#ifndef MESSAGESTREAM_H
-#define MESSAGESTREAM_H
+#ifndef NETWORK_MESSAGESTREAM_H
+#define NETWORK_MESSAGESTREAM_H
 
 #include <deque>
 
 #include "Value.h"
 #include "MessageFactory.h"
+#include "NotifyValue.h"
 #include "Stream.h"
 
 namespace Network
@@ -16,15 +17,20 @@ namespace Network
 		MessageStream(int iSocket, Network::MessageFactory & MessageFactory);
 		MessageStream & operator>>(boost::shared_ptr< Network::BasicMessage > Message);
 		MessageStream & operator<<(const Network::BasicMessage & Message);
+		
+		boost::shared_ptr< Network::BasicMessage > PopMessage(void);
 	protected:
-		virtual void vOnIn(void);
+		virtual void vMessageReady(void) = 0;
 	private:
 		// no copy and assignment for streams
 		MessageStream(const MessageStream & MessageStream);
 		MessageStream & operator=(const MessageStream & MessageStream);
 		
+		void vMessageTypeReady(void);
+		
 		Network::MessageFactory & m_MessageFactory;
 		Value< u_int32_t > m_MessageType;
+		Network::NotifyValue m_NotifyValue;
 		std::deque< boost::shared_ptr< Network::BasicMessage > > m_Messages;
 	};
 }

@@ -1,9 +1,10 @@
 SUBDIRS = \
 	DiED \
+	GUI \
 	Network
 
 INCLUDES = \
-	@GLIBMM_CFLAGS@
+	@GTKMM_CFLAGS@
 	
 bin_PROGRAMS = \
 	died
@@ -16,10 +17,11 @@ died_CXXFLAGS = \
 	-Wall -O2 -g
 	
 died_LDFLAGS = \
-	@GLIBMM_LIBS@
+	@GTKMM_LIBS@
 	
 died_LDADD = \
 	DiED/libdied.a \
+	GUI/libgui.a \
 	Network/libnetwork.a
 
 EXTRA_DIST = \
