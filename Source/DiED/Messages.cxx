@@ -52,7 +52,7 @@ Glib::ustring DiED::ConnectionRequestMessage::sGetString(void)
 {
 	std::stringstream ssString;
 	
-	ssString << "ConnectionRequestMessage [ClientID = " << m_ClientID << " ;  Port = " << m_Port << "]";
+	ssString << "ConnectionRequest [ClientID = " << m_ClientID << " ;  Port = " << m_Port << "]";
 	
 	return ssString.str();
 }
@@ -114,7 +114,7 @@ Glib::ustring DiED::ConnectionAcceptMessage::sGetString(void)
 {
 	std::stringstream ssString;
 	
-	ssString << "ConnectionAcceptMessage [RemoteClientID = " << m_RemoteClientID << " ; LocalClientID = " << m_LocalClientID << "]";
+	ssString << "ConnectionAccept [RemoteClientID = " << m_RemoteClientID << " ; LocalClientID = " << m_LocalClientID << "]";
 	
 	return ssString.str();
 }
@@ -206,7 +206,7 @@ Glib::ustring DiED::KnownClientsMessage::sGetString(void)
 {
 	std::stringstream ssString;
 	
-	ssString << "KnownClientsMessage [MessageID = " << m_MessageID << " ; #Connected = " << m_ConnectedClientIDs.size() << " ; #Disconnected = " << m_DisconnectedClientIDs.size() << "]";
+	ssString << "KnownClients [MessageID = " << m_MessageID << " ; #Connected = " << m_ConnectedClientIDs.size() << " ; #Disconnected = " << m_DisconnectedClientIDs.size() << "]";
 	
 	return ssString.str();
 }
@@ -249,7 +249,7 @@ Glib::ustring DiED::ClientsRegisteredMessage::sGetString(void)
 {
 	std::stringstream ssString;
 	
-	ssString << "ClientsRegisteredMessage [MessageID = " << m_MessageID << "]";
+	ssString << "ClientsRegistered [MessageID = " << m_MessageID << "]";
 	
 	return ssString.str();
 }
@@ -326,7 +326,7 @@ Glib::ustring DiED::ConnectionLostMessage::sGetString(void)
 {
 	std::stringstream ssString;
 	
-	ssString << "ConnectionLostMessage [ ClientID = " << m_ClientID << " ; ClientAddress = " << m_ClientAddress << " ; ClientPort = " << m_ClientPort << " ]";
+	ssString << "ConnectionLost [ ClientID = " << m_ClientID << " ; ClientAddress = " << m_ClientAddress << " ; ClientPort = " << m_ClientPort << " ]";
 	
 	return ssString.str();
 }
@@ -358,7 +358,7 @@ Glib::ustring DiED::PingMessage::sGetString(void)
 {
 	std::stringstream ssString;
 	
-	ssString << "PingMessage [ PingID = " << m_PingID << " ]";
+	ssString << "Ping [ PingID = " << m_PingID << " ]";
 	
 	return ssString.str();
 }
@@ -407,7 +407,7 @@ Glib::ustring DiED::PongMessage::sGetString(void)
 {
 	std::stringstream ssString;
 	
-	ssString << "PongMessage [ PingID = " << m_PingID << " ]";
+	ssString << "Pong [ PingID = " << m_PingID << " ]";
 	
 	return ssString.str();
 }
@@ -461,7 +461,7 @@ Glib::ustring DiED::EventReceivedMessage::sGetString(void)
 {
 	std::stringstream ssString;
 	
-	ssString << "EventReceivedMessage [ CreatorID = " << m_CreatorID << " ; EventID = " << m_EventID << " ]";
+	ssString << "EventReceived [ CreatorID = " << m_CreatorID << " ; EventID = " << m_EventID << " ]";
 	
 	return ssString.str();
 }
@@ -522,7 +522,7 @@ Glib::ustring DiED::EventMessage::sGetString(void)
 {
 	std::stringstream ssString;
 	
-	ssString << "EventMessage [ CreatorID = " << m_CreatorID << " ; EventID = " << m_EventID << " ; LostClientIO = " << m_LostClientID << " ]";
+	ssString << "Event [ CreatorID = " << m_CreatorID << " ; EventID = " << m_EventID << " ; LostClientIO = " << m_LostClientID << " ]";
 	
 	return ssString.str();
 }
@@ -559,7 +559,7 @@ Glib::ustring DiED::InputMessage::sGetString(void)
 {
 	std::stringstream ssString;
 	
-	ssString << "InputMessage [ Event = " << DiED::EventMessage::sGetString() << " ; Text = " << m_Text << " ]";
+	ssString << "Input [ Event = " << DiED::EventMessage::sGetString() << " ; Text = " << m_Text << " ]";
 	
 	return ssString.str();
 }
