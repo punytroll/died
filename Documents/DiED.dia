@@ -3033,16 +3033,18 @@
         <dia:point val="-21.6841,14.6625"/>
       </dia:attribute>
       <dia:attribute name="obj_bb">
-        <dia:rectangle val="-21.7341,11.4949;33.3547,14.7125"/>
+        <dia:rectangle val="-21.7341,11.7949;33.3547,14.7125"/>
       </dia:attribute>
       <dia:attribute name="orth_points">
         <dia:point val="-21.6841,14.6625"/>
-        <dia:point val="-21.6841,12.2449"/>
+        <dia:point val="-21.6841,13.4537"/>
+        <dia:point val="32.9047,13.4537"/>
         <dia:point val="32.9047,12.2449"/>
       </dia:attribute>
       <dia:attribute name="orth_orient">
         <dia:enum val="1"/>
         <dia:enum val="0"/>
+        <dia:enum val="1"/>
       </dia:attribute>
       <dia:attribute name="orth_autoroute">
         <dia:boolean val="true"/>
