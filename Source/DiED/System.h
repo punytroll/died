@@ -40,7 +40,7 @@ namespace DiED
 		virtual std::vector< DiED::clientid_t > GetConnectedClientIDs(void);
 		virtual std::vector< DiED::clientid_t > GetDisconnectedClientIDs(void);
 		virtual DiED::User::Status GetStatus(const DiED::clientid_t & ClientID1, const DiED::clientid_t & ClientID2);
-		DiED::Client * pGetClient(const DiED::clientid_t & ClientID);
+		virtual DiED::Client * pGetClient(const DiED::clientid_t & ClientID);
 		
 		// signals
 		sigc::signal< void, DiED::Client & > ClientConnected;
@@ -49,8 +49,6 @@ namespace DiED
 		void vInsertText(DiED::User & User, const Glib::ustring & sString, bool bWriteToEnvironment);
 		virtual void vAccepted(boost::shared_ptr< Network::MessageStream > MessageStream);
 	private:
-//~ 		void vAssignClientID(DiED::Client & Client, const DiED::clientid_t & ClientID);
-//~ 		boost::shared_ptr< DiED::Client > RegisterClient(const DiED::clientid_t & ClientID = 0);
 		virtual void vSetStatus(const DiED::clientid_t & ClientID1, const DiED::clientid_t & ClientID2, const DiED::User::Status & Status);
 		
 		boost::shared_ptr< DiED::Client > GetNewPreliminaryClient(void);

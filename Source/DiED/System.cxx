@@ -186,6 +186,8 @@ void DiED::System::vInsertText(DiED::User & User, const Glib::ustring & sString,
 
 void DiED::System::vConnectionRequest(DiED::User & User, const DiED::clientid_t & ClientID)
 {
+	std::cout << "Processing ConnectionRequest message from " << User.GetID() << std::endl;
+	
 	// first of all: if we have no ID yet (not connected to a network) and somebody connects to us we have to generate an ID ourself
 	if(m_Client->GetID() == 0)
 	{
@@ -228,15 +230,18 @@ void DiED::System::vConnectionRequest(DiED::User & User, const DiED::clientid_t 
 	else
 	{
 		// => the local client is known in the network it is connecting to
-		Client->vConnectionAccept(m_Client->GetID(), ClientID);
 		iClient->second->vSetMessageStream(Client->GetMessageStream());
+		iClient->second->vConnectionAccept(m_Client->GetID(), ClientID);
 		Client->vSetMessageStream(boost::shared_ptr< Network::MessageStream >());
 		// TODO: what to do with the iPreliminaryClient ... it is invalid and emtpy (no socket) but MUST NOT be deleted from here
 	}
+	std::cout << "           ConnectionRequest message from " << User.GetID() << '\n' << std::endl;
 }
 
 void DiED::System::vConnectionAccept(DiED::User & User, const DiED::clientid_t & LocalClientID, const DiED::clientid_t & RemoteClientID)
 {
+	std::cout << "Processing ConnectionAccept message from " << User.GetID() << std::endl;
+	
 	std::map< DiED::User *, boost::shared_ptr< DiED::Client > >::iterator iPreliminaryClient(m_PreliminaryClients.find(&User));
 	boost::shared_ptr< DiED::Client > Client;
 	
@@ -267,6 +272,7 @@ void DiED::System::vConnectionAccept(DiED::User & User, const DiED::clientid_t &
 	// if we get assigned a client ID '0' there is nothing for it but to close the socket
 	if(LocalClientID == 0)
 	{
+		std::cout << "[System]: We got a LocalClientID == 0." << std::endl;
 		Client->vSetMessageStream(boost::shared_ptr< Network::MessageStream >());
 	}
 	if(m_Client->GetID() != LocalClientID)
@@ -289,11 +295,12 @@ void DiED::System::vConnectionAccept(DiED::User & User, const DiED::clientid_t &
 		// the local client is not a newling => answer with KnownClients
 		Client->vKnownClients(true);
 	}
+	std::cout << "           ConnectionAccept message from " << User.GetID() << '\n' << std::endl;
 }
 
 void DiED::System::vKnownClients(DiED::User & User, const DiED::messageid_t & MessageID, const std::vector< DiED::clientid_t > & ConnectedClientIDs, const std::vector< DiED::clientid_t > & DisconnectedClientIDs)
 {
-//~ 	std::cout << "Processing KnownClients message." << std::endl;
+	std::cout << "Processing KnownClients message from " << User.GetID() << std::endl;
 	
 	// iterating through the connected list to set the status of the sender to the client ID appropriately
 	std::vector< DiED::clientid_t >::const_iterator iClient(ConnectedClientIDs.begin());
@@ -334,7 +341,7 @@ void DiED::System::vKnownClients(DiED::User & User, const DiED::messageid_t & Me
 		vSetStatus(User.GetID(), m_Client->GetID(), DiED::User::Connected);
 		
 		// TODO send via vSendMessage
-		std::multimap< DiED::clientid_t, boost::shared_ptr< DiED::Client > >::iterator iClient(m_Clients.begin());
+		std::map< DiED::clientid_t, boost::shared_ptr< DiED::Client > >::iterator iClient(m_Clients.begin());
 		
 		while(iClient != m_Clients.end())
 		{
@@ -348,10 +355,13 @@ void DiED::System::vKnownClients(DiED::User & User, const DiED::messageid_t & Me
 			++iClient;
 		}
 	}
+	std::cout << "           KnownClients message from " << User.GetID() << '\n' << std::endl;
 }
 
 void DiED::System::vClientsRegistered(DiED::User & User, const DiED::messageid_t & MessageID)
 {
+	std::cout << "Processing ClientsRegistered message from " << User.GetID() << std::endl;
+	
 	vSetStatus(User.GetID(), m_Client->GetID(), DiED::User::Connected);
 	
 	boost::shared_ptr< DiED::Client > Client(m_Clients.find(User.GetID())->second);
@@ -369,10 +379,13 @@ void DiED::System::vClientsRegistered(DiED::User & User, const DiED::messageid_t
 		iClient->second->vConnectionEstablished(Client->GetID(), Client->GetAddress(), Client->GetPort());
 		++iClient;
 	}
+	std::cout << "           ClientsRegistered message from " << User.GetID() << '\n' << std::endl;
 }
 
 void DiED::System::vConnectionEstablished(DiED::User & User, const DiED::clientid_t & ClientID, const Network::address_t & ClientAddress, const Network::port_t & ClientPort)
 {
+	std::cout << "Processing ConnectionEstablished message from " << User.GetID() << std::endl;
+	
 	boost::shared_ptr< DiED::Client > Client;
 	std::map< DiED::clientid_t, boost::shared_ptr< DiED::Client > >::iterator iClient(m_Clients.find(ClientID));
 	
@@ -394,7 +407,7 @@ void DiED::System::vConnectionEstablished(DiED::User & User, const DiED::clienti
 	{
 	case DiED::Client::Connected:
 		{
-			std::cout << "Client connected." << std::endl;
+//~ 			std::cout << "TODO: ConnectionEstablishedMessage: Client connected." << std::endl;
 			
 			break;
 		}
@@ -426,10 +439,13 @@ void DiED::System::vConnectionEstablished(DiED::User & User, const DiED::clienti
 			break;
 		}
 	}
+	std::cout << "           ConnectionEstablished message from " << User.GetID() << '\n' << std::endl;
 }
 
 void DiED::System::vConnectionLost(DiED::User & User, const DiED::clientid_t & ClientID, const Network::address_t & ClientAddress, const Network::port_t & ClientPort)
 {
+	std::cout << "Processing ConnectionLost message from " << User.GetID() << std::endl;
+	
 	boost::shared_ptr< DiED::Client > Client(RegisterClient(boost::shared_ptr< DiED::Client >(), ClientID));
 	
 	vSetStatus(User.GetID(), Client->GetID(), DiED::User::Disconnected);
@@ -478,11 +494,12 @@ void DiED::System::vConnectionLost(DiED::User & User, const DiED::clientid_t & C
 			break;
 		}
 	}
+	std::cout << "           ConnectionLost message from " << User.GetID() << '\n' << std::endl;
 }
 
 void DiED::System::vPongReceived(boost::shared_ptr< DiED::Client > Client)
 {
-	std::cout << "Pong received from " << Client->GetID() << "." << std::endl;
+//~ 	std::cout << "Pong received from " << Client->GetID() << "." << std::endl;
 }
 
 std::vector< DiED::clientid_t > DiED::System::GetConnectedClientIDs(void)
@@ -519,6 +536,11 @@ DiED::User::Status DiED::System::GetStatus(const DiED::clientid_t & ClientID1, c
 
 DiED::Client * DiED::System::pGetClient(const DiED::clientid_t & ClientID)
 {
+	if(ClientID == 0)
+	{
+		return m_Client.get();
+	}
+	
 	std::map< DiED::clientid_t, boost::shared_ptr< DiED::Client > >::iterator iClient(m_Clients.find(ClientID));
 	
 	if(iClient == m_Clients.end())
