@@ -17,6 +17,7 @@ Network::Stream::Stream(void) :
 	m_IBuffer(g_stInitialBufferSize),
 	m_OBuffer(g_stInitialBufferSize)
 {
+	m_bOnDisconnected = true;
 }
 
 Network::Stream::Stream(int iSocket) :
@@ -25,6 +26,7 @@ Network::Stream::Stream(int iSocket) :
 	m_IBuffer(g_stInitialBufferSize),
 	m_OBuffer(g_stInitialBufferSize)
 {
+	m_bOnDisconnected = true;
 }
 
 void Network::Stream::vOpen(const Network::address_t & ConnectAddress, const Network::port_t & ConnectPort)
