@@ -14,6 +14,24 @@ boost::shared_ptr< Network::BasicMessage > DiED::MessageFactory::GetMessage(u_in
 			
 			break;
 		}
+	case DiED::_InputMessage:
+		{
+			return boost::shared_ptr< Network::BasicMessage >(new DiED::InputMessage());
+			
+			break;
+		}
+	case DiED::_PingMessage:
+		{
+			return boost::shared_ptr< Network::BasicMessage >(new DiED::PingMessage());
+			
+			break;
+		}
+	case DiED::_PongMessage:
+		{
+			return boost::shared_ptr< Network::BasicMessage >(new DiED::PongMessage());
+			
+			break;
+		}
 	case DiED::_NoMessage:
 	default:
 		{

@@ -3,7 +3,7 @@
 
 #include <sys/types.h>
 
-#include <string>
+#include <glibmm/ustring.h>
 
 namespace Network
 {
@@ -17,7 +17,7 @@ namespace Network
 		virtual bool bWrite(const int16_t & s16Value) = 0;
 		virtual bool bWrite(const u_int32_t & u32Value) = 0;
 		virtual bool bWrite(const int32_t & s32Value) = 0;
-		virtual bool bWrite(const std::string & sValue) = 0;
+		virtual bool bWrite(const Glib::ustring & sValue) = 0;
 	};
 }
 

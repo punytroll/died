@@ -16,7 +16,7 @@ namespace Network
 		virtual void vReadFrom(Network::Stream & Stream) = 0;
 		void vWriteTo(Network::Stream & Stream) const;
 		sigc::signal< void > Ready;
-		u_int32_t u32GetType(void);
+		u_int32_t u32GetType(void) const;
 	protected:
 		virtual void vWriteToInternal(Network::Stream & Stream) const = 0;
 		void vRegisterValue(Network::BasicValue & Value);

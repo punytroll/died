@@ -4,9 +4,13 @@
 #include <netinet/ip.h>
 #include <sys/socket.h>
 
-Network::Server::Server(Network::SocketFactory & SocketFactory) :
-	m_SocketFactory(SocketFactory)
+Network::Server::Server(void)
 {
+}
+
+void Network::Server::vSetSocketFactory(boost::shared_ptr< Network::SocketFactory > SocketFactory)
+{
+	m_SocketFactory = SocketFactory;
 }
 
 void Network::Server::vOpen(u_int16_t u16ServicePort)
@@ -59,5 +63,8 @@ void Network::Server::vOpen(u_int16_t u16ServicePort)
 
 void Network::Server::vOnIn(void)
 {
-	Accepted(m_SocketFactory.GetSocket(accept(m_iSocket, 0, 0)));
+	if(m_SocketFactory)
+	{
+		Accepted(m_SocketFactory->GetSocket(accept(m_iSocket, 0, 0)));
+	}
 }

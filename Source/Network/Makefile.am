@@ -20,11 +20,13 @@ EXTRA_DIST = \
 	BasicMessage.h \
 	BasicReader.h \
 	BasicValue.h \
+	BasicWriter.h \
 	BufferReader.h \
 	BufferWriter.h \
 	CircularBuffer.h \
 	MessageFactory.h \
 	MessageStream.h \
+	NotifyValue.h \
 	Server.h \
 	Socket.h \
 	SocketFactory.h \

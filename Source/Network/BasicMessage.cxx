@@ -34,7 +34,7 @@ void Network::BasicMessage::vNotifyValueReady(void)
 	}
 }
 
-u_int32_t Network::BasicMessage::u32GetType(void)
+u_int32_t Network::BasicMessage::u32GetType(void) const
 {
 	return m_Type;
 }

@@ -8,7 +8,7 @@ namespace DiED
 	class Server : public Network::Server
 	{
 	public:
-		Server(Network::SocketFactory & ClientFactory);
+		Server(void);
 	};
 }
 

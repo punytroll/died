@@ -50,12 +50,15 @@ LIBRARIES = $(noinst_LIBRARIES)
 ARFLAGS = cru
 libgui_a_AR = $(AR) $(ARFLAGS)
 libgui_a_LIBADD =
-am_libgui_a_OBJECTS = MainWindow.$(OBJEXT)
+am_libgui_a_OBJECTS = Client.$(OBJEXT) ClientFactory.$(OBJEXT) \
+	MainWindow.$(OBJEXT)
 libgui_a_OBJECTS = $(am_libgui_a_OBJECTS)
 DEFAULT_INCLUDES = -I. -I$(srcdir) -I$(top_builddir)
 depcomp = $(SHELL) $(top_srcdir)/depcomp
 am__depfiles_maybe = depfiles
-@AMDEP_TRUE@DEP_FILES = ./$(DEPDIR)/MainWindow.Po
+@AMDEP_TRUE@DEP_FILES = ./$(DEPDIR)/Client.Po \
+@AMDEP_TRUE@	./$(DEPDIR)/ClientFactory.Po \
+@AMDEP_TRUE@	./$(DEPDIR)/MainWindow.Po
 CXXCOMPILE = $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) \
 	$(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS)
 LTCXXCOMPILE = $(LIBTOOL) --mode=compile $(CXX) $(DEFS) \
@@ -176,9 +179,13 @@ noinst_LIBRARIES = \
 	libgui.a
 
 libgui_a_SOURCES = \
+	Client.cxx \
+	ClientFactory.cxx \
 	MainWindow.cxx
 
 EXTRA_DIST = \
+	Client.h \
+	ClientFactory.h \
 	MainWindow.h
 
 all: all-am
@@ -228,6 +235,8 @@ mostlyclean-compile:
 distclean-compile:
 	-rm -f *.tab.c
 
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/Client.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/ClientFactory.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/MainWindow.Po@am__quote@
 
 .cxx.o:

@@ -17,7 +17,7 @@ namespace Network
 		virtual bool bRead(int16_t & s16Value);
 		virtual bool bRead(u_int32_t & u32Value);
 		virtual bool bRead(int32_t & s32Value);
-		virtual bool bRead(std::string & sValue);
+		virtual bool bRead(Glib::ustring & sValue);
 	private:
 		Network::BasicBuffer & m_Buffer;
 	};

@@ -56,7 +56,12 @@ bool Network::BufferWriter::bWrite(const int32_t & s32Value)
 	m_Buffer.vWrite(reinterpret_cast< const u_int8_t * >(&s32Value), sizeof(int32_t));
 }
 
-bool Network::BufferWriter::bWrite(const std::string & sValue)
+bool Network::BufferWriter::bWrite(const Glib::ustring & sValue)
 {
-	throw;
+	std::cerr << "Writing Glib::ustring to the circular buffer. [" << sValue << ']' << std::endl;
+	
+	u_int8_t * pu8Buffer = new u_int8_t[sValue.length() + 1];
+	
+	memcpy(pu8Buffer, sValue.c_str(), sValue.length() + 1);
+	m_Buffer.vWrite(pu8Buffer, sValue.length() + 1);
 }

@@ -98,7 +98,7 @@ Network::Stream & Network::Stream::operator<<(const Network::BasicValue & Value)
 
 void Network::Stream::vOnIn(void)
 {
-//~ 	std::cout << m_Values.size() << " Values in queue for reading." << std::endl;
+	std::cout << m_Values.size() << " Values in queue for reading." << std::endl;
 	
 	size_t stSize = recv(m_iSocket, m_pu8Buffer, 2048, 0);
 	
@@ -116,10 +116,10 @@ void Network::Stream::vOnIn(void)
 		
 		return;
 	}
-//~ 	std::cout << "Read " << stSize << " bytes from the socket." << std::endl;
-//~ 	std::cout << "Buffer size is " << m_IBuffer.stGetSize() << "." << std::endl;
+	std::cout << "Read " << stSize << " bytes from the socket." << std::endl;
+	std::cout << "Buffer size is " << m_IBuffer.stGetSize() << "." << std::endl;
 	m_IBuffer.vWrite(m_pu8Buffer, stSize);
-//~ 	std::cout << "Buffer size is " << m_IBuffer.stGetSize() << "." << std::endl;
+	std::cout << "Buffer size is " << m_IBuffer.stGetSize() << "." << std::endl;
 	
 	std::deque< boost::reference_wrapper< Network::BasicValue > >::iterator iValue(m_Values.begin());
 	

@@ -14,12 +14,12 @@ namespace Network
 		{
 		}
 		
-		Value(Type & Value) :
+		Value(const Type & Value) :
 			m_Value(Value)
 		{
 		}
 		
-		operator const Type &(void)
+		operator const Type &(void) const
 		{
 			return m_Value;
 		}
