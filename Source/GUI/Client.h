@@ -1,6 +1,8 @@
 #ifndef GUI_CLIENT_H
 #define GUI_CLIENT_H
 
+#include <gtkmm/widget.h>
+
 #include <DiED/Client.h>
 
 #include "MessageListStore.h"
@@ -15,6 +17,8 @@ namespace GUI
 		virtual ~Client(void);
 		
 		Glib::RefPtr< GUI::MessageListStore > GUI::Client::GetMessageListStore(void);
+		void vSetWidget(Gtk::Widget * pWidget);
+		Gtk::Widget * pGetWidget(void);
 		
 		// messages
 		bool bIsHoldingMessagesBack(void) const;
@@ -26,6 +30,7 @@ namespace GUI
 	private:
 		bool m_bHoldMessagesBack;
 		Glib::RefPtr< GUI::MessageListStore > m_MessageListStore;
+		Gtk::Widget * m_pWidget;
 	};
 }
 

@@ -26,7 +26,7 @@ namespace GUI
 		virtual void vInsertText(const Glib::ustring & sString, int iLine, int iCharacter);
 		
 		// callbacks
-		void vClientIDChanged(boost::reference_wrapper< DiED::Client > Client, Gtk::Widget * pClientWidget);
+		void vClientStatusChanged(const DiED::clientid_t & ClientID, const DiED::User::Status & Status, boost::reference_wrapper< DiED::Client > Client);
 		void vHoldFlowButtonClicked(Gtk::Button * pHoldFlowButton, Gtk::Button * pNextButton, boost::reference_wrapper< GUI::Client > Client);
 		void vNextButtonClicked(boost::reference_wrapper< GUI::Client > Client);
 		void vRowInsertedForClient(const Gtk::TreePath & Path, const Gtk::TreeIter & Iterator, Gtk::TreeView * pTreeView);
