@@ -29,45 +29,89 @@ void DiED::NoMessage::vWriteToInternal(Network::Stream & Stream) const
 {
 }
 
-DiED::ConnectMessage::ConnectMessage(void) :
-	DiED::BasicMessage(DiED::_ConnectMessage, false)
+DiED::ConnectionRequestMessage::ConnectionRequestMessage(void) :
+	DiED::BasicMessage(DiED::_ConnectionRequestMessage, false)
 {
 }
 
-DiED::ConnectMessage::ConnectMessage(const DiED::clientid_t & ClientID, const Network::port_t & Port) :
-	DiED::BasicMessage(DiED::_ConnectMessage, true),
+DiED::ConnectionRequestMessage::ConnectionRequestMessage(const DiED::clientid_t & ClientID, const Network::port_t & Port) :
+	DiED::BasicMessage(DiED::_ConnectionRequestMessage, true),
 	m_ClientID(ClientID),
 	m_Port(Port)
 {
 }
 
-bool DiED::ConnectMessage::bIsReady(void) const
+bool DiED::ConnectionRequestMessage::bIsReady(void) const
 {
 	return (m_ClientID.bIsReady() == true) && (m_Port.bIsReady() == true);
 }
 
-void DiED::ConnectMessage::vReadFrom(Network::Stream & Stream)
+void DiED::ConnectionRequestMessage::vReadFrom(Network::Stream & Stream)
 {
 	Stream >> m_ClientID >> m_Port;
 }
 
-void DiED::ConnectMessage::vExecute(DiED::Client & Client)
+void DiED::ConnectionRequestMessage::vExecute(DiED::Client & Client)
 {
-	std::cout << "Executing a Connect message with parameters:\n\tClientID = " << m_ClientID << "\n\tPort = " << m_Port << std::endl;
+	std::cout << "Executing a ConnectionRequest message with parameters:\n\tClientID = " << m_ClientID << "\n\tPort = " << m_Port << std::endl;
+	Client.vConnectionRequest(m_ClientID, m_Port);
 }
 
-Glib::ustring DiED::ConnectMessage::sGetString(void)
+Glib::ustring DiED::ConnectionRequestMessage::sGetString(void)
 {
 	std::stringstream ssString;
 	
-	ssString << "ConnectMessage [ClientID = " << m_ClientID << " ;  Port = " << m_Port << "]";
+	ssString << "ConnectionRequestMessage [ClientID = " << m_ClientID << " ;  Port = " << m_Port << "]";
 	
 	return ssString.str();
 }
 
-void DiED::ConnectMessage::vWriteToInternal(Network::Stream & Stream) const
+void DiED::ConnectionRequestMessage::vWriteToInternal(Network::Stream & Stream) const
 {
 	Stream << m_ClientID << m_Port;
+}
+
+DiED::ConnectionAcceptMessage::ConnectionAcceptMessage(void) :
+	DiED::BasicMessage(DiED::_ConnectionAcceptMessage, false)
+{
+}
+
+DiED::ConnectionAcceptMessage::ConnectionAcceptMessage(const DiED::clientid_t & RemoteClientID, const DiED::clientid_t & LocalClientID) :
+	DiED::BasicMessage(DiED::_ConnectionAcceptMessage, true),
+	m_RemoteClientID(RemoteClientID),
+	m_LocalClientID(LocalClientID)
+{
+}
+
+bool DiED::ConnectionAcceptMessage::bIsReady(void) const
+{
+	return (m_RemoteClientID.bIsReady() == true) && (m_LocalClientID.bIsReady() == true);
+}
+
+void DiED::ConnectionAcceptMessage::vReadFrom(Network::Stream & Stream)
+{
+	// different order than vWriteToInternal because the sides of the socket switched
+	Stream >> m_LocalClientID >> m_RemoteClientID;
+}
+
+void DiED::ConnectionAcceptMessage::vExecute(DiED::Client & Client)
+{
+	std::cout << "Executing a ConnectionAccept message with parameters:\n\tRemoteClientID = " << m_RemoteClientID << "\n\tLocalClientID = " << m_LocalClientID << std::endl;
+	Client.vConnectionAccept(m_LocalClientID, m_RemoteClientID);
+}
+
+Glib::ustring DiED::ConnectionAcceptMessage::sGetString(void)
+{
+	std::stringstream ssString;
+	
+	ssString << "ConnectionAcceptMessage [RemoteClientID = " << m_RemoteClientID << " ; LocalClientID = " << m_LocalClientID << "]";
+	
+	return ssString.str();
+}
+
+void DiED::ConnectionAcceptMessage::vWriteToInternal(Network::Stream & Stream) const
+{
+	Stream << m_RemoteClientID << m_LocalClientID;
 }
 
 DiED::InputMessage::InputMessage(void) :

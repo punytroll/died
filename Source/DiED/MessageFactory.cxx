@@ -8,9 +8,15 @@ boost::shared_ptr< Network::BasicMessage > DiED::MessageFactory::GetMessage(u_in
 {
 	switch(u32Type)
 	{
-	case DiED::_ConnectMessage:
+	case DiED::_ConnectionRequestMessage:
 		{
-			return boost::shared_ptr< Network::BasicMessage >(new DiED::ConnectMessage());
+			return boost::shared_ptr< Network::BasicMessage >(new DiED::ConnectionRequestMessage());
+			
+			break;
+		}
+	case DiED::_ConnectionAcceptMessage:
+		{
+			return boost::shared_ptr< Network::BasicMessage >(new DiED::ConnectionAcceptMessage());
 			
 			break;
 		}
