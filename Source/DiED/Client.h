@@ -29,6 +29,11 @@ namespace DiED
 		Network::address_t GetAddress(void);
 		void vSetPort(const Network::port_t & Port);
 		
+		// client info
+		void vSetEventCounter(const DiED::messageid_t & EventCounter);
+		DiED::clientid_t GetEventCounter(void) const;
+		DiED::ClientInfo GetClientInfo(void) const;
+		
 		// status
 		virtual void vSetStatus(const DiED::clientid_t & ClientID, DiED::clientstatus_t Status);
 		
@@ -67,7 +72,7 @@ namespace DiED
 		virtual void vHandleInsertText(const Glib::ustring & sString);
 		virtual void vHandleConnectionRequest(const DiED::clientid_t & ClientID, const Network::port_t & Port);
 		virtual void vHandleConnectionAccept(const DiED::clientid_t & AccepterClientID, const DiED::clientid_t & RequesterClientID);
-		virtual void vHandleKnownClients(const DiED::messageid_t & MessageID, const std::vector< DiED::clientid_t > & ConnectedClientIDs, const std::vector< DiED::clientid_t > & DisconnectedClientIDs);
+		virtual void vHandleKnownClients(const DiED::messageid_t & MessageID, const std::vector< DiED::ClientInfo > & ClientInfos);
 		virtual void vHandleClientsRegistered(const DiED::messageid_t & MessageID);
 		virtual void vHandleConnectionEstablished(const DiED::messageid_t & MessageID, const DiED::clientid_t & ClientID, const Network::address_t & ClientAddress, const Network::port_t & ClientPort);
 		virtual void vHandleConnectionLost(const DiED::messageid_t & MessageID, const DiED::clientid_t & ClientID, const Network::address_t & ClientAddress, const Network::port_t & ClientPort);

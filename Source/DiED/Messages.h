@@ -65,8 +65,7 @@ namespace DiED
 	{
 	public:
 		KnownClientsMessage(void);
-		KnownClientsMessage(u_int32_t u32MessageID, std::vector< DiED::clientid_t > ConnectedClientIDs, std::vector< DiED::clientid_t > DisconnectedClientIDs);
-		KnownClientsMessage(u_int32_t u32MessageID, std::set< DiED::clientid_t > ConnectedClientIDs, std::set< DiED::clientid_t > DisconnectedClientIDs);
+		KnownClientsMessage(DiED::messageid_t MessageID, std::vector< DiED::ClientInfo > ClientInfos);
 		virtual void vExecute(DiED::MessageTarget & MessageTarget);
 		virtual bool bRequiresConfirmation(void);
 		virtual bool bIsConfirmedBy(boost::shared_ptr< DiED::ConfirmationParameters > ConfirmationParameters);
@@ -74,9 +73,8 @@ namespace DiED
 		virtual Glib::ustring sGetString(void);
 		virtual bool bOnTimeout(DiED::MessageTarget * pMessageTarget);
 	private:
-		Network::Value< u_int32_t > m_MessageID;
-		Network::VectorValue< DiED::clientid_t > m_ConnectedClientIDs;
-		Network::VectorValue< DiED::clientid_t > m_DisconnectedClientIDs;
+		Network::Value< DiED::messageid_t > m_MessageID;
+		Network::VectorValue< DiED::ClientInfo > m_ClientInfos;
 	};
 	
 	class ClientsRegisteredMessage : public DiED::BasicMessage

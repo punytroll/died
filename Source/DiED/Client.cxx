@@ -74,6 +74,29 @@ void DiED::Client::vSetPort(const Network::port_t & Port)
 	m_Port = Port;
 }
 
+void DiED::Client::vSetEventCounter(const DiED::messageid_t & EventCounter)
+{
+	m_EventCounter = EventCounter;
+}
+
+DiED::clientid_t DiED::Client::GetEventCounter(void) const
+{
+	return m_EventCounter;
+}
+
+DiED::ClientInfo DiED::Client::GetClientInfo(void) const
+{
+	DiED::ClientInfo ClientInfo;
+	
+	ClientInfo.ClientID = GetID();
+	ClientInfo.Status = m_InternalEnvironment.GetStatus(0, GetID());
+	ClientInfo.EventCounter = GetEventCounter();
+	ClientInfo.iLine = iGetLine();
+	ClientInfo.iCharacter = iGetCharacter();
+	
+	return ClientInfo;
+}
+
 void DiED::Client::vHandleInsertText(const Glib::ustring & sString)
 {
 	m_InternalEnvironment.vInsertText(*this, sString);
@@ -91,10 +114,10 @@ void DiED::Client::vHandleConnectionAccept(const DiED::clientid_t & AccepterClie
 	m_InternalEnvironment.vConnectionAccept(*this, AccepterClientID, RequesterClientID);
 }
 
-void DiED::Client::vHandleKnownClients(const DiED::messageid_t & MessageID, const std::vector< DiED::clientid_t > & ConnectedClientIDs, const std::vector< DiED::clientid_t > & DisconnectedClientIDs)
+void DiED::Client::vHandleKnownClients(const DiED::messageid_t & MessageID, const std::vector< DiED::ClientInfo > & ClientInfos)
 {
 	vHandleAnswer();
-	m_InternalEnvironment.vKnownClients(*this, MessageID, ConnectedClientIDs, DisconnectedClientIDs);
+	m_InternalEnvironment.vKnownClients(*this, MessageID, ClientInfos);
 }
 
 void DiED::Client::vHandleClientsRegistered(const DiED::messageid_t & MessageID)
@@ -439,33 +462,23 @@ void DiED::Client::vConnectionAccept(const DiED::clientid_t & AccepterClientID, 
 
 void DiED::Client::vKnownClients(bool bAskForKnownClients)
 {
-	boost::shared_ptr< DiED::BasicMessage > KnownClientsMessage;
-	std::set< DiED::clientid_t > DisconnectedClientIDs(m_InternalEnvironment.GetDisconnectedClientIDs());
-	std::set< DiED::clientid_t > ConnectedClientIDs(m_InternalEnvironment.GetConnectedClientIDs());
-	std::set< DiED::clientid_t >::iterator iClient;
+	std::vector< DiED::ClientInfo > ClientInfos(m_InternalEnvironment.GetClientInfos());
+	std::vector< DiED::ClientInfo >::iterator iClientInfo(ClientInfos.begin());
 	
 	// somewhere in the lists is _this_ client
 	//  => but specification says we don't want to send the receiver's client ID with this message regardless of the list
 	//  => find it and erase it
-	iClient = find(DisconnectedClientIDs.begin(), DisconnectedClientIDs.end(), GetID());
-	if(iClient != DisconnectedClientIDs.end())
+	while(iClientInfo != ClientInfos.end())
 	{
-		DisconnectedClientIDs.erase(iClient);
+		if(iClientInfo->ClientID == GetID())
+		{
+			ClientInfos.erase(iClientInfo);
+			
+			break;
+		}
+		++iClientInfo;
 	}
-	iClient = find(ConnectedClientIDs.begin(), ConnectedClientIDs.end(), GetID());
-	if(iClient != ConnectedClientIDs.end())
-	{
-		ConnectedClientIDs.erase(iClient);
-	}
-	if(bAskForKnownClients == true)
-	{
-		KnownClientsMessage = boost::shared_ptr< DiED::BasicMessage >(new DiED::KnownClientsMessage(0, ConnectedClientIDs, DisconnectedClientIDs));
-	}
-	else
-	{
-		KnownClientsMessage = boost::shared_ptr< DiED::BasicMessage >(new DiED::KnownClientsMessage(rand(), ConnectedClientIDs, DisconnectedClientIDs));
-	}
-	vSend(KnownClientsMessage);
+	vSend(boost::shared_ptr< DiED::BasicMessage >(new DiED::KnownClientsMessage(((bAskForKnownClients == true) ? (0) : (rand())), ClientInfos)));
 }
 
 void DiED::Client::vClientsRegistered(const DiED::messageid_t & MessageID)
@@ -663,7 +676,7 @@ void DiED::Client::vHandleEventConfirmationTimeout(boost::shared_ptr< DiED::Conf
 	
 	if(WaitingMessage.m_Message.get() == 0)
 	{
-		std::cout << "VERY BAD: " << __FILE__ << ':' << __LINE__ << std::endl;
+		std::cout << "VERY BAD: " << __FILE__ << ':' << __LINE__ << " - ClientID = " << GetID() << std::endl;
 		
 		return;
 	}
