@@ -57,5 +57,8 @@ void Network::MessageStream::vMessageTypeReady(void)
 
 void Network::MessageStream::vMessageReady(void)
 {
-	MessageReady();
+	if(size() > 0)
+	{
+		MessageReady();
+	}
 }

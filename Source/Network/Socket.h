@@ -22,6 +22,7 @@ namespace Network
 		int iGetError(void) const;
 		void vClose(void);
 		void vSetSocket(int iSocket);
+		Glib::ustring GetAddress(void);
 	protected:
 		void vMonitor(void);
 		void vRequestOnOut(void);

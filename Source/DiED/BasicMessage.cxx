@@ -1,6 +1,6 @@
 #include "BasicMessage.h"
 
-DiED::BasicMessage::BasicMessage(u_int32_t u32Type, bool bForSending) :
-	Network::BasicMessage(u32Type, bForSending)
+DiED::BasicMessage::BasicMessage(const Network::BasicMessage::type_t & Type, bool bForSending) :
+	Network::BasicMessage(Type, bForSending)
 {
 }

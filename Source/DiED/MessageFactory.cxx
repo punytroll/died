@@ -20,6 +20,10 @@ boost::shared_ptr< Network::BasicMessage > DiED::MessageFactory::GetMessage(u_in
 		{
 			return boost::shared_ptr< Network::BasicMessage >(new DiED::KnownClientsMessage());
 		}
+	case DiED::_ClientsRegisteredMessage:
+		{
+			return boost::shared_ptr< Network::BasicMessage >(new DiED::ClientsRegisteredMessage());
+		}
 	case DiED::_InputMessage:
 		{
 			return boost::shared_ptr< Network::BasicMessage >(new DiED::InputMessage());

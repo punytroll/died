@@ -142,6 +142,7 @@ void DiED::KnownClientsMessage::vReadFrom(Network::Stream & Stream)
 void DiED::KnownClientsMessage::vExecute(DiED::Client & Client)
 {
 //~ 	std::cout << "KnownClientsMessage [MessageID = " << m_MessageID << " ; #Connected = " << m_ConnectedClientIDs.size() << " ; #Disconnected = " << m_DisconnectedClientIDs.size() << "]" << std::endl;
+	Client.vKnownClients(m_MessageID, m_ConnectedClientIDs, m_DisconnectedClientIDs);
 }
 
 Glib::ustring DiED::KnownClientsMessage::sGetString(void)
@@ -156,6 +157,49 @@ Glib::ustring DiED::KnownClientsMessage::sGetString(void)
 void DiED::KnownClientsMessage::vWriteToInternal(Network::Stream & Stream) const
 {
 	Stream << m_MessageID << m_ConnectedClientIDs << m_DisconnectedClientIDs;
+}
+
+///////////////////////////////////////////////////////////////////////////////////////////////////
+
+DiED::ClientsRegisteredMessage::ClientsRegisteredMessage(void) :
+	DiED::BasicMessage(DiED::_ClientsRegisteredMessage, false)
+{
+}
+
+DiED::ClientsRegisteredMessage::ClientsRegisteredMessage(DiED::messageid_t MessageID) :
+	DiED::BasicMessage(DiED::_ClientsRegisteredMessage, true),
+	m_MessageID(MessageID)
+{
+}
+
+bool DiED::ClientsRegisteredMessage::bIsReady(void) const
+{
+	return (m_MessageID.bIsReady() == true);
+}
+
+void DiED::ClientsRegisteredMessage::vReadFrom(Network::Stream & Stream)
+{
+	Stream >> m_MessageID;
+}
+
+void DiED::ClientsRegisteredMessage::vExecute(DiED::Client & Client)
+{
+//~ 	std::cout << "ClientsRegisteredMessage [MessageID = " << m_MessageID << "]" << std::endl;
+	Client.vClientsRegistered(m_MessageID);
+}
+
+Glib::ustring DiED::ClientsRegisteredMessage::sGetString(void)
+{
+	std::stringstream ssString;
+	
+	ssString << "ClientsRegisteredMessage [MessageID = " << m_MessageID << "]";
+	
+	return ssString.str();
+}
+
+void DiED::ClientsRegisteredMessage::vWriteToInternal(Network::Stream & Stream) const
+{
+	Stream << m_MessageID;
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
@@ -289,6 +333,7 @@ void DiED::ConnectionEstablishedMessage::vReadFrom(Network::Stream & Stream)
 void DiED::ConnectionEstablishedMessage::vExecute(DiED::Client & Client)
 {
 //~ 	std::cout << "Executing a ConnectionEstablished message with parameters:\n\tClientID = " << m_ClientID << "\n\tClientAddress = " << m_ClientAddress << "\n\tClientPort = " << m_ClientPort << std::endl;
+	Client.vConnectionEstablished(m_ClientID, m_ClientAddress, m_ClientPort);
 }
 
 Glib::ustring DiED::ConnectionEstablishedMessage::sGetString(void)

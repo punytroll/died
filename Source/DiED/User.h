@@ -19,7 +19,7 @@ namespace DiED
 		{
 			Connected,
 			Disconnected,
-			Delete
+			Deleted
 		};
 		
 		User(void);

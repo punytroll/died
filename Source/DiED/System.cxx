@@ -32,8 +32,7 @@ void DiED::System::vSetClientFactory(boost::shared_ptr< DiED::ClientFactory > Cl
 	m_ClientFactory = ClientFactory;
 	if(m_Client.get() == 0)
 	{
-		m_Client = ClientFactory->GetClient();
-		vRegisterClient(m_Client);
+		m_Client = RegisterClient();
 	}
 }
 
@@ -68,13 +67,12 @@ bool DiED::System::bConnectTo(const Network::address_t & ConnectAddress, const N
 	}
 	else
 	{
-		std::cout << "[Client]: Connected to " << ConnectAddress << ':' << ConnectPort << std::endl;
+//~ 		std::cout << "[Client]: Connected to " << ConnectAddress << ':' << ConnectPort << std::endl;
 	}
 	
-	boost::shared_ptr< DiED::Client > Client(m_ClientFactory->GetClient());
+	boost::shared_ptr< DiED::Client > Client(RegisterClient());
 	
 	Client->vSetMessageStream(MessageStream);
-	vRegisterClient(Client);
 	Client->operator<<(DiED::ConnectionRequestMessage(m_Client->GetClientID(), m_ServicePort));
 	
 	return true;
@@ -158,38 +156,54 @@ void DiED::System::vConnectionRequest(DiED::User & User, const DiED::clientid_t 
 		// send KnownClients to this client
 		Client.m_u32KnownClientsMessageID = rand();
 		
-		std::vector< DiED::clientid_t > ConnectedClientIDs(GetConnectedClientIDs());
 		std::vector< DiED::clientid_t > DisconnectedClientIDs(GetDisconnectedClientIDs());
+		std::vector< DiED::clientid_t >::iterator iTempClient(find(DisconnectedClientIDs.begin(), DisconnectedClientIDs.end(), Client.GetClientID()));
 		
-		Client << KnownClientsMessage(Client.m_u32KnownClientsMessageID, ConnectedClientIDs, DisconnectedClientIDs);
+		if(iTempClient != DisconnectedClientIDs.end())
+		{
+			DisconnectedClientIDs.erase(iTempClient);
+		}
+		Client << KnownClientsMessage(Client.m_u32KnownClientsMessageID, GetConnectedClientIDs(), DisconnectedClientIDs);
 	}
 	else
 	{
-		std::cout << "TODO: " << __FILE__ << __LINE__ << std::endl;
+		// !(A || B) == !A && !B  ==>  ((iClient != m_Clients.end()) && (ClientID != 0)) ==> so iClient is valid
+		iClient->second->vSetMessageStream(Client.GetMessageStream());
+		Client.vSetMessageStream(boost::shared_ptr< Network::MessageStream >());
+		iClient->second->operator<<(ConnectionAcceptMessage(iClient->first, m_Client->GetClientID()));
 	}
 }
 
 void DiED::System::vAssignClientID(DiED::Client & Client, const DiED::clientid_t & ClientID)
 {
-	if(ClientID == 0)
-	{
-		std::cout << "VERY BAD: " << __FILE__ << ':' << __LINE__ << std::endl;
-	}
-	
 	DiED::clientid_t OldClientID(Client.GetClientID());
 	
+	if(OldClientID == ClientID)
+	{
+		// nothing to do, eh!?
+		return;
+	}
 	if(OldClientID != 0)
 	{
+		// we should not not change the client ID of a client that already has a "good" client ID ...
+		//  => special cases/why not/what to do???
+		std::cout << "VERY BAD: " << __FILE__ << ':' << __LINE__ << std::endl;
+	}
+	if(ClientID == 0)
+	{
+		// we will not set a client ID to 0 but what to do???
 		std::cout << "VERY BAD: " << __FILE__ << ':' << __LINE__ << std::endl;
 	}
 	
+	// since multiple clients with client ID are allowed we need to find the right one
 	std::multimap< DiED::clientid_t, boost::shared_ptr< DiED::Client > >::iterator iClient(m_Clients.lower_bound(OldClientID));
 	std::multimap< DiED::clientid_t, boost::shared_ptr< DiED::Client > >::iterator iLastClient(m_Clients.upper_bound(OldClientID));
 	
-	while((iClient != iLastClient) && (&(*(iClient->second)) != &Client))
+	while((iClient != iLastClient) && (iClient->second.get() != &Client))
 	{
 		++iClient;
 	}
+	// the client "Client" is not in our client list => strange
 	if(iClient == iLastClient)
 	{
 		std::cout << "VERY BAD!! " << __FILE__ << ':' << __LINE__ << std::endl;
@@ -197,18 +211,24 @@ void DiED::System::vAssignClientID(DiED::Client & Client, const DiED::clientid_t
 		throw;
 	}
 	
+	// save the client locally
 	boost::shared_ptr< DiED::Client > ClientPtr(iClient->second);
 	
+	// delete the old client
 	m_Clients.erase(iClient);
+	//set the new client ID
 	ClientPtr->vSetClientID(ClientID);
-	m_Clients.insert(std::make_pair(ClientID, ClientPtr));
+	// insert the new client with the new client ID
+	m_Clients.insert(std::make_pair(ClientPtr->GetClientID(), ClientPtr));
+	
+	// go through the client list and set the connection status
+	//  => this will finish the task of RegisterClient() 
 	iClient = m_Clients.begin();
 	while(iClient != m_Clients.end())
 	{
-		if((iClient->first != 0) && (&(*(iClient->second)) != &Client))
+		if((iClient->first != 0) && (iClient->second.get() != &Client) && (iClient->second->GetStatus(ClientID) == DiED::User::Deleted))
 		{
 			iClient->second->vSetStatus(ClientID, DiED::User::Disconnected);
-			Client.vSetStatus(iClient->first, DiED::User::Disconnected);
 		}
 		++iClient;
 	}
@@ -227,6 +247,171 @@ void DiED::System::vConnectionAccept(DiED::User & User, const DiED::clientid_t &
 	{
 		vAssignClientID(*m_Client, LocalClientID);
 	}
+	else
+	{
+		std::vector< DiED::clientid_t > DisconnectedClientIDs(GetDisconnectedClientIDs());
+		std::vector< DiED::clientid_t >::iterator iTempClient(find(DisconnectedClientIDs.begin(), DisconnectedClientIDs.end(), Client.GetClientID()));
+		
+		if(iTempClient != DisconnectedClientIDs.end())
+		{
+			DisconnectedClientIDs.erase(iTempClient);
+		}
+		Client << KnownClientsMessage(0, GetConnectedClientIDs(), DisconnectedClientIDs);
+	}
+}
+
+void DiED::System::vKnownClients(DiED::User & User, const DiED::messageid_t & MessageID, const std::vector< DiED::clientid_t > & ConnectedClientIDs, const std::vector< DiED::clientid_t > & DisconnectedClientIDs)
+{
+//~ 	std::cout << "Processing KnownClients message." << std::endl;
+	
+	// iterating through the connected list to set the status of the sender to the client ID appropriately
+	std::vector< DiED::clientid_t >::const_iterator iClient(ConnectedClientIDs.begin());
+	
+	while(iClient != ConnectedClientIDs.end())
+	{
+		boost::shared_ptr< DiED::Client > Client(RegisterClient(*iClient));
+		
+		if(Client.get() == 0)
+		{
+			std::cout << "VERY BAD: " << __FILE__ << ':' << __LINE__ << ": ClientID = " << *iClient << std::endl;
+		}
+		Client->vSetStatus(User.GetClientID(), DiED::Client::Connected);
+		User.vSetStatus(*iClient, DiED::Client::Connected);
+		++iClient;
+	}
+	iClient = DisconnectedClientIDs.begin();
+	while(iClient != DisconnectedClientIDs.end())
+	{
+		boost::shared_ptr< DiED::Client > Client(RegisterClient(*iClient));
+		
+		if(Client.get() == 0)
+		{
+			std::cout << "VERY BAD: " << __FILE__ << ':' << __LINE__ << ": ClientID = " << *iClient << std::endl;
+		}
+		++iClient;
+	}
+	
+	boost::shared_ptr< DiED::Client > Client(m_Clients.find(User.GetClientID())->second);
+	
+	if(MessageID == 0)
+	{
+		// send KnownClients to this client
+		Client->m_u32KnownClientsMessageID = rand();
+		
+		std::vector< DiED::clientid_t > DisconnectedClientIDs(GetDisconnectedClientIDs());
+		std::vector< DiED::clientid_t >::iterator iTempClient(find(DisconnectedClientIDs.begin(), DisconnectedClientIDs.end(), Client->GetClientID()));
+		
+		if(iTempClient != DisconnectedClientIDs.end())
+		{
+			DisconnectedClientIDs.erase(iTempClient);
+		}
+		Client->operator<<(KnownClientsMessage(Client->m_u32KnownClientsMessageID, GetConnectedClientIDs(), DisconnectedClientIDs));
+	}
+	else
+	{
+		Client->operator<<(ClientsRegisteredMessage(MessageID));
+		Client->vSetStatus(m_Client->GetClientID(), DiED::User::Connected);
+		m_Client->vSetStatus(User.GetClientID(), DiED::User::Connected);
+		
+		std::multimap< DiED::clientid_t, boost::shared_ptr< DiED::Client > >::iterator iClient(m_Clients.begin());
+		
+		while(iClient != m_Clients.end())
+		{
+			if((iClient->first == User.GetClientID()) || (iClient->first == m_Client->GetClientID()) || (m_Client->GetStatus(iClient->first) == DiED::Client::Disconnected))
+			{
+//~ 				std::cout << "Client " << iClient->first << " is not messaged." << std::endl;
+				++iClient;
+				
+				continue;
+			}
+//~ 			std::cout << "Sending ConnectionEstablishedMessage(" << Client->GetClientID() << ", " << Client->GetAddress() << ", " << Client->GetPort() << ") to " << iClient->first << " == " << iClient->second->GetClientID() << std::endl;
+			iClient->second->operator<<(ConnectionEstablishedMessage(Client->GetClientID(), Client->GetAddress(), Client->GetPort()));
+			++iClient;
+		}
+	}
+}
+
+void DiED::System::vClientsRegistered(DiED::User & User, const DiED::messageid_t & MessageID)
+{
+//~ 	std::cout << "Executing ClientsRegisteredMessage(" << MessageID << ") from " << User.GetClientID() << std::endl;
+	m_Client->vSetStatus(User.GetClientID(), DiED::Client::Connected);
+	User.vSetStatus(m_Client->GetClientID(), DiED::Client::Connected);
+	
+	boost::shared_ptr< DiED::Client > Client(m_Clients.find(User.GetClientID())->second);
+	std::map< DiED::clientid_t, boost::shared_ptr< DiED::Client > >::iterator iClient(m_Clients.begin());
+	
+	while(iClient != m_Clients.end())
+	{
+		if((iClient->first == User.GetClientID()) || (iClient->first == m_Client->GetClientID()) || (m_Client->GetStatus(iClient->first) == DiED::Client::Disconnected))
+		{
+//~ 			std::cout << "Client " << iClient->first << " is not messaged." << std::endl;
+			++iClient;
+			
+			continue;
+		}
+//~ 		std::cout << "Sending ConnectionEstablishedMessage(" << Client->GetClientID() << ", " << Client->GetAddress() << ", " << Client->GetPort() << ") to " << iClient->first << " == " << iClient->second->GetClientID() << std::endl;
+		iClient->second->operator<<(ConnectionEstablishedMessage(Client->GetClientID(), Client->GetAddress(), Client->GetPort()));
+		++iClient;
+	}
+}
+
+void DiED::System::vConnectionEstablished(DiED::User & User, const DiED::clientid_t & ClientID, const Network::address_t & ClientAddress, const Network::port_t & ClientPort)
+{
+	boost::shared_ptr< DiED::Client > Client;
+	std::multimap< DiED::clientid_t, boost::shared_ptr< DiED::Client > >::iterator iClient(m_Clients.find(ClientID));
+	
+	if(iClient == m_Clients.end())
+	{
+		Client = RegisterClient(ClientID);
+		if(Client.get() == 0)
+		{
+			std::cout << "VERY BAD: " << __FILE__ << ':' << __LINE__ << ": ClientID = " << ClientID << std::endl;
+		}
+	}
+	else
+	{
+		Client = iClient->second;
+		// TODO
+	}
+	Client->vSetStatus(User.GetClientID(), DiED::Client::Connected);
+	User.vSetStatus(Client->GetClientID(), DiED::Client::Connected);
+	// "Client" is set to an existing client with the client ID "ClientID"
+	if(m_Client->GetStatus(ClientID) == DiED::Client::Disconnected)
+	{
+		if(ClientPort == 0)
+		{
+			std::map< DiED::clientid_t, boost::shared_ptr< DiED::Client > >::iterator iClient(m_Clients.begin());
+			
+			while(iClient != m_Clients.end())
+			{
+				// skip all clients NOT Connected to local (this includes Disconnected clients and unknown clients which in turn includes local)
+				if(m_Client->GetStatus(iClient->first) != DiED::Client::Connected)
+				{
+					++iClient;
+					
+					continue;
+				}
+				iClient->second->operator<<(ConnectionLostMessage(Client->GetClientID()));
+				++iClient;
+			}
+		}
+		else
+		{
+			boost::shared_ptr< Network::MessageStream > MessageStream(new Network::MessageStream(m_MessageFactory));
+			
+			MessageStream->vOpen(ClientAddress, ClientPort);
+			if(MessageStream->bIsOpen() == false)
+			{
+				std::cout << "[Client]: Connection failed. TODO: Send ConnectionLostMessage." << std::endl;
+			}
+			else
+			{
+//~ 				std::cout << "[Client]: Connected to " << ClientAddress << ':' << ClientPort << std::endl;
+				Client->vSetMessageStream(MessageStream);
+				Client->operator<<(DiED::ConnectionRequestMessage(m_Client->GetClientID(), m_ServicePort));
+			}
+		}
+	}
 }
 
 std::vector< DiED::clientid_t > DiED::System::GetConnectedClientIDs(void)
@@ -241,7 +426,7 @@ std::vector< DiED::clientid_t > DiED::System::GetDisconnectedClientIDs(void)
 
 void DiED::System::vSendMessage(Network::BasicMessage & Message)
 {
-	std::map< DiED::clientid_t, boost::shared_ptr< DiED::Client > >::iterator iClient(m_Clients.begin());
+	std::multimap< DiED::clientid_t, boost::shared_ptr< DiED::Client > >::iterator iClient(m_Clients.begin());
 	
 	while(iClient != m_Clients.end())
 	{
@@ -254,14 +439,52 @@ void DiED::System::vSendMessage(Network::BasicMessage & Message)
 
 void DiED::System::vAccepted(boost::shared_ptr< Network::MessageStream > MessageStream)
 {
-	boost::shared_ptr< DiED::Client > Client(m_ClientFactory->GetClient());
+	boost::shared_ptr< DiED::Client > Client(RegisterClient());
 	
 	Client->vSetMessageStream(MessageStream);
-	vRegisterClient(Client);
 }
 
-void DiED::System::vRegisterClient(boost::shared_ptr< DiED::Client > Client)
+boost::shared_ptr< DiED::Client > DiED::System::RegisterClient(const DiED::clientid_t & ClientID)
 {
-	m_Clients.insert(std::make_pair(Client->GetClientID(), Client));
-	m_pExternalEnvironment->vNewClient(*Client);
+	std::multimap< DiED::clientid_t, boost::shared_ptr< DiED::Client > >::iterator iTheClient(m_Clients.find(ClientID));
+	
+	// if either no client with this client ID exists or the requested client ID is '0'
+	//  => Client ID '0' is allowed multiple times
+	if((iTheClient == m_Clients.end()) || (ClientID == 0))
+	{
+		boost::shared_ptr< DiED::Client > Client(m_ClientFactory->GetClient());
+		
+		if(ClientID != 0)
+		{
+			Client->vSetClientID(ClientID);
+		}
+		m_Clients.insert(std::make_pair(Client->GetClientID(), Client));
+		m_pExternalEnvironment->vNewClient(*Client);
+		
+		// no set the status to disconnected for all clients (except those with client ID '0')
+		std::multimap< DiED::clientid_t, boost::shared_ptr< DiED::Client > >::iterator iClient(m_Clients.begin());
+		
+		while(iClient != m_Clients.end())
+		{
+			if((iClient->first != ClientID) && (iClient->first != 0))
+			{
+				// don't set any connection if the client's client ID is zero
+				//  => will be done by vAssignClientID
+				if(ClientID != 0)
+				{
+					iClient->second->vSetStatus(ClientID, DiED::User::Disconnected);
+				}
+				Client->vSetStatus(iClient->first, DiED::User::Disconnected);
+			}
+			++iClient;
+		}
+		
+		return Client;
+	}
+	else
+	{
+		// !(A || B) == (!A && !B)  ==>  ((iTheClient != m_Clients.end) && (ClientID != 0))
+		//  => registering an existing client => just return the existing one
+		return iTheClient->second;
+	}
 }
