@@ -11,7 +11,8 @@ DiED::System::System(void) :
 	m_Client(new DiED::Client(m_MessageFactory, *this)),
 	m_ServicePort(0)
 {
-	m_Clients.push_back(m_Client);
+	m_Client->vSetClientID(rand());
+	m_Clients.insert(std::make_pair(m_Client->GetClientID(), m_Client));
 }
 
 DiED::System::~System(void)
@@ -28,9 +29,10 @@ boost::shared_ptr< Network::MessageFactory > DiED::System::GetMessageFactory(voi
 	return m_MessageFactory;
 }
 
-DiED::Server & DiED::System::GetServer(void)
+void DiED::System::vSetClientFactory(boost::shared_ptr< DiED::ClientFactory > ClientFactory)
 {
-	return m_Server;
+	m_ClientFactory = ClientFactory;
+	m_Server.vSetSocketFactory(ClientFactory);
 }
 
 bool DiED::System::bListen(const Network::port_t & ServicePort)
@@ -53,19 +55,24 @@ bool DiED::System::bListen(const Network::port_t & ServicePort)
 
 bool DiED::System::bConnectTo(const Network::address_t & ConnectAddress, const Network::port_t & ConnectPort)
 {
-	boost::shared_ptr< DiED::Client > Client(new DiED::Client(m_MessageFactory, *this));
+	boost::shared_ptr< DiED::Client > Client(boost::dynamic_pointer_cast< DiED::Client >(m_ClientFactory->GetSocket()));
 	
+	Client->vSetClientID(rand());
 	Client->vOpen(ConnectAddress, ConnectPort);
 	if(Client->bIsOpen() == false)
 	{
 		std::cout << "[Client]: Connection failed." << std::endl;
+		
+		return false;
 	}
 	else
 	{
 		std::cout << "[Client]: Connected to " << ConnectAddress << ':' << ConnectPort << std::endl;
-		Client->operator<<(DiED::ConnectMessage(0, m_ServicePort));
+		Client->operator<<(DiED::ConnectMessage(m_Client->GetClientID(), m_ServicePort));
 	}
-	m_Clients.push_back(Client);
+	m_Clients.insert(std::make_pair(Client->GetClientID(), Client));
+	
+	return true;
 }
 
 void DiED::System::vInput(const Glib::ustring & sString)
@@ -107,11 +114,11 @@ void DiED::System::vInsertText(DiED::User & User, const Glib::ustring & sString,
 		}
 	}
 	
-	std::vector< boost::shared_ptr< Network::Socket > >::iterator iClient = m_Clients.begin();
+	std::map< DiED::clientid_t, boost::shared_ptr< DiED::Client > >::iterator iClient(m_Clients.begin());
 	
 	while(iClient != m_Clients.end())
 	{
-		DiED::User & OtherUser = dynamic_cast< DiED::User & >(**iClient);
+		DiED::User & OtherUser = *(iClient->second);
 		
 		if((&User == &OtherUser) || (iLine < OtherUser.iGetLine()) || ((iLine == OtherUser.iGetLine()) && (iCharacter < OtherUser.iGetCharacter())))
 		{
@@ -128,13 +135,26 @@ void DiED::System::vInsertText(DiED::User & User, const Glib::ustring & sString,
 	}
 }
 
+//~ void DiED::System::vConnect(DiED::User & User, const DiED::clientid_t & ClientID, const Network::port_t & Port)
+//~ {
+//~ 	std::map< DiED::clientid_t, boost::shared_ptr< DiED::Client > >::iterator iClient(m_Clients.find(ClientID));
+//~ 	
+//~ 	if(iClient == m_Clients.end())
+//~ 	{
+//~ 		
+//~ 	}
+//~ 	else
+//~ 	{
+//~ 	}
+//~ }
+
 void DiED::System::vSendMessage(Network::BasicMessage & Message)
 {
-	std::vector< boost::shared_ptr< Network::Socket > >::iterator iClient = m_Clients.begin();
+	std::map< DiED::clientid_t, boost::shared_ptr< DiED::Client > >::iterator iClient(m_Clients.begin());
 	
 	while(iClient != m_Clients.end())
 	{
-		Network::MessageStream & Stream(dynamic_cast< Network::MessageStream & >(**iClient));
+		Network::MessageStream & Stream(*(iClient->second));
 		
 		Stream << Message;
 		++iClient;
@@ -143,5 +163,9 @@ void DiED::System::vSendMessage(Network::BasicMessage & Message)
 
 void DiED::System::vAccepted(boost::shared_ptr< Network::Socket > Socket)
 {
-	m_Clients.push_back(Socket);
+	boost::shared_ptr< DiED::Client > NewClient(boost::dynamic_pointer_cast< DiED::Client >(Socket));
+	
+	NewClient->vSetClientID(rand());
+	m_Clients.insert(std::make_pair(NewClient->GetClientID(), NewClient));
+//~ 	ClientConnected(*NewClient);
 }
