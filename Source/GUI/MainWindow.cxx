@@ -10,6 +10,11 @@
 
 #include "Client.h"
 
+GdkColor Local = { 0x0000, 0x0000, 0x0000, 0x8080 };
+GdkColor Connected = { 0x0000, 0x0000, 0x8080, 0x0000 };
+GdkColor Disconnected = { 0x0000, 0x8080, 0x0000, 0x0000 };
+GdkColor Deleted = { 0x0000, 0x6060, 0x6060, 0x6060 };
+
 GUI::MainWindow::MainWindow(DiED::System & System) :
 	m_System(System),
 	m_TextBuffer(m_TextView.get_buffer()),
@@ -54,7 +59,7 @@ void GUI::MainWindow::vNewClient(DiED::Client & DiEDClient)
 	Gtk::Button * pNextButton(manage(new Gtk::Button("Next")));
 	std::stringstream ssName;
 	
-	ssName << Client.GetClientID();
+	ssName << Client.GetID();
 	pClientView->append_column("Name", Client.GetMessageListStore()->Columns.Name);
 	pClientView->append_column("Status", Client.GetMessageListStore()->Columns.Status);
 	pClientView->show();
@@ -74,7 +79,19 @@ void GUI::MainWindow::vNewClient(DiED::Client & DiEDClient)
 	pBox->pack_start(*pButtonBox, false, false);
 	pBox->show();
 	m_Notebook.append_page(*pBox, ssName.str());
-	DiEDClient.ClientIDChanged.connect(sigc::bind(sigc::mem_fun(*this, &GUI::MainWindow::vClientIDChanged), boost::ref(DiEDClient), pBox));
+	Client.vSetWidget(pBox);
+	if(DiEDClient.GetID() == m_System.GetLocalClientID())
+	{
+		Gtk::Widget * pLabel = m_Notebook.get_tab_label(*pBox);
+		
+		pLabel->modify_fg(Gtk::STATE_NORMAL, Gdk::Color(&Local));
+		pLabel->modify_fg(Gtk::STATE_ACTIVE, Gdk::Color(&Local));
+		DiEDClient.StatusChanged.connect(sigc::bind(sigc::mem_fun(*this, &GUI::MainWindow::vClientStatusChanged), boost::ref(DiEDClient)));
+	}
+	else
+	{
+		vClientStatusChanged(DiEDClient.GetID(), DiEDClient.GetStatus(m_System.GetLocalClientID()), boost::ref(DiEDClient));
+	}
 }
 
 void GUI::MainWindow::vInsertText(const Glib::ustring & sString, int iLine, int iCharacter)
@@ -89,12 +106,52 @@ void GUI::MainWindow::vInsertText(const Glib::ustring & sString, int iLine, int 
 	m_InsertConnection.unblock();
 }
 
-void GUI::MainWindow::vClientIDChanged(boost::reference_wrapper< DiED::Client > Client, Gtk::Widget * pClientWidget)
+void GUI::MainWindow::vClientStatusChanged(const DiED::clientid_t & ClientID, const DiED::User::Status & Status, boost::reference_wrapper< DiED::Client > Client)
 {
-	std::stringstream ssName;
+	GUI::Client * pClient(dynamic_cast< GUI::Client * >(m_System.pGetClient(ClientID)));
 	
-	ssName << Client.get().GetClientID();
-	m_Notebook.set_tab_label_text(*pClientWidget, ssName.str());
+	if(pClient == 0)
+	{
+		std::cout << "Schade: " << __FILE__ << ':' << __LINE__ << std::endl;
+		
+		return;
+	}
+	
+	Gtk::Widget * pClientWidget(pClient->pGetWidget());
+	
+	if(pClientWidget == 0)
+	{
+		std::cout << "Schade: " << __FILE__ << ':' << __LINE__ << std::endl;
+		
+		return;
+	}
+	
+	Gtk::Widget * pLabel = m_Notebook.get_tab_label(*pClientWidget);
+	
+	switch(Status)
+	{
+	case DiED::User::Connected:
+		{
+			pLabel->modify_fg(Gtk::STATE_NORMAL, Gdk::Color(&Connected));
+			pLabel->modify_fg(Gtk::STATE_ACTIVE, Gdk::Color(&Connected));
+			
+			break;
+		}
+	case DiED::User::Disconnected:
+		{
+			pLabel->modify_fg(Gtk::STATE_NORMAL, Gdk::Color(&Disconnected));
+			pLabel->modify_fg(Gtk::STATE_ACTIVE, Gdk::Color(&Disconnected));
+			
+			break;
+		}
+	case DiED::User::Deleted:
+		{
+			pLabel->modify_fg(Gtk::STATE_NORMAL, Gdk::Color(&Deleted));
+			pLabel->modify_fg(Gtk::STATE_ACTIVE, Gdk::Color(&Deleted));
+			
+			break;
+		}
+	}
 }
 
 void GUI::MainWindow::vHoldFlowButtonClicked(Gtk::Button * pHoldFlowButton, Gtk::Button * pNextButton, boost::reference_wrapper< GUI::Client > Client)

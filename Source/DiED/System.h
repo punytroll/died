@@ -22,6 +22,7 @@ namespace DiED
 		// functions which will setup the server or the connection to a network
 		bool bListen(const Network::port_t & ServicePort);
 		bool bConnectTo(const Network::address_t & ConnectAddress, const Network::port_t & ConnectPort);
+		DiED::clientid_t GetLocalClientID(void);
 		
 		// functions which will send messages to the connected clients
 		void vInput(const Glib::ustring & sString);
@@ -39,6 +40,7 @@ namespace DiED
 		virtual std::vector< DiED::clientid_t > GetConnectedClientIDs(void);
 		virtual std::vector< DiED::clientid_t > GetDisconnectedClientIDs(void);
 		virtual DiED::User::Status GetStatus(const DiED::clientid_t & ClientID1, const DiED::clientid_t & ClientID2);
+		DiED::Client * pGetClient(const DiED::clientid_t & ClientID);
 		
 		// signals
 		sigc::signal< void, DiED::Client & > ClientConnected;

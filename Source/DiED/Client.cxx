@@ -5,7 +5,8 @@
 #include "BasicMessage.h"
 
 DiED::Client::Client(DiED::InternalEnvironment & InternalEnvironment) :
-	m_InternalEnvironment(InternalEnvironment)
+	m_InternalEnvironment(InternalEnvironment),
+	m_Port(0)
 {
 //~ 	std::cout << "[DiED/Client]: Created new Client." << std::endl;
 }
@@ -174,7 +175,7 @@ void DiED::Client::vSend(boost::shared_ptr< DiED::BasicMessage > Message)
 			std::cout << "VERY BAD: " << __FILE__ << ':' << __LINE__ << std::endl;
 		}
 	}
-	if(m_InternalEnvironment.GetStatus(GetClientID()) == DiED::User::Connected)
+	if(m_InternalEnvironment.GetStatus(GetID()) == DiED::User::Connected)
 	{
 		if((m_MessageStream.get() != 0) && (m_MessageStream->bIsOpen() == true))
 		{
@@ -218,12 +219,12 @@ void DiED::Client::vKnownClients(bool bAskForKnownClients)
 	// somewhere in the lists is _this_ client
 	//  => but specification says we don't want to send the receiver's client ID with this message regardless of the list
 	//  => find it and erase it
-	iClient = find(DisconnectedClientIDs.begin(), DisconnectedClientIDs.end(), GetClientID());
+	iClient = find(DisconnectedClientIDs.begin(), DisconnectedClientIDs.end(), GetID());
 	if(iClient != DisconnectedClientIDs.end())
 	{
 		DisconnectedClientIDs.erase(iClient);
 	}
-	iClient = find(ConnectedClientIDs.begin(), ConnectedClientIDs.end(), GetClientID());
+	iClient = find(ConnectedClientIDs.begin(), ConnectedClientIDs.end(), GetID());
 	if(iClient != ConnectedClientIDs.end())
 	{
 		ConnectedClientIDs.erase(iClient);

@@ -26,15 +26,15 @@ namespace DiED
 		virtual ~User(void);
 		
 		// ClientID stuff
-		void vSetClientID(DiED::clientid_t ClientID);
-		DiED::clientid_t GetClientID(void);
-		sigc::signal< void > ClientIDChanged;
+		void vSetID(DiED::clientid_t ID);
+		DiED::clientid_t GetID(void);
 		
 		// Status stuff
 		void vSetStatus(const DiED::clientid_t & ClientID, DiED::User::Status Status);
 		Status GetStatus(const DiED::clientid_t & ClientID);
 		std::vector< DiED::clientid_t > GetConnectedClientIDs(void);
 		std::vector< DiED::clientid_t > GetDisconnectedClientIDs(void);
+		sigc::signal< void, DiED::clientid_t, DiED::User::Status > StatusChanged;
 		
 		// caret position stuff
 		void vModifyCaretPosition(int iDeltaLine, int iDeltaCharacter);
@@ -44,7 +44,7 @@ namespace DiED
 	private:
 		int m_iLine;
 		int m_iCharacter;
-		DiED::clientid_t m_ClientID;
+		DiED::clientid_t m_ID;
 		std::map< DiED::clientid_t, DiED::User::Status > m_Status;
 	};
 }

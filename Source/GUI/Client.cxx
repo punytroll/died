@@ -55,7 +55,7 @@ void GUI::Client::vOnMessageBegin(void)
 	
 	ssName << "Type = " << m_MessageStream->back()->GetType();
 	Row[m_MessageListStore->Columns.Name] = ssName.str();
-	Row[m_MessageListStore->Columns.ClientID] = GetClientID();
+	Row[m_MessageListStore->Columns.ClientID] = GetID();
 	Row[m_MessageListStore->Columns.Status] = "Downloading";
 //~ 	std::cout << "Message begin: " << ssName.str() << std::endl;
 	DiED::Client::vOnMessageBegin();
@@ -93,4 +93,14 @@ void GUI::Client::vHoldMessagesBack(bool bHoldMessagesBack)
 			DiED::Client::vOnMessageReady();
 		}
 	}
+}
+
+void GUI::Client::vSetWidget(Gtk::Widget * pWidget)
+{
+	m_pWidget = pWidget;
+}
+
+Gtk::Widget * GUI::Client::pGetWidget(void)
+{
+	return m_pWidget;
 }
