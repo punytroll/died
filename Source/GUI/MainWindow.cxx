@@ -198,16 +198,40 @@ void GUI::MainWindow::vDelete(int iFromLine, int iFromCharacter, int iToLine, in
 //~ 	m_EraseConnection.unblock();
 }
 
-int GUI::MainWindow::iGetNumberOfLines(void)
+int GUI::MainWindow::iGetNumberOfLines(void) const
 {
 	return m_TextBuffer->get_line_count();
 }
 
-int GUI::MainWindow::iGetLengthOfLine(int iLine)
+int GUI::MainWindow::iGetLengthOfLine(int iLine) const
 {
 	Gtk::TextIter Iterator(m_TextBuffer->get_iter_at_line(iLine));
 	
 	return Iterator.get_chars_in_line();
+}
+
+Glib::ustring GUI::MainWindow::sGetDocument(void) const
+{
+	return m_TextBuffer->get_text();
+}
+
+void GUI::MainWindow::vSetDocument(const Glib::ustring & sDocument)
+{
+//~ 	m_InsertConnection.block();
+	g_signal_handler_block(m_TextBuffer->gobj(), m_ulInsertTextHandlerID);
+	m_TextBuffer->set_text(sDocument);
+	m_TextBuffer->place_cursor(m_TextBuffer->begin());
+	g_signal_handler_unblock(m_TextBuffer->gobj(), m_ulInsertTextHandlerID);
+}
+
+int GUI::MainWindow::iGetLine(void) const
+{
+	return m_TextBuffer->get_iter_at_mark(m_TextBuffer->get_mark("insert")).get_line();
+}
+
+int GUI::MainWindow::iGetCharacter(void) const
+{
+	return m_TextBuffer->get_iter_at_mark(m_TextBuffer->get_mark("insert")).get_line_offset();
 }
 
 void GUI::MainWindow::vClientStatusChanged(const DiED::clientid_t & ClientID, const DiED::clientstatus_t & Status, boost::reference_wrapper< DiED::Client > Client)

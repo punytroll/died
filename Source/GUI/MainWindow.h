@@ -36,8 +36,12 @@ namespace GUI
 		virtual void vNewClient(DiED::Client & Client);
 		virtual void vInsert(const Glib::ustring & sString, int iLine, int iCharacter);
 		virtual void vDelete(int iFromLine, int iFromCharacter, int iToLine, int iToCharacter);
-		virtual int iGetNumberOfLines(void);
-		virtual int iGetLengthOfLine(int iLine);
+		virtual int iGetNumberOfLines(void) const;
+		virtual int iGetLengthOfLine(int iLine) const;
+		virtual Glib::ustring sGetDocument(void) const;
+		virtual void vSetDocument(const Glib::ustring & sDocument);
+		virtual int iGetLine(void) const;
+		virtual int iGetCharacter(void) const;
 		
 		// callbacks
 		void vClientStatusChanged(const DiED::clientid_t & ClientID, const DiED::clientstatus_t & Status, boost::reference_wrapper< DiED::Client > Client);
