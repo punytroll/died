@@ -22,9 +22,9 @@ namespace Network
 		{
 		}
 		
-		size_t stGetSize(void) const
+		virtual size_t stGetSize(void) const
 		{
-			return sizeof(m_stSize) + m_stSize * sizeof(Type);
+			return sizeof(size_t) + size() * sizeof(Type);
 		}
 		
 		virtual void vReadFrom(boost::shared_ptr< Network::BasicReader > Reader)

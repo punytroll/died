@@ -19,7 +19,7 @@ namespace Network
 		{
 		}
 		
-		size_t stGetSize(void) const
+		virtual size_t stGetSize(void) const
 		{
 			return sizeof(Type);
 		}
