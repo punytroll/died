@@ -1,4 +1,4 @@
-Why is <ALT-GR>+<m> giving a UTF8 error???
+Why is <ALT-GR>+<m> giving a UTF8 error??? Coming from the treeview.
 
 I have a five client scenario that crashes almost always immediately:
 $> ./Source/died
@@ -10,4 +10,8 @@ WHY??
 
 Add Server.vClose
 
-SessionKeys
+Prevent user from typing.
+
+Debug widget can be turned off with NODEBUG. Compiled in is standard but has to be turned on with --debug.
+
+Process event queue on reconnect.
