@@ -11,7 +11,8 @@ namespace DiED
 		_HelloMessage,
 		_InputMessage,
 		_PingMessage,
-		_PongMessage
+		_PongMessage,
+		_ConnectionEstablishedMessage
 	};
 	
 	class NoMessage : public DiED::BasicMessage
@@ -70,6 +71,22 @@ namespace DiED
 		virtual void vExecute(DiED::Client & Client);
 	protected:
 		virtual void vWriteToInternal(Network::Stream & Stream) const;
+	};
+	
+	class ConnectionEstablishedMessage : public DiED::BasicMessage
+	{
+	public:
+		ConnectionEstablishedMessage(void);
+		ConnectionEstablishedMessage(const DiED::clientid_t & ClientID, const Network::address_t & ClientAddress, const Network::port_t & ClientPort);
+		virtual bool bIsReady(void) const;
+		virtual void vReadFrom(Network::Stream & Stream);
+		virtual void vExecute(DiED::Client & Client);
+	protected:
+		virtual void vWriteToInternal(Network::Stream & Stream) const;
+	private:
+		Network::Value< DiED::clientid_t > m_ClientID;
+		Network::Value< Network::address_t > m_ClientAddress;
+		Network::Value< Network::port_t > m_ClientPort;
 	};
 }
 

@@ -138,7 +138,11 @@ void DiED::System::vSendMessage(Network::BasicMessage & Message)
 	}
 }
 
-void DiED::System::vAccepted(boost::shared_ptr< Network::Socket > Client)
+void DiED::System::vAccepted(boost::shared_ptr< Network::Socket > Socket)
 {
-	m_Clients.push_back(Client);
+	m_Clients.push_back(Socket);
+	
+	DiED::Client & Client(dynamic_cast< DiED::Client & >(*Socket));
+	
+	Client << ConnectionEstablishedMessage(12345, "blubblub.org", 9876);
 }
