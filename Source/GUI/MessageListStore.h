@@ -23,7 +23,7 @@ namespace GUI
 				add(ClientID);
 				add(Name);
 				add(Status);
-				add(Color)
+				add(Color);
 			}
 		};
 	public:
