@@ -1,0 +1,187 @@
+(************** Content-type: application/mathematica **************
+                     CreatedBy='Mathematica 5.0'
+
+                    Mathematica-Compatible Notebook
+
+This notebook can be used with any Mathematica-compatible
+application, such as Mathematica, MathReader or Publicon. The data
+for the notebook starts with the line containing stars above.
+
+To get the notebook into a Mathematica-compatible application, do
+one of the following:
+
+* Save the data starting with the line of stars above into a file
+  with a name ending in .nb, then open the file inside the
+  application;
+
+* Copy the data starting with the line of stars above to the
+  clipboard, then use the Paste menu command inside the application.
+
+Data for notebooks contains only printable 7-bit ASCII and can be
+sent directly in email or through ftp in text mode.  Newlines can be
+CR, LF or CRLF (Unix, Macintosh or MS-DOS style).
+
+NOTE: If you modify the data for this notebook not in a Mathematica-
+compatible application, you must delete the line below containing
+the word CacheID, otherwise Mathematica-compatible applications may
+try to use invalid cache data.
+
+For more information on notebooks and Mathematica-compatible 
+applications, contact Wolfram Research:
+  web: http://www.wolfram.com
+  email: info@wolfram.com
+  phone: +1-217-398-0700 (U.S.)
+
+Notebook reader applications are available free of charge from 
+Wolfram Research.
+*******************************************************************)
+
+(*CacheID: 232*)
+
+
+(*NotebookFileLineBreakTest
+NotebookFileLineBreakTest*)
+(*NotebookOptionsPosition[      5666,        133]*)
+(*NotebookOutlinePosition[      6333,        156]*)
+(*  CellTagsIndexPosition[      6289,        152]*)
+(*WindowFrame->Normal*)
+
+
+
+Notebook[{
+
+Cell[CellGroupData[{
+Cell["Concerning the architecture of DiED", "Title"],
+
+Cell["Rationals and explanations", "Subtitle"],
+
+Cell[CellGroupData[{
+
+Cell["The \"Network\" component", "Section"],
+
+Cell["\<\
+The network component manages all things of DiED that are necessary \
+to implement the DiED protocol but do not contain parts of the protocol's \
+details. These details are implementation, workflow logic and data \
+structures. The \"Network\" component tries to be as generic as possible.
+It consists of some basic elements:\
+\>", "Text"],
+
+Cell[CellGroupData[{
+
+Cell["Socket", "Subsubsection"],
+
+Cell["\<\
+The Socket is just another try to conceive a generic C++ class that \
+encapsulates the basics of UNIX socket management and provides all the \
+functionality through an easy-to-use interface. The Socket base class is not \
+meant to be used directly, because UNIX sockets can be distinguished into \
+server sockets and stream connections. This distiction is found in the two \
+derivatives of Socket: Stream and Server.
+The idea is to make the Socket class handle all interaction with the system \
+so that Stream and Server can act without calling any C functions from the \
+standard library. This makes it possible to have a common, simple error \
+handling model.
+The Socket is completely non-blocking. Apart from the fact that read and \
+write operations are completely non-blocking this also means that a \
+connection can be established although it is not right after the Open method \
+returned. In order to have control over the status of the socket there is a \
+method that returns the status of the socket, which may be Disconnected \
+(initially), Connecting (when the process of connecting starts) and Connected \
+after the connection has been established successfully. Once the connection \
+is terminated the status is Disconnected again.
+Additionally there are three sigc++ signals to which you can connect. Namely: \
+Disconnected, Connecting and Connected. Disconnected is fired when the status \
+Disconnected is entered, either from Connecting when the attempt to connect \
+failed or from Connected when the connection was terminated. The reason for a \
+connection termination can be one of three: remote disconnect, socket \
+destruction or call to the method Close. Connecting is fired when the status \
+of the socket changes from Disconnected to Connecting. A call to the function \
+connect may return successfully (with true) although the connection could not \
+be established yet. In this case the socket will be in the state Connecting \
+for as long as it takes the kernel to establish a connection or abort the \
+attempt.\
+\>", "Text"]
+}, Open  ]],
+
+Cell[CellGroupData[{
+
+Cell["Server", "Subsubsection"],
+
+Cell["\<\
+The Server socket is a lightweight class as it only provides the \
+functionality to set up and shut down the server. The Server is a template \
+class requirering the type of the socket to be created when a new connection \
+arrives.
+An alternative to this template mechanism could have been to pass a factory \
+object to the server which could create the appropriate socket. However, I \
+think, this is not optimal in this case. Factories are mighty tools to \
+organize and decide the creation of objects from a whole set of classes, \
+based on one or more parameters. But in this case there are no parameters \
+that could be used to distinguish or justify the instantiation of a certain \
+class from a set of classes.
+The fact that servers creating different sockets do not have the same type \
+is, in my eyes, a plus rather than a fault. It is most unlikely that servers \
+should be put into containers. Plus, you have the benefit that the socket \
+object which is passed through the Accepted signal is of the type you \
+instantiated the template with, not of the basic socket type. That is one \
+dynamic_cast less.\
+\>", "Text"]
+}, Open  ]]
+}, Open  ]]
+}, Open  ]]
+},
+FrontEndVersion->"5.0 for X",
+ScreenRectangle->{{0, 1152}, {0, 864}},
+WindowSize->{1145, 784},
+WindowMargins->{{0, Automatic}, {Automatic, 0}},
+StyleDefinitions -> "TutorialBook.nb"
+]
+
+(*******************************************************************
+Cached data follows.  If you edit this Notebook file directly, not
+using Mathematica, you must remove the line containing CacheID at
+the top of  the file.  The cache data will then be recreated when
+you save this file from within Mathematica.
+*******************************************************************)
+
+(*CellTagsOutline
+CellTagsIndex->{}
+*)
+
+(*CellTagsIndex
+CellTagsIndex->{}
+*)
+
+(*NotebookFileOutline
+Notebook[{
+
+Cell[CellGroupData[{
+Cell[1776, 53, 52, 0, 70, "Title"],
+Cell[1831, 55, 46, 0, 33, "Subtitle"],
+
+Cell[CellGroupData[{
+Cell[1902, 59, 44, 0, 92, "Section"],
+Cell[1949, 61, 348, 6, 77, "Text"],
+
+Cell[CellGroupData[{
+Cell[2322, 71, 31, 0, 43, "Subsubsection"],
+Cell[2356, 73, 2059, 30, 310, "Text"]
+}, Open  ]],
+
+Cell[CellGroupData[{
+Cell[4452, 108, 31, 0, 43, "Subsubsection"],
+Cell[4486, 110, 1140, 18, 165, "Text"]
+}, Open  ]]
+}, Open  ]]
+}, Open  ]]
+}
+]
+*)
+
+
+
+(*******************************************************************
+End of Mathematica Notebook file.
+*******************************************************************)
+
