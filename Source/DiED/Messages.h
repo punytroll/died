@@ -36,6 +36,8 @@ namespace DiED
 		ConnectionRequestMessage(void);
 		ConnectionRequestMessage(const DiED::clientid_t & ClientID, const Network::port_t & Port);
 		virtual void vExecute(DiED::MessageTarget & MessageTarget);
+		virtual bool bRequiresConfirmation(void);
+		virtual bool bIsConfirmedBy(boost::shared_ptr< DiED::ConfirmationParameters > ConfirmationParameters);
 		virtual Glib::ustring sGetString(void);
 	private:
 		Network::Value< DiED::clientid_t > m_ClientID;
@@ -48,6 +50,7 @@ namespace DiED
 		ConnectionAcceptMessage(void);
 		ConnectionAcceptMessage(const DiED::clientid_t & RemoteClientID, const DiED::clientid_t & LocalClientID);
 		virtual void vExecute(DiED::MessageTarget & MessageTarget);
+		virtual boost::shared_ptr< DiED::ConfirmationParameters > GetConfirmationParameters(void);
 		virtual Glib::ustring sGetString(void);
 	private:
 		Network::Value< DiED::clientid_t > m_RemoteClientID;
@@ -111,6 +114,8 @@ namespace DiED
 		PingMessage(const DiED::messageid_t & PingID);
 		virtual void vExecute(DiED::MessageTarget & MessageTarget);
 		virtual Glib::ustring sGetString(void);
+		virtual bool bRequiresConfirmation(void);
+		virtual bool bIsConfirmedBy(boost::shared_ptr< DiED::ConfirmationParameters > ConfirmationParameters);
 	private:
 		Network::Value< DiED::messageid_t > m_PingID;
 	};
@@ -122,6 +127,7 @@ namespace DiED
 		PongMessage(const DiED::messageid_t & PingID);
 		virtual void vExecute(DiED::MessageTarget & MessageTarget);
 		virtual Glib::ustring sGetString(void);
+		virtual boost::shared_ptr< DiED::ConfirmationParameters > GetConfirmationParameters(void);
 	private:
 		Network::Value< DiED::messageid_t > m_PingID;
 	};
