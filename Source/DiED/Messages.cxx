@@ -193,3 +193,29 @@ void DiED::ConnectionLostMessage::vWriteToInternal(Network::Stream & Stream) con
 {
 	Stream << m_ClientID;
 }
+
+DiED::TestMessage::TestMessage(void) :
+	DiED::BasicMessage(DiED::_TestMessage, true)
+{
+}
+
+bool DiED::TestMessage::bIsReady(void) const
+{
+	return true;
+}
+
+void DiED::TestMessage::vReadFrom(Network::Stream & Stream)
+{
+	Stream >> m_Values;
+}
+
+void DiED::TestMessage::vExecute(DiED::Client & Client)
+{
+	std::cout << "Executing a Test message with " << m_Values.size() << " parameter(s):";
+	std::cout << std::endl;
+}
+
+void DiED::TestMessage::vWriteToInternal(Network::Stream & Stream) const
+{
+	Stream << m_Values;
+}
