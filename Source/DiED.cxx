@@ -47,9 +47,10 @@ int main(int argc, char ** argv)
 	
 	Gtk::Main Main(argc, argv);
 	DiED::System DiEDSystem;
+	boost::shared_ptr< DiED::ClientFactory > DummyFactoryFactory(new DiED::ClientFactory(DiEDSystem));
 	boost::shared_ptr< GUI::ClientFactory > ClientFactory(new GUI::ClientFactory(DiEDSystem));
 	
-	DiEDSystem.GetServer().vSetSocketFactory(ClientFactory);
+	DiEDSystem.vSetClientFactory(ClientFactory);
 	DiEDSystem.bListen(ServerPort);
 	if(ConnectAddress != "")
 	{
