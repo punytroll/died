@@ -18,6 +18,7 @@ DiED::Client::~Client(void)
 
 void DiED::Client::vSetMessageStream(boost::shared_ptr< Network::MessageStream > MessageStream)
 {
+//~ 	std::cout << "Setting the MessageStream for " << GetID() << " to " << MessageStream.get() << std::endl;
 	// disconnect old relations to the current MessageStream
 	m_BytesSentConnection.disconnect();
 	m_MessageBeginConnection.disconnect();
