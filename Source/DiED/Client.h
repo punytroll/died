@@ -32,6 +32,7 @@ namespace DiED
 		
 		// messages
 		DiED::Client & operator<<(boost::shared_ptr< Network::BasicMessage > Message);
+		virtual void vExecuteTopMessage(void);
 		
 		u_int32_t m_u32KnownClientsMessageID;
 		
@@ -45,8 +46,6 @@ namespace DiED
 		virtual void vOnMessageBegin(void);
 		virtual void vOnMessageExecuted(void);
 		void vBytesSent(size_t stSize);
-		// operations
-		virtual void vExecuteTopMessage(void);
 	private:
 		DiED::InternalEnvironment & m_InternalEnvironment;
 	protected:
