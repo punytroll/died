@@ -29,7 +29,7 @@ namespace DiED
 		
 		// implementation of the InternalEnvironment interface
 		virtual void vConnectionRequest(DiED::User & User, const DiED::clientid_t & ClientID);
-		virtual void vConnectionAccept(DiED::User & User, const DiED::clientid_t & LocalClientID, const DiED::clientid_t & RemoteClientID);
+		virtual void vConnectionAccept(DiED::User & User, const DiED::clientid_t & AccepterClientID, const DiED::clientid_t & RequesterClientID);
 		virtual void vKnownClients(DiED::User & User, const DiED::messageid_t & MessageID, const std::vector< DiED::clientid_t > & ConnectedClientIDs, const std::vector< DiED::clientid_t > & DisconnectedClientIDs);
 		virtual void vClientsRegistered(DiED::User & User, const DiED::messageid_t & MessageID);
 		virtual void vConnectionEstablished(DiED::User & User, const DiED::clientid_t & ClientID, const Network::address_t & ClientAddress, const Network::port_t & ClientPort);

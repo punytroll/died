@@ -232,14 +232,14 @@ void DiED::System::vConnectionRequest(DiED::User & User, const DiED::clientid_t 
 		std::cout << "TODO: test connection with ping." << std::endl;
 		// => the local client is known in the network it is connecting to
 		iClient->second->vSetMessageStream(Client->GetMessageStream());
-		iClient->second->vConnectionAccept(ClientID, m_Client->GetID());
+		iClient->second->vConnectionAccept(m_Client->GetID(), ClientID);
 		Client->vSetMessageStream(boost::shared_ptr< Network::MessageStream >());
 		// TODO: what to do with the iPreliminaryClient ... it is invalid and emtpy (no socket) but MUST NOT be deleted from here
 	}
 	std::cout << "           ConnectionRequest message from " << User.GetID() << '\n' << std::endl;
 }
 
-void DiED::System::vConnectionAccept(DiED::User & User, const DiED::clientid_t & LocalClientID, const DiED::clientid_t & RemoteClientID)
+void DiED::System::vConnectionAccept(DiED::User & User, const DiED::clientid_t & AccepterClientID, const DiED::clientid_t & RequesterClientID)
 {
 	std::cout << "Processing ConnectionAccept message from " << User.GetID() << std::endl;
 	
@@ -250,12 +250,12 @@ void DiED::System::vConnectionAccept(DiED::User & User, const DiED::clientid_t &
 	{
 		// this can happen if we connect to a client we already know the ClientID of and thus is registered already
 		//  => User IS the valid client, so we only need to resolve it
-		std::map< DiED::clientid_t, boost::shared_ptr< DiED::Client > >::iterator iClient(m_Clients.find(RemoteClientID));
+		std::map< DiED::clientid_t, boost::shared_ptr< DiED::Client > >::iterator iClient(m_Clients.find(AccepterClientID));
 		
 		if(iClient == m_Clients.end())
 		{
 			// this is very bad indeed
-			std::cout << "VERY BAD: " << __FILE__ << ':' << __LINE__ << " ; RemoteClientID = " << RemoteClientID << " ; User.ClientID = " << User.GetID() << std::endl;
+			std::cout << "VERY BAD: " << __FILE__ << ':' << __LINE__ << " ; AccepterClientID = " << AccepterClientID << " ; User.ClientID = " << User.GetID() << std::endl;
 			
 			throw;
 		}
@@ -267,27 +267,27 @@ void DiED::System::vConnectionAccept(DiED::User & User, const DiED::clientid_t &
 	else
 	{
 		Client = iPreliminaryClient->second;
-		RegisterClient(Client, RemoteClientID);
+		RegisterClient(Client, AccepterClientID);
 	}
 	
 	// if we get assigned a client ID '0' there is nothing for it but to close the socket
-	if(LocalClientID == 0)
+	if(RequesterClientID == 0)
 	{
-		std::cout << "[System]: We got a LocalClientID == 0." << std::endl;
+		std::cout << "[System]: We got a RequesterClientID == 0." << std::endl;
 		Client->vSetMessageStream(boost::shared_ptr< Network::MessageStream >());
 	}
-	if(m_Client->GetID() != LocalClientID)
+	if(m_Client->GetID() != RequesterClientID)
 	{
 		// in this case the local client is a newling to the network
 		if(m_Client->GetID() != 0)
 		{
 			// this seems to be a reconnection to a network and we have a client id, meaning m_Client already is in the client list
 			//  => if this happens we need to examine the case
-			std::cout << "VERY BAD: m_Client->GetID() = " << m_Client->GetID() << " ; LocalClientID = " << LocalClientID << "  " << __FILE__ << ':' << __LINE__ << std::endl;
+			std::cout << "VERY BAD: m_Client->GetID() = " << m_Client->GetID() << " ; RequesterClientID = " << RequesterClientID << "  " << __FILE__ << ':' << __LINE__ << std::endl;
 		}
 		else
 		{
-			RegisterClient(m_Client, LocalClientID);
+			RegisterClient(m_Client, RequesterClientID);
 		}
 		// newlings are not expected to do anything else
 	}

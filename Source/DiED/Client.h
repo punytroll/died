@@ -34,7 +34,7 @@ namespace DiED
 		// messages
 		void vSend(boost::shared_ptr< DiED::BasicMessage > Message);
 		void vConnectionRequest(const DiED::clientid_t & ClientID, const Network::port_t & Port);
-		void vConnectionAccept(const DiED::clientid_t & LocalClientID, const DiED::clientid_t & RemoteClientID);
+		void vConnectionAccept(const DiED::clientid_t & AccepterClientID, const DiED::clientid_t & RequesterClientID);
 		void vKnownClients(bool bAskForKnownClients = false);
 		void vClientsRegistered(const DiED::messageid_t & MessageID);
 		void vConnectionEstablished(const DiED::clientid_t & ClientID, const Network::address_t & ClientAddress, const Network::port_t & ClientPort);
@@ -56,7 +56,7 @@ namespace DiED
 		// message handler
 		virtual void vHandleInsertText(const Glib::ustring & sString);
 		virtual void vHandleConnectionRequest(const DiED::clientid_t & ClientID, const Network::port_t & Port);
-		virtual void vHandleConnectionAccept(const DiED::clientid_t & LocalClientID, const DiED::clientid_t & RemoteClientID);
+		virtual void vHandleConnectionAccept(const DiED::clientid_t & AccepterClientID, const DiED::clientid_t & RequesterClientID);
 		virtual void vHandleKnownClients(const DiED::messageid_t & MessageID, const std::vector< DiED::clientid_t > & ConnectedClientIDs, const std::vector< DiED::clientid_t > & DisconnectedClientIDs);
 		virtual void vHandleClientsRegistered(const DiED::messageid_t & MessageID);
 		virtual void vHandleConnectionEstablished(const DiED::clientid_t & ClientID, const Network::address_t & ClientAddress, const Network::port_t & ClientPort);
