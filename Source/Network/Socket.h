@@ -1,5 +1,5 @@
-#ifndef SOCKET_H
-#define SOCKET_H
+#ifndef NETWORK_SOCKET_H
+#define NETWORK_SOCKET_H
 
 #include <sigc++/sigc++.h>
 

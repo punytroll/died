@@ -31,8 +31,7 @@ void DiED::System::vSetClientFactory(boost::shared_ptr< DiED::ClientFactory > Cl
 	if((!m_ClientFactory) && (!m_Client))
 	{
 		m_Client = boost::dynamic_pointer_cast< DiED::Client >(ClientFactory->GetSocket());
-		m_Clients.insert(std::make_pair(m_Client->GetClientID(), m_Client));
-		m_pExternalEnvironment->vClientConnected(*m_Client);
+		vRegisterClient(m_Client);
 	}
 	m_ClientFactory = ClientFactory;
 	m_Server.vSetSocketFactory(ClientFactory);
@@ -72,8 +71,7 @@ bool DiED::System::bConnectTo(const Network::address_t & ConnectAddress, const N
 		std::cout << "[Client]: Connected to " << ConnectAddress << ':' << ConnectPort << std::endl;
 		Client->operator<<(DiED::ConnectionRequestMessage(m_Client->GetClientID(), m_ServicePort));
 	}
-	m_Clients.insert(std::make_pair(Client->GetClientID(), Client));
-	m_pExternalEnvironment->vClientConnected(*Client);
+	vRegisterClient(Client);
 	
 	return true;
 }
@@ -140,77 +138,71 @@ void DiED::System::vInsertText(DiED::User & User, const Glib::ustring & sString,
 
 void DiED::System::vConnectionRequest(DiED::User & User, const DiED::clientid_t & ClientID)
 {
+	// first of all: if we have no ID (not connected to a network) and somebody connects to us we have to make an ID ourself
+	if(m_Client->GetClientID() == 0)
+	{
+		vAssignClientID(*m_Client, rand());
+	}
+	
 	std::multimap< DiED::clientid_t, boost::shared_ptr< DiED::Client > >::iterator iClient(m_Clients.find(ClientID));
-	boost::shared_ptr< DiED::Client > Client;
+	DiED::Client & Client(dynamic_cast< DiED::Client & >(User));
 	
 	if((iClient == m_Clients.end()) || (ClientID == 0))
 	{
-		if(m_Client->GetClientID() == 0)
-		{
-			m_Client->vSetClientID(rand());
-		}
-		
-		std::multimap< DiED::clientid_t, boost::shared_ptr< DiED::Client > >::iterator iFirstClientIDZero(m_Clients.lower_bound(0));
-		std::multimap< DiED::clientid_t, boost::shared_ptr< DiED::Client > >::iterator iLastClientIDZero(m_Clients.upper_bound(0));
-		
-		while(iFirstClientIDZero != iLastClientIDZero)
-		{
-			if(&(*(iFirstClientIDZero->second)) == &User)
-			{
-				Client = iFirstClientIDZero->second;
-				m_Clients.erase(iFirstClientIDZero);
-				
-				DiED::clientid_t NewClientID;
-				
-				do
-				{
-					NewClientID = rand();
-				} while(m_Clients.find(NewClientID) != m_Clients.end());
-				Client->vSetClientID(NewClientID);
-				m_Clients.insert(std::make_pair(Client->GetClientID(), Client));
-				
-				break;
-			}
-			++iFirstClientIDZero;
-		}
-		if(iFirstClientIDZero == iLastClientIDZero)
-		{
-			std::cout << "VERY BAD!! " << __FILE__ << ':' << __LINE__ << std::endl;
-			
-			throw;
-		}
-		Client->operator<<(ConnectionAcceptMessage(Client->GetClientID(), m_Client->GetClientID()));
+		vAssignClientID(Client, rand());
+		Client << ConnectionAcceptMessage(Client.GetClientID(), m_Client->GetClientID());
+		// send KnownClients to this client
+		Client.m_u32KnownClientsMessageID = rand();
+		Client << KnownClientsMessage(Client.m_u32KnownClientsMessageID, GetConnectedClientIDs(), GetDisconnectedClientIDs());
 	}
 	else
 	{
+		std::cout << "TODO: " << __FILE__ << __LINE__ << std::endl;
 	}
 }
 
 void DiED::System::vAssignClientID(DiED::Client & Client, const DiED::clientid_t & ClientID)
 {
+	if(ClientID == 0)
+	{
+		std::cout << "VERY BAD: " << __FILE__ << ':' << __LINE__ << std::endl;
+	}
+	
 	DiED::clientid_t OldClientID(Client.GetClientID());
 	
-	if(OldClientID != ClientID)
+	if(OldClientID != 0)
 	{
-		std::multimap< DiED::clientid_t, boost::shared_ptr< DiED::Client > >::iterator iClient(m_Clients.lower_bound(OldClientID));
-		std::multimap< DiED::clientid_t, boost::shared_ptr< DiED::Client > >::iterator iLastClient(m_Clients.upper_bound(OldClientID));
+		std::cout << "VERY BAD: " << __FILE__ << ':' << __LINE__ << std::endl;
+	}
+	
+	std::multimap< DiED::clientid_t, boost::shared_ptr< DiED::Client > >::iterator iClient(m_Clients.lower_bound(OldClientID));
+	std::multimap< DiED::clientid_t, boost::shared_ptr< DiED::Client > >::iterator iLastClient(m_Clients.upper_bound(OldClientID));
+	
+	while((iClient != iLastClient) && (&(*(iClient->second)) != &Client))
+	{
+		++iClient;
+	}
+	if(iClient == iLastClient)
+	{
+		std::cout << "VERY BAD!! " << __FILE__ << ':' << __LINE__ << std::endl;
 		
-		while((iClient != iLastClient) && (&(*(iClient->second)) != &Client))
+		throw;
+	}
+	
+	boost::shared_ptr< DiED::Client > ClientPtr(iClient->second);
+	
+	m_Clients.erase(iClient);
+	ClientPtr->vSetClientID(ClientID);
+	m_Clients.insert(std::make_pair(ClientID, ClientPtr));
+	iClient = m_Clients.begin();
+	while(iClient != m_Clients.end())
+	{
+		if((iClient->first != 0) && (&(*(iClient->second)) != &Client))
 		{
-			++iClient;
+			iClient->second->vSetStatus(ClientID, DiED::User::Disconnected);
+			Client.vSetStatus(iClient->first, DiED::User::Disconnected);
 		}
-		if(iClient == iLastClient)
-		{
-			std::cout << "VERY BAD!! " << __FILE__ << ':' << __LINE__ << std::endl;
-			
-			throw;
-		}
-		
-		boost::shared_ptr< DiED::Client > ClientPtr(iClient->second);
-		
-		m_Clients.erase(iClient);
-		ClientPtr->vSetClientID(ClientID);
-		m_Clients.insert(std::make_pair(ClientID, ClientPtr));
+		++iClient;
 	}
 }
 
@@ -226,8 +218,17 @@ void DiED::System::vConnectionAccept(DiED::User & User, const DiED::clientid_t &
 	if(m_Client->GetClientID() != LocalClientID)
 	{
 		vAssignClientID(*m_Client, LocalClientID);
-		// send KnownClients to Client
 	}
+}
+
+std::vector< DiED::clientid_t > DiED::System::GetConnectedClientIDs(void)
+{
+	return m_Client->GetConnectedClientIDs();
+}
+
+std::vector< DiED::clientid_t > DiED::System::GetDisconnectedClientIDs(void)
+{
+	return m_Client->GetDisconnectedClientIDs();
 }
 
 void DiED::System::vSendMessage(Network::BasicMessage & Message)
@@ -245,8 +246,13 @@ void DiED::System::vSendMessage(Network::BasicMessage & Message)
 
 void DiED::System::vAccepted(boost::shared_ptr< Network::Socket > Socket)
 {
-	boost::shared_ptr< DiED::Client > NewClient(boost::dynamic_pointer_cast< DiED::Client >(Socket));
+	boost::shared_ptr< DiED::Client > Client(boost::dynamic_pointer_cast< DiED::Client >(Socket));
 	
-	m_Clients.insert(std::make_pair(NewClient->GetClientID(), NewClient));
-	m_pExternalEnvironment->vClientConnected(*NewClient);
+	vRegisterClient(Client);
+}
+
+void DiED::System::vRegisterClient(boost::shared_ptr< DiED::Client > Client)
+{
+	m_Clients.insert(std::make_pair(Client->GetClientID(), Client));
+	m_pExternalEnvironment->vNewClient(*Client);
 }

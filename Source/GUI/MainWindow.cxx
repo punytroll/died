@@ -37,7 +37,7 @@ bool GUI::MainWindow::bKeyPressed(GdkEventKey * pEvent)
 	return false;
 }
 
-void GUI::MainWindow::vClientConnected(DiED::Client & DiEDClient)
+void GUI::MainWindow::vNewClient(DiED::Client & DiEDClient)
 {
 	GUI::Client & Client(dynamic_cast< GUI::Client & >(DiEDClient));
 	Gtk::ScrolledWindow * pScrolledWindow(manage(new Gtk::ScrolledWindow()));

@@ -12,6 +12,7 @@ namespace DiED
 		_NoMessage,
 		_ConnectionRequestMessage,
 		_ConnectionAcceptMessage,
+		_KnownClientsMessage,
 		_InputMessage,
 		_PingMessage,
 		_PongMessage,
@@ -62,6 +63,23 @@ namespace DiED
 	private:
 		Network::Value< DiED::clientid_t > m_RemoteClientID;
 		Network::Value< DiED::clientid_t > m_LocalClientID;
+	};
+	
+	class KnownClientsMessage : public DiED::BasicMessage
+	{
+	public:
+		KnownClientsMessage(void);
+		KnownClientsMessage(u_int32_t u32MessageID, std::vector< DiED::clientid_t > ConnectedClientIDs, std::vector< DiED::clientid_t > DisconnectedClientIDs);
+		virtual bool bIsReady(void) const;
+		virtual void vReadFrom(Network::Stream & Stream);
+		virtual void vExecute(DiED::Client & Client);
+		virtual Glib::ustring sGetString(void);
+	protected:
+		virtual void vWriteToInternal(Network::Stream & Stream) const;
+	private:
+		Network::Value< u_int32_t > m_MessageID;
+		Network::VectorValue< DiED::clientid_t > m_ConnectedClientIDs;
+		Network::VectorValue< DiED::clientid_t > m_DisconnectedClientIDs;
 	};
 	
 	class InputMessage : public DiED::BasicMessage

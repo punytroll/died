@@ -12,6 +12,8 @@ bool g_bDone = false;
 
 int main(int argc, char ** argv)
 {
+	srand(time(0));
+	
 	Network::port_t ServerPort = 5867;
 	Network::port_t ConnectPort = 5867;
 	Network::address_t ConnectAddress = "";

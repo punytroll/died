@@ -30,7 +30,7 @@ namespace Network
 		void vMessageTypeReady(void);
 		
 		boost::shared_ptr< Network::MessageFactory > m_MessageFactory;
-		Value< u_int32_t > m_MessageType;
+		Network::Value< u_int32_t > m_MessageType;
 		Network::NotifyValue m_NotifyValue;
 	};
 }

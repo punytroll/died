@@ -19,7 +19,7 @@ namespace GUI
 		bool bKeyPressed(GdkEventKey * pEvent);
 		
 		// implementation of DiED::ExternalEnvironment
-		virtual void vClientConnected(DiED::Client & Client);
+		virtual void vNewClient(DiED::Client & Client);
 		virtual void vInsertText(const Glib::ustring & sString, int iLine, int iCharacter);
 		
 		// callbacks

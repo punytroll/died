@@ -30,6 +30,8 @@ namespace DiED
 		virtual void vConnectionRequest(DiED::User & User, const DiED::clientid_t & ClientID);
 		virtual void vConnectionAccept(DiED::User & User, const DiED::clientid_t & LocalClientID, const DiED::clientid_t & RemoteClientID);
 		virtual void vInsertText(DiED::User & User, const Glib::ustring & sString);
+		virtual std::vector< DiED::clientid_t > GetConnectedClientIDs(void);
+		virtual std::vector< DiED::clientid_t > GetDisconnectedClientIDs(void);
 		
 		// signals
 		sigc::signal< void, DiED::Client & > ClientConnected;
@@ -39,6 +41,7 @@ namespace DiED
 		virtual void vAccepted(boost::shared_ptr< Network::Socket > Client);
 	private:
 		void vAssignClientID(DiED::Client & Client, const DiED::clientid_t & ClientID);
+		void vRegisterClient(boost::shared_ptr< DiED::Client > Client);
 		boost::shared_ptr< DiED::MessageFactory > m_MessageFactory;
 		boost::shared_ptr< DiED::ClientFactory > m_ClientFactory;
 		boost::shared_ptr< DiED::Client > m_Client;
