@@ -1,6 +1,7 @@
 #ifndef NETWORK_VECTORVALUE_H
 #define NETWORK_VECTORVALUE_H
 
+#include <set>
 #include <vector>
 
 #include "BasicValue.h"
@@ -20,6 +21,18 @@ namespace Network
 			std::vector< Type >(Vector),
 			m_stSize(0)
 		{
+		}
+		
+		VectorValue(std::set< Type > Set) :
+			m_stSize(0)
+		{
+			typename std::set< Type >::iterator iValue(Set.begin());
+			
+			while(iValue != Set.end())
+			{
+				push_back(*iValue);
+				++iValue;
+			}
 		}
 		
 		virtual size_t stGetSize(void) const
