@@ -728,39 +728,85 @@ bool DiED::EventMessage::bOnTimeout(DiED::MessageTarget * pMessageTarget)
 
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
-///                                       InsertTextEvent                                       ///
+///                                       InsertEvent                                           ///
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 
-DiED::InsertTextEvent::InsertTextEvent(void) :
-	DiED::EventMessage(DiED::_InsertTextEvent)
+DiED::InsertEvent::InsertEvent(void) :
+	DiED::EventMessage(DiED::_InsertEvent)
 {
 	vRegisterValue(m_Text);
 }
 
-DiED::InsertTextEvent::InsertTextEvent(const DiED::clientid_t & CreatorID, const DiED::messageid_t & EventID, const DiED::clientid_t & LostClientID, const Glib::ustring & sText) :
-	DiED::EventMessage(DiED::_InsertTextEvent, CreatorID, EventID, LostClientID),
+DiED::InsertEvent::InsertEvent(const DiED::clientid_t & CreatorID, const DiED::messageid_t & EventID, const DiED::clientid_t & LostClientID, const Glib::ustring & sText) :
+	DiED::EventMessage(DiED::_InsertEvent, CreatorID, EventID, LostClientID),
 	m_Text(sText)
 {
 	vRegisterValue(m_Text);
 }
 
-Glib::ustring DiED::InsertTextEvent::sGetString(void)
+Glib::ustring DiED::InsertEvent::sGetString(void)
 {
 	std::stringstream ssString;
 	
-	ssString << "InsertText [ " << DiED::EventMessage::sGetString() << " ; Text = " << m_Text.Get() << " ]";
+	ssString << "Insert [ " << DiED::EventMessage::sGetString() << " ; Text = " << m_Text.Get() << " ]";
 	
 	return ssString.str();
 }
 
-boost::shared_ptr< DiED::EventAction > DiED::InsertTextEvent::GetAction(void)
+boost::shared_ptr< DiED::EventAction > DiED::InsertEvent::GetAction(void)
 {
-	return boost::shared_ptr< DiED::EventAction >(new DiED::InsertTextAction(m_Text));
+	return boost::shared_ptr< DiED::EventAction >(new DiED::InsertAction(m_Text));
 }
 
-boost::shared_ptr< DiED::BasicMessage > DiED::InsertTextEvent::Clone(void)
+boost::shared_ptr< DiED::BasicMessage > DiED::InsertEvent::Clone(void)
 {
-	return boost::shared_ptr< DiED::BasicMessage >(new DiED::InsertTextEvent(m_CreatorID, m_EventID, m_LostClientID, m_Text));
+	return boost::shared_ptr< DiED::BasicMessage >(new DiED::InsertEvent(m_CreatorID, m_EventID, m_LostClientID, m_Text));
+}
+
+
+///////////////////////////////////////////////////////////////////////////////////////////////////
+///                                         DeleteEvent                                         ///
+///////////////////////////////////////////////////////////////////////////////////////////////////
+
+DiED::DeleteEvent::DeleteEvent(void) :
+	DiED::EventMessage(DiED::_DeleteEvent)
+{
+	vRegisterValue(m_LineRelative);
+	vRegisterValue(m_LineAbsolute);
+	vRegisterValue(m_CharacterRelative);
+	vRegisterValue(m_CharacterAbsolute);
+}
+
+DiED::DeleteEvent::DeleteEvent(const DiED::clientid_t & CreatorID, const DiED::messageid_t & EventID, const DiED::clientid_t & LostClientID, int iLineRelative, int iCharacterRelative, int iLineAbsolute, int iCharacterAbsolute) :
+	DiED::EventMessage(DiED::_DeleteEvent, CreatorID, EventID, LostClientID),
+	m_LineRelative(iLineRelative),
+	m_CharacterRelative(iCharacterRelative),
+	m_LineAbsolute(iLineAbsolute),
+	m_CharacterAbsolute(iCharacterAbsolute)
+{
+	vRegisterValue(m_LineRelative);
+	vRegisterValue(m_LineAbsolute);
+	vRegisterValue(m_CharacterRelative);
+	vRegisterValue(m_CharacterAbsolute);
+}
+
+Glib::ustring DiED::DeleteEvent::sGetString(void)
+{
+	std::stringstream ssString;
+	
+	ssString << "Delete [ " << DiED::EventMessage::sGetString() << " ; LineRelative = " << m_LineRelative << " ; CharacterRelative = " << m_CharacterRelative << " ; LineAbsolute = " << m_LineAbsolute << " ; CharacterAbsolute = " << m_CharacterAbsolute << " ]";
+	
+	return ssString.str();
+}
+
+boost::shared_ptr< DiED::BasicMessage > DiED::DeleteEvent::Clone(void)
+{
+	return boost::shared_ptr< DiED::BasicMessage >(new DiED::DeleteEvent(m_CreatorID, m_EventID, m_LostClientID, m_LineRelative, m_CharacterRelative, m_LineAbsolute, m_CharacterAbsolute));
+}
+
+boost::shared_ptr< DiED::EventAction > DiED::DeleteEvent::GetAction(void)
+{
+	return boost::shared_ptr< DiED::EventAction >(new DiED::DeleteAction(m_LineRelative, m_CharacterRelative, m_LineAbsolute, m_CharacterAbsolute));
 }
 
 
@@ -771,6 +817,10 @@ boost::shared_ptr< DiED::BasicMessage > DiED::InsertTextEvent::Clone(void)
 DiED::PositionEvent::PositionEvent(void) :
 	DiED::EventMessage(DiED::_PositionEvent)
 {
+	vRegisterValue(m_LineRelative);
+	vRegisterValue(m_LineAbsolute);
+	vRegisterValue(m_CharacterRelative);
+	vRegisterValue(m_CharacterAbsolute);
 }
 
 DiED::PositionEvent::PositionEvent(const DiED::clientid_t & CreatorID, const DiED::messageid_t & EventID, const DiED::clientid_t & LostClientID, int iLineRelative, int iCharacterRelative, int iLineAbsolute, int iCharacterAbsolute) :
@@ -780,6 +830,10 @@ DiED::PositionEvent::PositionEvent(const DiED::clientid_t & CreatorID, const DiE
 	m_LineAbsolute(iLineAbsolute),
 	m_CharacterAbsolute(iCharacterAbsolute)
 {
+	vRegisterValue(m_LineRelative);
+	vRegisterValue(m_LineAbsolute);
+	vRegisterValue(m_CharacterRelative);
+	vRegisterValue(m_CharacterAbsolute);
 }
 
 Glib::ustring DiED::PositionEvent::sGetString(void)

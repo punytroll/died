@@ -305,9 +305,14 @@ void DiED::Client::vHandleEventReceived(const DiED::clientid_t & CreatorID, cons
 	vHandleAnswer();
 }
 
-void DiED::Client::vHandleInsertText(const Glib::ustring & sString)
+void DiED::Client::vHandleInsert(const Glib::ustring & sString)
 {
-	m_InternalEnvironment.vHandleInsertText(*this, sString);
+	m_InternalEnvironment.vHandleInsert(*this, sString);
+}
+
+void DiED::Client::vHandleDelete(int iLineRelative, int iCharacterRelative, int iLineAbsolute, int iCharacterAbsolute)
+{
+	m_InternalEnvironment.vHandleDelete(*this, iLineRelative, iCharacterRelative, iLineAbsolute, iCharacterAbsolute);
 }
 
 void DiED::Client::vHandlePosition(int iLineRelative, int iCharacterRelative, int iLineAbsolute, int iCharacterAbsolute)
@@ -517,9 +522,19 @@ void DiED::Client::vPing(void)
 	vSend(boost::shared_ptr< DiED::BasicMessage >(new DiED::PingMessage(++m_StatusMessageCounter)));
 }
 
-void DiED::Client::vInsertText(const Glib::ustring & sText, const DiED::messageid_t & EventID)
+void DiED::Client::vInsert(const Glib::ustring & sText, const DiED::messageid_t & EventID)
 {
-	vSend(boost::shared_ptr< DiED::BasicMessage >(new DiED::InsertTextEvent(m_InternalEnvironment.pGetClient(0)->GetID(), EventID, 0, sText)));
+	vSend(boost::shared_ptr< DiED::BasicMessage >(new DiED::InsertEvent(m_InternalEnvironment.pGetClient(0)->GetID(), EventID, 0, sText)));
+}
+
+void DiED::Client::vDelete(int iLineRelative, int iCharacterRelative, int iLineAbsolute, int iCharacterAbsolute, const DiED::messageid_t & EventID)
+{
+	vSend(boost::shared_ptr< DiED::BasicMessage >(new DiED::DeleteEvent(m_InternalEnvironment.pGetClient(0)->GetID(), EventID, 0, iLineRelative, iCharacterRelative, iLineAbsolute, iCharacterAbsolute)));
+}
+
+void DiED::Client::vPosition(int iLineRelative, int iCharacterRelative, int iLineAbsolute, int iCharacterAbsolute, const DiED::messageid_t & EventID)
+{
+	vSend(boost::shared_ptr< DiED::BasicMessage >(new DiED::PositionEvent(m_InternalEnvironment.pGetClient(0)->GetID(), EventID, 0, iLineRelative, iCharacterRelative, iLineAbsolute, iCharacterAbsolute)));
 }
 
 DiED::messageid_t DiED::Client::GetNextEventCounter(void)

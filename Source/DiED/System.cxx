@@ -106,7 +106,106 @@ DiED::clientid_t DiED::System::GetLocalClientID(void)
 	return 0;
 }
 
-void DiED::System::vInput(const Glib::ustring & sString)
+void DiED::System::vDelete(int iLine, int iCharacter)
+{
+	int iOldLine(m_Client->iGetLine());
+	int iOldCharacter(m_Client->iGetCharacter());
+	int iLineRelative(iLine - iOldLine);
+	int iCharacterRelative(iCharacter - iOldCharacter);
+	int iLineAbsolute(0);
+	int iCharacterAbsolute(0);
+	
+	if((iLineRelative == 0) && (iCharacterRelative == 0))
+	{
+		return;
+	}
+	if(iLineRelative < 0)
+	{
+		iLineAbsolute = iLineRelative - iOldLine;
+	}
+	else
+	{
+		iLineAbsolute = m_pExternalEnvironment->iGetNumberOfLines() - iLine;
+	}
+	if(iCharacterRelative < 0)
+	{
+		iCharacterAbsolute = - iCharacterRelative - iOldCharacter;
+	}
+	else
+	{
+		iCharacterAbsolute = m_pExternalEnvironment->iGetLengthOfLine(iLine) - iCharacter;
+	}
+	m_Client->vSetLine(iLine);
+	m_Client->vSetCharacter(iCharacter);
+	
+	std::map< DiED::clientid_t, boost::shared_ptr< DiED::Client > >::iterator iClient(m_Clients.begin());
+	DiED::messageid_t EventCounter(m_Client->GetNextEventCounter());
+	
+	while(iClient != m_Clients.end())
+	{
+		if(iClient->first != m_Client->GetID())
+		{
+			iClient->second->vDelete(iLineRelative, iCharacterRelative, iLineAbsolute, iCharacterAbsolute, EventCounter);
+		}
+		++iClient;
+	}
+}
+
+void DiED::System::vPosition(int iLine, int iCharacter)
+{
+	LOG(Verbose, "DiED/System", "Changing the local position to Line = " << iLine << " ; Character = " << iCharacter);
+	
+	int iOldLine(m_Client->iGetLine());
+	int iOldCharacter(m_Client->iGetCharacter());
+	
+	LOG(Verbose, "DiED/System", "\told position      @ Line = " << iOldLine << " ; Character = " << iOldCharacter);
+	
+	int iLineRelative(iLine - iOldLine);
+	int iCharacterRelative(iCharacter - iOldCharacter);
+	
+	LOG(Verbose, "DiED/System", "\trelative position @ Line = " << iLineRelative << " ; Character = " << iCharacterRelative);
+	
+	int iLineAbsolute(0);
+	int iCharacterAbsolute(0);
+	
+	if((iLineRelative == 0) && (iCharacterRelative == 0))
+	{
+		return;
+	}
+	if(iLineRelative < 0)
+	{
+		iLineAbsolute = iLineRelative - iOldLine;
+	}
+	else
+	{
+		iLineAbsolute = m_pExternalEnvironment->iGetNumberOfLines() - iLine;
+	}
+	if(iCharacterRelative < 0)
+	{
+		iCharacterAbsolute = - iCharacterRelative - iOldCharacter;
+	}
+	else
+	{
+		iCharacterAbsolute = m_pExternalEnvironment->iGetLengthOfLine(iLine) - iCharacter;
+	}
+	LOG(Verbose, "DiED/System", "\tabsolute position @ Line = " << iLineAbsolute << " ; Character = " << iCharacterAbsolute);
+	m_Client->vSetLine(iLine);
+	m_Client->vSetCharacter(iCharacter);
+	
+	std::map< DiED::clientid_t, boost::shared_ptr< DiED::Client > >::iterator iClient(m_Clients.begin());
+	DiED::messageid_t EventCounter(m_Client->GetNextEventCounter());
+	
+	while(iClient != m_Clients.end())
+	{
+		if(iClient->first != m_Client->GetID())
+		{
+			iClient->second->vPosition(iLineRelative, iCharacterRelative, iLineAbsolute, iCharacterAbsolute, EventCounter);
+		}
+		++iClient;
+	}
+}
+
+void DiED::System::vInsert(const Glib::ustring & sString)
 {
 	std::map< DiED::clientid_t, boost::shared_ptr< DiED::Client > >::iterator iClient(m_Clients.begin());
 	DiED::messageid_t EventCounter(m_Client->GetNextEventCounter());
@@ -115,14 +214,14 @@ void DiED::System::vInput(const Glib::ustring & sString)
 	{
 		if(iClient->first != m_Client->GetID())
 		{
-			iClient->second->vInsertText(sString, EventCounter);
+			iClient->second->vInsert(sString, EventCounter);
 		}
 		++iClient;
 	}
-	vInsertText(*m_Client, sString, false);
+	vInsert(*m_Client, sString, false);
 }
 
-void DiED::System::vInsertText(DiED::User & User, const Glib::ustring & sString, bool bWriteToEnvironment)
+void DiED::System::vInsert(DiED::User & User, const Glib::ustring & sString, bool bWriteToEnvironment)
 {
 	int iLine(User.iGetLine());
 	int iCharacter(User.iGetCharacter());
@@ -131,7 +230,7 @@ void DiED::System::vInsertText(DiED::User & User, const Glib::ustring & sString,
 	
 	if((m_pExternalEnvironment != 0) && (bWriteToEnvironment == true))
 	{
-		m_pExternalEnvironment->vInsertText(sString, iLine, iCharacter);
+		m_pExternalEnvironment->vInsert(sString, iLine, iCharacter);
 	}
 	
 	int iDeltaLine = 0;
@@ -361,7 +460,7 @@ void DiED::System::vHandleKnownClients(DiED::User & User, const DiED::messageid_
 //~ 				Client->vSetLine(iClientInfo->iLine);
 //~ 				Client->vSetCharacter(iClientInfo->iCharacter);
 			}
-			LOG(Debug, "DiED/System", "Known client " << iClientInfo->ClientID << " is ");
+			LOG_NO_NL(Debug, "DiED/System", "Known client " << iClientInfo->ClientID << " is ");
 		}
 		LOG_PURE(Debug, "DiED/System", sStatusToString(iClientInfo->Status) << " to client " << User.GetID() << std::endl);
 		if(iClientInfo->Status != DiED::Deleted)
@@ -596,13 +695,49 @@ void DiED::System::vHandleConnectionLost(DiED::User & User, const DiED::clientid
 	LOG(Debug, "DiED/System", "           ConnectionLost message from " << User.GetID() << '\n');
 }
 
-void DiED::System::vHandleInsertText(DiED::User & User, const Glib::ustring & sString)
+void DiED::System::vHandleInsert(DiED::User & User, const Glib::ustring & sString)
 {
-	vInsertText(User, sString, true);
+	LOG(Debug, "DiED/System", "Processing Insert message from " << User.GetID());
+	vInsert(User, sString, true);
+	LOG(Debug, "DiED/System", "           Insert message from " << User.GetID() << '\n');
+}
+
+void DiED::System::vHandleDelete(DiED::User & User, int iLineRelative, int iCharacterRelative, int iLineAbsolute, int iCharacterAbsolute)
+{
+	LOG(Debug, "DiED/System", "Processing Delete message from " << User.GetID());
+	if(iLineRelative != 0)
+	{
+		if(iLineRelative > 0)
+		{
+			if((User.iGetLine() + iLineRelative + iLineAbsolute) != m_pExternalEnvironment->iGetNumberOfLines())
+			{
+				LOG(TODO, "DiED/System", "The absolute and relative values don't match.\n\t\tUser.iLine = " << User.iGetLine() << "; iLineRelative = " << iLineRelative << "; iLineAbsolute = " << iLineAbsolute << "; #Lines = " << m_pExternalEnvironment->iGetNumberOfLines());
+			}
+		}
+		else
+		{
+			if((User.iGetLine() + iLineRelative + iLineAbsolute) != 0)
+			{
+				LOG(TODO, "DiED/System", "The absolute and relative values don't match.\n\t\tUser.iLine = " << User.iGetLine() << "; iLineRelative = " << iLineRelative << "; iLineAbsolute = " << iLineAbsolute << "; #Lines = " << m_pExternalEnvironment->iGetNumberOfLines());
+			}
+		}
+	}
+//~ 	if(iCharacterRelative > 0)
+//~ 	{
+//~ 		if((User.iGetCharacter() + iCharacterRelative + iCharacterAbsolute) != m_pExternalEnvironment->iGetLengthOfLine())
+//~ 		{
+//~ 			// TODO change iCharacterRelative
+//~ 		}
+//~ 	}
+	m_pExternalEnvironment->vDelete(User.iGetLine(), User.iGetCharacter(), User.iGetLine() + iLineRelative, User.iGetCharacter() + iCharacterRelative);
+	User.vModifyCaretPosition(iLineRelative, iCharacterRelative);
+	LOG(Debug, "DiED/System", "           Delete message from " << User.GetID() << '\n');
 }
 
 void DiED::System::vHandlePosition(DiED::User & User, int iLineRelative, int iCharacterRelative, int iLineAbsolute, int iCharacterAbsolute)
 {
+	LOG(Debug, "DiED/System", "Processing Position message from " << User.GetID());
+	LOG(Debug, "DiED/System", "\tUser @ Line = " << User.iGetLine() << " ; Character = " << User.iGetCharacter());
 	if(iLineRelative != 0)
 	{
 		if(iLineRelative > 0)
@@ -628,6 +763,7 @@ void DiED::System::vHandlePosition(DiED::User & User, int iLineRelative, int iCh
 //~ 		}
 //~ 	}
 	User.vModifyCaretPosition(iLineRelative, iCharacterRelative);
+	LOG(Debug, "DiED/System", "           Position message from " << User.GetID() << '\n');
 }
 
 void DiED::System::vPongTimeout(boost::shared_ptr< DiED::Client > Client)

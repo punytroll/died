@@ -25,8 +25,9 @@ namespace DiED
 		DiED::clientid_t GetLocalClientID(void);
 		
 		// functions which will send messages to the connected clients
-		void vInput(const Glib::ustring & sString);
-		void vMove();
+		void vInsert(const Glib::ustring & sString);
+		void vDelete(int iLine, int iCharacter);
+		void vPosition(int iLine, int iCharacter);
 		
 		// helper functions
 		virtual std::set< DiED::clientid_t > GetConnectedClientIDs(void);
@@ -43,7 +44,7 @@ namespace DiED
 		sigc::signal< void, DiED::Client & > ClientConnected;
 	protected:
 		void vSendMessage(boost::shared_ptr< DiED::BasicMessage > Message, bool bSendOnlyToConnected = false);
-		void vInsertText(DiED::User & User, const Glib::ustring & sString, bool bWriteToEnvironment);
+		void vInsert(DiED::User & User, const Glib::ustring & sString, bool bWriteToEnvironment);
 		virtual void vAccepted(boost::shared_ptr< Network::MessageStream > MessageStream);
 		void vClientStatusChanged(const DiED::clientid_t & ClientID, const DiED::clientstatus_t & Status);
 		bool bTryReconnect(const DiED::clientid_t & ClientID);
@@ -55,7 +56,8 @@ namespace DiED
 		virtual void vHandleClientsRegistered(DiED::User & User, const DiED::messageid_t & MessageID);
 		virtual void vHandleConnectionEstablished(DiED::User & User, const DiED::clientid_t & ClientID, const Network::address_t & ClientAddress, const Network::port_t & ClientPort);
 		virtual void vHandleConnectionLost(DiED::User & User, const DiED::clientid_t & ClientID, const Network::address_t & ClientAddress, const Network::port_t & ClientPort);
-		virtual void vHandleInsertText(DiED::User & User, const Glib::ustring & sString);
+		virtual void vHandleInsert(DiED::User & User, const Glib::ustring & sString);
+		virtual void vHandleDelete(DiED::User & User, int iLineRelative, int iCharacterRelative, int iLineAbsolute, int iCharacterAbsolute);
 		virtual void vHandlePosition(DiED::User & User, int iLineRelative, int iCharacterRelative, int iLineAbsolute, int iCharacterAbsolute);
 		
 		// status manipulation ... TODO@ replace this with a symmetric map of references.

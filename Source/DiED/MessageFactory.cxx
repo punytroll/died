@@ -48,9 +48,13 @@ boost::shared_ptr< Network::BasicMessage > DiED::MessageFactory::GetMessage(u_in
 		{
 			return boost::shared_ptr< Network::BasicMessage >(new DiED::EventReceivedMessage());
 		}
-	case DiED::_InsertTextEvent:
+	case DiED::_InsertEvent:
 		{
-			return boost::shared_ptr< Network::BasicMessage >(new DiED::InsertTextEvent());
+			return boost::shared_ptr< Network::BasicMessage >(new DiED::InsertEvent());
+		}
+	case DiED::_DeleteEvent:
+		{
+			return boost::shared_ptr< Network::BasicMessage >(new DiED::DeleteEvent());
 		}
 	case DiED::_PositionEvent:
 		{
