@@ -45,7 +45,7 @@ void Network::BasicMessage::vWriteTo(Network::Stream & Stream) const
 size_t Network::BasicMessage::stGetSize(void) const
 {
 	std::vector< boost::reference_wrapper< Network::BasicValue > >::const_iterator iValue(m_Values.begin());
-	size_t stSize = 0;
+	size_t stSize = m_Type.stGetSize();
 	
 	while(iValue != m_Values.end())
 	{
