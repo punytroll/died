@@ -8,7 +8,8 @@
 
 DiED::System::System(void) :
 	m_MessageFactory(new DiED::MessageFactory()),
-	m_Client(new DiED::Client(m_MessageFactory, *this))
+	m_Client(new DiED::Client(m_MessageFactory, *this)),
+	m_ServicePort(0)
 {
 	m_Clients.push_back(m_Client);
 }
@@ -34,7 +35,8 @@ DiED::Server & DiED::System::GetServer(void)
 
 bool DiED::System::bListen(const Network::port_t & ServicePort)
 {
-	m_Server.vOpen(ServicePort);
+	m_ServicePort = ServicePort;
+	m_Server.vOpen(m_ServicePort);
 	if(m_Server.bIsOpen() == false)
 	{
 		std::cerr << "[Server]: Error setting up the server. [" << sErrorCodeToString(m_Server.iGetError()) << "]." << std::endl;
@@ -61,6 +63,7 @@ bool DiED::System::bConnectTo(const Network::address_t & ConnectAddress, const N
 	else
 	{
 		std::cout << "[Client]: Connected to " << ConnectAddress << ':' << ConnectPort << std::endl;
+		Client->operator<<(DiED::ConnectMessage(0, m_ServicePort));
 	}
 	m_Clients.push_back(Client);
 }
@@ -141,8 +144,4 @@ void DiED::System::vSendMessage(Network::BasicMessage & Message)
 void DiED::System::vAccepted(boost::shared_ptr< Network::Socket > Socket)
 {
 	m_Clients.push_back(Socket);
-	
-	DiED::Client & Client(dynamic_cast< DiED::Client & >(*Socket));
-	
-	Client << ConnectionEstablishedMessage(12345, "blubblub.org", 9876);
 }

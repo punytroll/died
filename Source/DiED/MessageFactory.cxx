@@ -8,9 +8,9 @@ boost::shared_ptr< Network::BasicMessage > DiED::MessageFactory::GetMessage(u_in
 {
 	switch(u32Type)
 	{
-	case DiED::_HelloMessage:
+	case DiED::_ConnectMessage:
 		{
-			return boost::shared_ptr< Network::BasicMessage >(new DiED::HelloMessage());
+			return boost::shared_ptr< Network::BasicMessage >(new DiED::ConnectMessage());
 			
 			break;
 		}
@@ -35,6 +35,12 @@ boost::shared_ptr< Network::BasicMessage > DiED::MessageFactory::GetMessage(u_in
 	case DiED::_ConnectionEstablishedMessage:
 		{
 			return boost::shared_ptr< Network::BasicMessage >(new DiED::ConnectionEstablishedMessage());
+			
+			break;
+		}
+	case DiED::_ConnectionLostMessage:
+		{
+			return boost::shared_ptr< Network::BasicMessage >(new DiED::ConnectionLostMessage());
 			
 			break;
 		}
