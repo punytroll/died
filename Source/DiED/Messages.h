@@ -21,7 +21,7 @@ namespace DiED
 		_PingMessage,
 		_PongMessage,
 		_EventReceivedMessage,
-		_InputMessage,
+		_InsertTextEvent,
 	};
 	
 	class NoMessage : public DiED::BasicMessage
@@ -176,24 +176,26 @@ namespace DiED
 		EventMessage(const Network::BasicMessage::type_t & Type);
 		EventMessage(const Network::BasicMessage::type_t & Type, const DiED::clientid_t & CreatorID, const DiED::messageid_t & EventID, const DiED::clientid_t & LostClientID);
 		virtual bool bIsConfirmedBy(boost::shared_ptr< DiED::ConfirmationParameters > ConfirmationParameters);
+		void vSetLostClientID(const DiED::clientid_t & ClientID);
 		virtual void vExecute(DiED::MessageTarget & MessageTarget);
 		virtual bool bIsEventMessage(void);
 		virtual bool bRequiresConfirmation(void);
 		virtual Glib::ustring sGetString(void);
+		virtual bool bOnTimeout(DiED::MessageTarget * pMessageTarget);
 	protected:
 		virtual void vExecuteEvent(DiED::MessageTarget & MessageTarget) = 0;
-	private:
 		Network::Value< DiED::clientid_t > m_CreatorID;
 		Network::Value< DiED::messageid_t > m_EventID;
 		Network::Value< DiED::clientid_t > m_LostClientID;
 	};
 	
-	class InputMessage : public DiED::EventMessage
+	class InsertTextEvent : public DiED::EventMessage
 	{
 	public:
-		InputMessage(void);
-		InputMessage(const DiED::clientid_t & CreatorID, const DiED::messageid_t & EventID, const DiED::clientid_t & LostClientID, const Glib::ustring & sText);
+		InsertTextEvent(void);
+		InsertTextEvent(const DiED::clientid_t & CreatorID, const DiED::messageid_t & EventID, const DiED::clientid_t & LostClientID, const Glib::ustring & sText);
 		virtual Glib::ustring sGetString(void);
+		virtual boost::shared_ptr< DiED::BasicMessage > Clone(void);
 	protected:
 		virtual void vExecuteEvent(DiED::MessageTarget & MessageTarget);
 	private:

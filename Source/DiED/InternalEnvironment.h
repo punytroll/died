@@ -26,6 +26,9 @@ namespace DiED
 		virtual DiED::User::Status GetStatus(const DiED::clientid_t & ClientID1, const DiED::clientid_t & ClientID2 = 0) = 0;
 		virtual void vSetStatus(const DiED::clientid_t & ClientID1, const DiED::clientid_t & ClientID2, const DiED::User::Status & Status) = 0;
 		virtual DiED::User * pGetClient(const DiED::clientid_t & ClientID) = 0;
+		
+		virtual void vSendConnectionLost(const DiED::clientid_t & ClientID) = 0;
+		virtual void vSendToConnected(boost::shared_ptr< Network::BasicMessage > Message) = 0;
 	};
 }
 

@@ -604,6 +604,11 @@ DiED::EventMessage::EventMessage(const Network::BasicMessage::type_t & Type, con
 	vRegisterValue(m_LostClientID);
 }
 
+void DiED::EventMessage::vSetLostClientID(const DiED::clientid_t & ClientID)
+{
+	m_LostClientID = ClientID;
+}
+
 bool DiED::EventMessage::bIsConfirmedBy(boost::shared_ptr< DiED::ConfirmationParameters > ConfirmationParameters)
 {
 	DiED::ConfirmationParameters::iterator iParameter(ConfirmationParameters->find("CreatorID"));
@@ -646,34 +651,54 @@ bool DiED::EventMessage::bRequiresConfirmation(void)
 	return true;
 }
 
+bool DiED::EventMessage::bOnTimeout(DiED::MessageTarget * pMessageTarget)
+{
+	if(pMessageTarget != 0)
+	{
+		boost::shared_ptr< DiED::ConfirmationParameters > ConfirmationParameters(new DiED::ConfirmationParameters());
+		
+		ConfirmationParameters->insert(std::make_pair("CreatorID", boost::any(static_cast< DiED::clientid_t >(m_CreatorID))));
+		ConfirmationParameters->insert(std::make_pair("EventID", boost::any(static_cast< DiED::messageid_t >(m_EventID))));
+		
+		pMessageTarget->vHandleEventConfirmationTimeout(ConfirmationParameters);
+	}
+	
+	return false;
+}
+
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
-///                                        InputMessage                                         ///
+///                                       InsertTextEvent                                       ///
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 
-DiED::InputMessage::InputMessage(void) :
-	DiED::EventMessage(DiED::_InputMessage)
+DiED::InsertTextEvent::InsertTextEvent(void) :
+	DiED::EventMessage(DiED::_InsertTextEvent)
 {
 	vRegisterValue(m_Text);
 }
 
-DiED::InputMessage::InputMessage(const DiED::clientid_t & CreatorID, const DiED::messageid_t & EventID, const DiED::clientid_t & LostClientID, const Glib::ustring & sText) :
-	DiED::EventMessage(DiED::_InputMessage, CreatorID, EventID, LostClientID),
+DiED::InsertTextEvent::InsertTextEvent(const DiED::clientid_t & CreatorID, const DiED::messageid_t & EventID, const DiED::clientid_t & LostClientID, const Glib::ustring & sText) :
+	DiED::EventMessage(DiED::_InsertTextEvent, CreatorID, EventID, LostClientID),
 	m_Text(sText)
 {
 	vRegisterValue(m_Text);
 }
 
-void DiED::InputMessage::vExecuteEvent(DiED::MessageTarget & MessageTarget)
+void DiED::InsertTextEvent::vExecuteEvent(DiED::MessageTarget & MessageTarget)
 {
 	MessageTarget.vHandleInsertText(m_Text);
 }
 
-Glib::ustring DiED::InputMessage::sGetString(void)
+Glib::ustring DiED::InsertTextEvent::sGetString(void)
 {
 	std::stringstream ssString;
 	
-	ssString << "Input [ Event = " << DiED::EventMessage::sGetString() << " ; Text = " << m_Text.Get() << " ]";
+	ssString << "InsertText [ Event = " << DiED::EventMessage::sGetString() << " ; Text = " << m_Text.Get() << " ]";
 	
 	return ssString.str();
+}
+
+boost::shared_ptr< DiED::BasicMessage > DiED::InsertTextEvent::Clone(void)
+{
+	return boost::shared_ptr< DiED::BasicMessage >(new DiED::InsertTextEvent(m_CreatorID, m_EventID, m_LostClientID, m_Text));
 }

@@ -13,6 +13,7 @@ DiED::Client::Client(DiED::InternalEnvironment & InternalEnvironment) :
 	m_Address("localhost"),
 	m_Port(0),
 	m_StatusMessageCounter(0),
+	m_EventCounter(0),
 	m_stBytesSent(0)
 {
 //~ 	std::cout << "[DiED/Client]: Created new Client." << std::endl;
@@ -25,7 +26,7 @@ DiED::Client::~Client(void)
 
 void DiED::Client::vSetMessageStream(boost::shared_ptr< Network::MessageStream > MessageStream)
 {
-//~ 	std::cout << "Setting the MessageStream for " << GetID() << " to " << MessageStream.get() << std::endl;
+	std::cout << "Setting the MessageStream for " << GetID() << " to " << MessageStream.get() << std::endl;
 	// disconnect old relations to the current MessageStream
 	m_BytesSentConnection.disconnect();
 	m_MessageBeginConnection.disconnect();
@@ -211,20 +212,6 @@ void DiED::Client::vOnMessageExecuted(void)
 {
 }
 
-void DiED::Client::vHandlePingConfirmationTimeout(boost::shared_ptr< DiED::ConfirmationParameters > ConfirmationParameters)
-{
-	DiED::Client::WaitingMessage WaitingMessage(RemoveWaitingMessage(ConfirmationParameters));
-	
-	if(WaitingMessage.m_TimeoutSignal.get() != 0)
-	{
-		WaitingMessage.m_TimeoutSignal->emit();
-	}
-	if(m_MessageStream.get() != 0)
-	{
-		m_MessageStream->vClose();
-	}
-}
-
 void DiED::Client::vExecuteTopMessage(void)
 {
 	if(m_MessageStream.get() == 0)
@@ -383,10 +370,15 @@ void DiED::Client::vPing(void)
 	vSend(boost::shared_ptr< DiED::BasicMessage >(new DiED::PingMessage(++m_StatusMessageCounter)));
 }
 
+void DiED::Client::vInsertText(const Glib::ustring & sText)
+{
+	vSend(boost::shared_ptr< DiED::BasicMessage >(new DiED::InsertTextEvent(m_InternalEnvironment.pGetClient(0)->GetID(), ++m_EventCounter, 0, sText)));
+}
+
 void DiED::Client::vBytesSent(size_t stSize)
 {
 	m_stBytesSent += stSize;
-//~ 	std::cout << "Client " << GetID() << " sent " << stSize << " bytes over the socket." << std::endl;
+	std::cout << "Client " << GetID() << " sent " << stSize << " bytes over the socket." << std::endl;
 	
 	std::deque< boost::shared_ptr< DiED::BasicMessage > >::iterator iMessage(m_QueuedQueue.begin());
 	
@@ -394,15 +386,15 @@ void DiED::Client::vBytesSent(size_t stSize)
 	{
 		size_t stMessageSize((*iMessage)->stGetSize());
 		
-//~ 		std::cout << "\tMessage " << (*iMessage)->sGetString() << " has size " << stMessageSize << "." << std::endl;
+		std::cout << "\tMessage " << (*iMessage)->sGetString() << " has size " << stMessageSize << "." << std::endl;
 		if(m_stBytesSent < stMessageSize)
 		{
-//~ 			std::cout << "\tabort." << std::endl;
+			std::cout << "\tabort." << std::endl;
 			
 			return;
 		}
 		m_stBytesSent -= stMessageSize;
-//~ 		std::cout << "\t" << m_stBytesSent << " bytes remaining." << std::endl;
+		std::cout << "\t" << m_stBytesSent << " bytes remaining." << std::endl;
 		MessageSent(*iMessage);
 		if((*iMessage)->bRequiresConfirmation() == true)
 		{
@@ -421,4 +413,43 @@ void DiED::Client::vOnDisconnected(void)
 void DiED::Client::vSetStatus(const DiED::clientid_t & ClientID, DiED::User::Status Status)
 {
 	DiED::User::vSetStatus(ClientID, Status);
+}
+
+///////////////////////////////////////////////////////////////////////////////////////////////////
+///                          ConfirmationTimeout-Handler                                        ///
+///////////////////////////////////////////////////////////////////////////////////////////////////
+
+void DiED::Client::vHandlePingConfirmationTimeout(boost::shared_ptr< DiED::ConfirmationParameters > ConfirmationParameters)
+{
+	DiED::Client::WaitingMessage WaitingMessage(RemoveWaitingMessage(ConfirmationParameters));
+	
+	if(WaitingMessage.m_TimeoutSignal.get() != 0)
+	{
+		WaitingMessage.m_TimeoutSignal->emit();
+	}
+	if(m_MessageStream.get() != 0)
+	{
+		m_MessageStream->vClose();
+	}
+}
+
+void DiED::Client::vHandleEventConfirmationTimeout(boost::shared_ptr< DiED::ConfirmationParameters > ConfirmationParameters)
+{
+	DiED::Client::WaitingMessage WaitingMessage(RemoveWaitingMessage(ConfirmationParameters));
+	
+	if(WaitingMessage.m_TimeoutSignal.get() != 0)
+	{
+		WaitingMessage.m_TimeoutSignal->emit();
+	}
+	if(m_MessageStream.get() != 0)
+	{
+		m_MessageStream->vClose();
+	}
+	m_InternalEnvironment.vSendConnectionLost(GetID());
+	m_EventQueue.push_front(boost::dynamic_pointer_cast< DiED::EventMessage >(WaitingMessage.m_Message));
+	
+	boost::shared_ptr< DiED::EventMessage > NewMessage(boost::dynamic_pointer_cast< DiED::EventMessage >(WaitingMessage.m_Message->Clone()));
+	
+	NewMessage->vSetLostClientID(GetID());
+	m_InternalEnvironment.vSendToConnected(NewMessage);
 }
