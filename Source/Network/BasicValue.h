@@ -27,7 +27,7 @@ namespace Network
 			return m_bReady;
 		}
 		
-		size_t stGetSize(void) const
+		virtual size_t stGetSize(void) const
 		{
 			return 0;
 		}
