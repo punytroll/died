@@ -9,6 +9,7 @@ libdied_a_SOURCES = \
 	BasicMessage.cxx \
 	Client.cxx \
 	ClientFactory.cxx \
+	Common.cxx \
 	EventAction.cxx \
 	MessageFactory.cxx \
 	Messages.cxx \
@@ -20,6 +21,7 @@ EXTRA_DIST = \
 	BasicMessage.h \
 	Client.h \
 	ClientFactory.h \
+	Common.h \
 	ExternalEnvironment.h \
 	InternalEnvironment.h \
 	MessageFactory.h \
