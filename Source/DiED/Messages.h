@@ -10,7 +10,8 @@ namespace DiED
 	enum
 	{
 		_NoMessage,
-		_ConnectMessage,
+		_ConnectionRequestMessage,
+		_ConnectionAcceptMessage,
 		_InputMessage,
 		_PingMessage,
 		_PongMessage,
@@ -31,11 +32,11 @@ namespace DiED
 		virtual void vWriteToInternal(Network::Stream & Stream) const;
 	};
 	
-	class ConnectMessage : public DiED::BasicMessage
+	class ConnectionRequestMessage : public DiED::BasicMessage
 	{
 	public:
-		ConnectMessage(void);
-		ConnectMessage(const DiED::clientid_t & ClientID, const Network::port_t & Port);
+		ConnectionRequestMessage(void);
+		ConnectionRequestMessage(const DiED::clientid_t & ClientID, const Network::port_t & Port);
 		virtual bool bIsReady(void) const;
 		virtual void vReadFrom(Network::Stream & Stream);
 		virtual void vExecute(DiED::Client & Client);
@@ -45,6 +46,22 @@ namespace DiED
 	private:
 		Network::Value< DiED::clientid_t > m_ClientID;
 		Network::Value< Network::port_t > m_Port;
+	};
+	
+	class ConnectionAcceptMessage : public DiED::BasicMessage
+	{
+	public:
+		ConnectionAcceptMessage(void);
+		ConnectionAcceptMessage(const DiED::clientid_t & RemoteClientID, const DiED::clientid_t & LocalClientID);
+		virtual bool bIsReady(void) const;
+		virtual void vReadFrom(Network::Stream & Stream);
+		virtual void vExecute(DiED::Client & Client);
+		virtual Glib::ustring sGetString(void);
+	protected:
+		virtual void vWriteToInternal(Network::Stream & Stream) const;
+	private:
+		Network::Value< DiED::clientid_t > m_RemoteClientID;
+		Network::Value< DiED::clientid_t > m_LocalClientID;
 	};
 	
 	class InputMessage : public DiED::BasicMessage

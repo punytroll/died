@@ -25,7 +25,10 @@ namespace DiED
 		
 		// functions which will send messages to the connected clients
 		void vInput(const Glib::ustring & sString);
+		
 		// implementation of the InternalEnvironment interface
+		virtual void vConnectionRequest(DiED::User & User, const DiED::clientid_t & ClientID);
+		virtual void vConnectionAccept(DiED::User & User, const DiED::clientid_t & LocalClientID, const DiED::clientid_t & RemoteClientID);
 		virtual void vInsertText(DiED::User & User, const Glib::ustring & sString);
 		
 		// signals
@@ -35,6 +38,7 @@ namespace DiED
 		void vInsertText(DiED::User & User, const Glib::ustring & sString, bool bWriteToEnvironment);
 		virtual void vAccepted(boost::shared_ptr< Network::Socket > Client);
 	private:
+		void vAssignClientID(DiED::Client & Client, const DiED::clientid_t & ClientID);
 		boost::shared_ptr< DiED::MessageFactory > m_MessageFactory;
 		boost::shared_ptr< DiED::ClientFactory > m_ClientFactory;
 		boost::shared_ptr< DiED::Client > m_Client;

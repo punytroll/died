@@ -70,7 +70,7 @@ bool DiED::System::bConnectTo(const Network::address_t & ConnectAddress, const N
 	else
 	{
 		std::cout << "[Client]: Connected to " << ConnectAddress << ':' << ConnectPort << std::endl;
-		Client->operator<<(DiED::ConnectMessage(m_Client->GetClientID(), m_ServicePort));
+		Client->operator<<(DiED::ConnectionRequestMessage(m_Client->GetClientID(), m_ServicePort));
 	}
 	m_Clients.insert(std::make_pair(Client->GetClientID(), Client));
 	m_pExternalEnvironment->vClientConnected(*Client);
@@ -138,18 +138,97 @@ void DiED::System::vInsertText(DiED::User & User, const Glib::ustring & sString,
 	}
 }
 
-//~ void DiED::System::vConnect(DiED::User & User, const DiED::clientid_t & ClientID, const Network::port_t & Port)
-//~ {
-//~ 	std::map< DiED::clientid_t, boost::shared_ptr< DiED::Client > >::iterator iClient(m_Clients.find(ClientID));
-//~ 	
-//~ 	if(iClient == m_Clients.end())
-//~ 	{
-//~ 		
-//~ 	}
-//~ 	else
-//~ 	{
-//~ 	}
-//~ }
+void DiED::System::vConnectionRequest(DiED::User & User, const DiED::clientid_t & ClientID)
+{
+	std::multimap< DiED::clientid_t, boost::shared_ptr< DiED::Client > >::iterator iClient(m_Clients.find(ClientID));
+	boost::shared_ptr< DiED::Client > Client;
+	
+	if((iClient == m_Clients.end()) || (ClientID == 0))
+	{
+		if(m_Client->GetClientID() == 0)
+		{
+			m_Client->vSetClientID(rand());
+		}
+		
+		std::multimap< DiED::clientid_t, boost::shared_ptr< DiED::Client > >::iterator iFirstClientIDZero(m_Clients.lower_bound(0));
+		std::multimap< DiED::clientid_t, boost::shared_ptr< DiED::Client > >::iterator iLastClientIDZero(m_Clients.upper_bound(0));
+		
+		while(iFirstClientIDZero != iLastClientIDZero)
+		{
+			if(&(*(iFirstClientIDZero->second)) == &User)
+			{
+				Client = iFirstClientIDZero->second;
+				m_Clients.erase(iFirstClientIDZero);
+				
+				DiED::clientid_t NewClientID;
+				
+				do
+				{
+					NewClientID = rand();
+				} while(m_Clients.find(NewClientID) != m_Clients.end());
+				Client->vSetClientID(NewClientID);
+				m_Clients.insert(std::make_pair(Client->GetClientID(), Client));
+				
+				break;
+			}
+			++iFirstClientIDZero;
+		}
+		if(iFirstClientIDZero == iLastClientIDZero)
+		{
+			std::cout << "VERY BAD!! " << __FILE__ << ':' << __LINE__ << std::endl;
+			
+			throw;
+		}
+		Client->operator<<(ConnectionAcceptMessage(Client->GetClientID(), m_Client->GetClientID()));
+	}
+	else
+	{
+	}
+}
+
+void DiED::System::vAssignClientID(DiED::Client & Client, const DiED::clientid_t & ClientID)
+{
+	DiED::clientid_t OldClientID(Client.GetClientID());
+	
+	if(OldClientID != ClientID)
+	{
+		std::multimap< DiED::clientid_t, boost::shared_ptr< DiED::Client > >::iterator iClient(m_Clients.lower_bound(OldClientID));
+		std::multimap< DiED::clientid_t, boost::shared_ptr< DiED::Client > >::iterator iLastClient(m_Clients.upper_bound(OldClientID));
+		
+		while((iClient != iLastClient) && (&(*(iClient->second)) != &Client))
+		{
+			++iClient;
+		}
+		if(iClient == iLastClient)
+		{
+			std::cout << "VERY BAD!! " << __FILE__ << ':' << __LINE__ << std::endl;
+			
+			throw;
+		}
+		
+		boost::shared_ptr< DiED::Client > ClientPtr(iClient->second);
+		
+		m_Clients.erase(iClient);
+		ClientPtr->vSetClientID(ClientID);
+		m_Clients.insert(std::make_pair(ClientID, ClientPtr));
+	}
+}
+
+void DiED::System::vConnectionAccept(DiED::User & User, const DiED::clientid_t & LocalClientID, const DiED::clientid_t & RemoteClientID)
+{
+	DiED::Client & Client(dynamic_cast< DiED::Client & >(User));
+	
+	if(LocalClientID == 0)
+	{
+		Client.vClose();
+	}
+	vAssignClientID(Client, RemoteClientID);
+	if(m_Client->GetClientID() != LocalClientID)
+	{
+		vAssignClientID(*m_Client, LocalClientID);
+		// send KnownClients to Client
+	}
+}
 
 void DiED::System::vSendMessage(Network::BasicMessage & Message)
 {
