@@ -20,6 +20,7 @@ void DiED::Client::vSetMessageStream(boost::shared_ptr< Network::MessageStream >
 {
 //~ 	std::cout << "[DiED/Client]: Setting MessageStream for Client " << GetClientID() << " to " << MessageStream.get() << std::endl;
 	// disconnect old relations to the current MessageStream
+	m_BytesSentConnection.disconnect();
 	m_MessageBeginConnection.disconnect();
 	m_MessageReadyConnection.disconnect();
 	// set the new MessageStream (the old one will get deleted by boost::shared_ptr if appropriate)
@@ -27,6 +28,7 @@ void DiED::Client::vSetMessageStream(boost::shared_ptr< Network::MessageStream >
 	// if we have a valid new MessageStream set up new relations
 	if(m_MessageStream.get() != 0)
 	{
+		m_BytesSentConnection = m_MessageStream->BytesSent.connect(sigc::mem_fun(*this, &DiED::Client::vBytesSent));
 		m_MessageBeginConnection = m_MessageStream->MessageBegin.connect(sigc::mem_fun(*this, &DiED::Client::vOnMessageBegin));
 		m_MessageReadyConnection = m_MessageStream->MessageReady.connect(sigc::mem_fun(*this, &DiED::Client::vOnMessageReady));
 	}
@@ -112,8 +114,20 @@ DiED::Client & DiED::Client::operator<<(boost::shared_ptr< Network::BasicMessage
 {
 	if(m_MessageStream.get() != 0)
 	{
+		m_MessageQueue.push_back(Message);
 		m_MessageStream->operator<<(*Message);
+	}
+	else
+	{
+		std::cout << "VERY BAD: " << __FILE__ << ':' << __LINE__ << std::endl;
+		
+		throw;
 	}
 	
 	return *this;
+}
+
+void DiED::Client::vBytesSent(size_t stSize)
+{
+	// TODO
 }
