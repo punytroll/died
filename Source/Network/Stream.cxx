@@ -10,7 +10,7 @@
 
 #include "../Common.h"
 
-const size_t g_stInitialBufferSize = 1024;
+const size_t g_stInitialBufferSize = 32687;
 
 Network::Stream::Stream(void) :
 	m_pu8Buffer(new u_int8_t[2048]),
@@ -67,24 +67,6 @@ void Network::Stream::vOpen(const Network::address_t & ConnectAddress, const Net
 			return;
 		}
     }
-	LOG(Info, "Network/Stream", "Beginning ::connect. This may block for some time.");
-	if(::connect(m_iSocket, &SocketAddress, sizeof(sockaddr_in)) == -1)
-	{
-		vGetError();
-		if(m_iError != EINPROGRESS)
-		{
-			vClose();
-			LOG(Debug, "Network/Socket", "Ended ::connect.");
-			
-			return;
-		}
-		else
-		{
-			m_bConnectingInProgress = true;
-			vRequestOnOut();
-		}
-	}
-	LOG(Info, "Network/Socket", "Ended ::connect.");
 	if(::fcntl(m_iSocket, F_SETFL, O_NONBLOCK) == -1)
 	{
 		vClose();
@@ -92,6 +74,67 @@ void Network::Stream::vOpen(const Network::address_t & ConnectAddress, const Net
 		
 		return;
 	}
+	LOG(Info, "Network/Stream", "Trying to connect to " << ConnectAddress << ':' << ConnectPort << '.');
+	if(::connect(m_iSocket, &SocketAddress, sizeof(sockaddr_in)) == -1)
+	{
+		vGetError();
+		if(m_iError != EINPROGRESS)
+		{
+			vClose();
+			LOG(Debug, "Network/Socket", __FILE__ << ':' << __LINE__ << " Ended ::connect.");
+			
+			return;
+		}
+		else
+		{
+			m_bConnectingInProgress = true;
+//~ 			vRequestOnOut();
+		}
+	}
+	
+	timeval TimeInterval;
+	
+	TimeInterval.tv_sec = 1;
+	TimeInterval.tv_usec = 0;
+	fd_set Sockets;
+	
+	FD_ZERO(&Sockets);
+	FD_SET(m_iSocket, &Sockets);
+	
+	int iResult = ::select(m_iSocket + 1, 0, &Sockets, 0, &TimeInterval);
+	
+	if((iResult == 0) || !FD_ISSET(m_iSocket, &Sockets))
+	{
+		vClose();
+		
+		return;
+	}
+	else if(iResult < 0)
+	{
+		vClose();
+		vGetError();
+		
+		return;
+	}
+	
+	int iError = 0;
+	socklen_t slSize = sizeof(int);
+	
+	if(::getsockopt(m_iSocket, SOL_SOCKET, SO_ERROR, &iError, &slSize) != 0)
+	{
+		vClose();
+		vGetError();
+		LOG(Error, "Network/Stream", "VERY BAD: " << __FILE__ << ':' << __LINE__ << "  " << sErrorCodeToString(m_iError));
+		
+		throw;
+	}
+	if(iError != 0)
+	{
+		vClose();
+		
+		return;
+	}
+	LOG(Debug, "Network/Socket",  __FILE__ << ':' << __LINE__ << " Ended ::connect.");
 	OnConnected();
 	m_bOnDisconnected = true;
 	vMonitor();
@@ -126,7 +169,7 @@ void Network::Stream::vOnIn(void)
 	}
 	if(stSize == 0)
 	{
-		LOG(Info, "Network/Stream", "Remote disconnected. Address = " << GetAddress() << ':' << GetPort());
+		LOG(Info, "Network/Stream", "Remote " << GetAddress() << ':' << GetPort() << " disconnected.");
 		vClose();
 		
 		return;
