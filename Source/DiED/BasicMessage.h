@@ -1,9 +1,9 @@
 #ifndef DIED_BASICMASSAGE_H
 #define DIED_BASICMASSAGE_H
 
-#include <Common.h>
 #include <Network/BasicMessage.h>
 
+#include "Common.h"
 #include "MessageTarget.h"
 
 namespace DiED
