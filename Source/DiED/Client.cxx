@@ -177,6 +177,7 @@ void DiED::Client::vHandleEvent(const DiED::clientid_t & CreatorID, const DiED::
 	{
 		return;
 	}
+	LOG(DebugCurrent, "DiED/Client", "Received Event '" << EventID << "' from Client '" << pCreator->GetID() << "' with current EventCounter = '" << pCreator->m_EventCounter << '\'');
 	if(EventID < pCreator->m_EventCounter)
 	{
 		if(LostClientID == 0)
@@ -580,6 +581,7 @@ void DiED::Client::vBytesSent(size_t stSize)
 		m_QueuedQueue.erase(iMessage);
 		iMessage = m_QueuedQueue.begin();
 	}
+	LOG(Verbose, "DiED/Client", m_stBytesSent << " bytes still unconfirmed.");
 }
 
 void DiED::Client::vOnDisconnected(void)
