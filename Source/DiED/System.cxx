@@ -623,6 +623,10 @@ bool DiED::System::bTryReconnect(const DiED::clientid_t & ClientID)
 	{
 		return false;
 	}
+	if(GetStatus(ClientID, 0) != DiED::User::Disconnected)
+	{
+		return false;
+	}
 	
 	boost::shared_ptr< Network::MessageStream > MessageStream(new Network::MessageStream(m_MessageFactory));
 	
