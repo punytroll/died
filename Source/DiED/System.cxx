@@ -79,7 +79,7 @@ bool DiED::System::bConnectTo(const Network::address_t & ConnectAddress, const N
 	
 	Client->vSetMessageStream(MessageStream);
 	Client->vSetPort(ConnectPort);
-	Client->operator<<(boost::shared_ptr< DiED::BasicMessage >(new DiED::ConnectionRequestMessage(m_Client->GetClientID(), m_ServicePort)));
+	Client->vConnectionRequest(m_Client->GetClientID(), m_ServicePort);
 	
 	return true;
 }
@@ -209,22 +209,14 @@ void DiED::System::vConnectionRequest(DiED::User & User, const DiED::clientid_t 
 		// => client unknown
 		RegisterClient(Client);
 		// now we can answer the message with ConnectionAccept according to specification
-		Client->operator<<(boost::shared_ptr< DiED::BasicMessage >(new ConnectionAcceptMessage(Client->GetClientID(), m_Client->GetClientID())));
-		
+		Client->vConnectionAccept(m_Client->GetClientID(), Client->GetClientID());
 		// send KnownClients to this client
-		std::vector< DiED::clientid_t > DisconnectedClientIDs(GetDisconnectedClientIDs());
-		std::vector< DiED::clientid_t >::iterator iTempClient(find(DisconnectedClientIDs.begin(), DisconnectedClientIDs.end(), Client->GetClientID()));
-		
-		if(iTempClient != DisconnectedClientIDs.end())
-		{
-			DisconnectedClientIDs.erase(iTempClient);
-		}
-		Client->operator<<(boost::shared_ptr< DiED::BasicMessage >(new KnownClientsMessage(rand(), GetConnectedClientIDs(), DisconnectedClientIDs)));
+		Client->vKnownClients();
 	}
 	else
 	{
 		// => client known
-		Client->operator<<(boost::shared_ptr< DiED::BasicMessage >(new ConnectionAcceptMessage(iClient->first, m_Client->GetClientID())));
+		Client->vConnectionAccept(ClientID, m_Client->GetClientID());
 		iClient->second->vSetMessageStream(Client->GetMessageStream());
 		Client->vSetMessageStream(boost::shared_ptr< Network::MessageStream >());
 	}
@@ -285,14 +277,7 @@ void DiED::System::vConnectionAccept(DiED::User & User, const DiED::clientid_t &
 	else
 	{
 		// the local client is not a newling => answer with KnownClients
-		std::vector< DiED::clientid_t > DisconnectedClientIDs(GetDisconnectedClientIDs());
-		std::vector< DiED::clientid_t >::iterator iTempClient(find(DisconnectedClientIDs.begin(), DisconnectedClientIDs.end(), Client->GetClientID()));
-		
-		if(iTempClient != DisconnectedClientIDs.end())
-		{
-			DisconnectedClientIDs.erase(iTempClient);
-		}
-		Client->operator<<(boost::shared_ptr< DiED::BasicMessage >(new KnownClientsMessage(0, GetConnectedClientIDs(), DisconnectedClientIDs)));
+		Client->vKnownClients(true);
 	}
 }
 
@@ -331,21 +316,11 @@ void DiED::System::vKnownClients(DiED::User & User, const DiED::messageid_t & Me
 	
 	if(MessageID == 0)
 	{
-		// send KnownClients to this client
-		Client->m_u32KnownClientsMessageID = rand();
-		
-		std::vector< DiED::clientid_t > DisconnectedClientIDs(GetDisconnectedClientIDs());
-		std::vector< DiED::clientid_t >::iterator iTempClient(find(DisconnectedClientIDs.begin(), DisconnectedClientIDs.end(), Client->GetClientID()));
-		
-		if(iTempClient != DisconnectedClientIDs.end())
-		{
-			DisconnectedClientIDs.erase(iTempClient);
-		}
-		Client->operator<<(boost::shared_ptr< DiED::BasicMessage >(new KnownClientsMessage(Client->m_u32KnownClientsMessageID, GetConnectedClientIDs(), DisconnectedClientIDs)));
+		Client->vKnownClients();
 	}
 	else
 	{
-		Client->operator<<(boost::shared_ptr< DiED::BasicMessage >(new ClientsRegisteredMessage(MessageID)));
+		Client->vClientsRegistered(MessageID);
 		vSetStatus(User.GetClientID(), m_Client->GetClientID(), DiED::User::Connected);
 		
 		// TODO send via vSendMessage
@@ -359,7 +334,7 @@ void DiED::System::vKnownClients(DiED::User & User, const DiED::messageid_t & Me
 				
 				continue;
 			}
-			iClient->second->operator<<(boost::shared_ptr< DiED::BasicMessage >(new ConnectionEstablishedMessage(Client->GetClientID(), Client->GetAddress(), Client->GetPort())));
+			iClient->second->vConnectionEstablished(Client->GetClientID(), Client->GetAddress(), Client->GetPort());
 			++iClient;
 		}
 	}
@@ -372,6 +347,7 @@ void DiED::System::vClientsRegistered(DiED::User & User, const DiED::messageid_t
 	boost::shared_ptr< DiED::Client > Client(m_Clients.find(User.GetClientID())->second);
 	std::map< DiED::clientid_t, boost::shared_ptr< DiED::Client > >::iterator iClient(m_Clients.begin());
 	
+	// send via SendMessage
 	while(iClient != m_Clients.end())
 	{
 		if((iClient->first == User.GetClientID()) || (iClient->first == m_Client->GetClientID()) || (m_Client->GetStatus(iClient->first) != DiED::Client::Connected))
@@ -380,7 +356,7 @@ void DiED::System::vClientsRegistered(DiED::User & User, const DiED::messageid_t
 			
 			continue;
 		}
-		iClient->second->operator<<(boost::shared_ptr< DiED::BasicMessage >(new ConnectionEstablishedMessage(Client->GetClientID(), Client->GetAddress(), Client->GetPort())));
+		iClient->second->vConnectionEstablished(Client->GetClientID(), Client->GetAddress(), Client->GetPort());
 		++iClient;
 	}
 }
@@ -430,7 +406,7 @@ void DiED::System::vConnectionEstablished(DiED::User & User, const DiED::clienti
 				else
 				{
 					Client->vSetMessageStream(MessageStream);
-					Client->operator<<(boost::shared_ptr< DiED::BasicMessage >(new DiED::ConnectionRequestMessage(m_Client->GetClientID(), m_ServicePort)));
+					Client->vConnectionRequest(m_Client->GetClientID(), m_ServicePort);
 				}
 			}
 		}
@@ -465,7 +441,7 @@ void DiED::System::vConnectionLost(DiED::User & User, const DiED::clientid_t & C
 				else
 				{
 					Client->vSetMessageStream(MessageStream);
-					Client->operator<<(boost::shared_ptr< DiED::BasicMessage >(new DiED::ConnectionRequestMessage(m_Client->GetClientID(), m_ServicePort)));
+					Client->vConnectionRequest(m_Client->GetClientID(), m_ServicePort);
 				}
 			}
 			
@@ -475,7 +451,7 @@ void DiED::System::vConnectionLost(DiED::User & User, const DiED::clientid_t & C
 		{
 			boost::shared_ptr< DiED::Client > UserClient(RegisterClient(boost::shared_ptr< DiED::Client >(), User.GetClientID()));
 			
-			Client->operator<<(boost::shared_ptr< DiED::BasicMessage >(new DiED::ConnectionEstablishedMessage(User.GetClientID(), UserClient->GetAddress(), UserClient->GetPort())));
+			Client->vConnectionEstablished(User.GetClientID(), UserClient->GetAddress(), UserClient->GetPort());
 			Client->vPing(sigc::bind(sigc::mem_fun(*this, &DiED::System::vPongReceived), Client));
 			
 			break;
@@ -589,7 +565,7 @@ void DiED::System::vSendMessage(boost::shared_ptr< DiED::BasicMessage > Message,
 	{
 		if((iClient->second != m_Client) && ((bSendOnlyToConnected == false) || (m_Client->GetStatus(iClient->first) == DiED::User::Connected)))
 		{
-			iClient->second->operator<<(Message);
+			iClient->second->vSend(Message);
 		}
 		++iClient;
 	}

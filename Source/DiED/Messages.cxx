@@ -45,8 +45,7 @@ DiED::ConnectionRequestMessage::ConnectionRequestMessage(const DiED::clientid_t 
 
 void DiED::ConnectionRequestMessage::vExecute(DiED::MessageTarget & MessageTarget)
 {
-//~ 	std::cout << "Executing a ConnectionRequest message with parameters:\n\tClientID = " << m_ClientID << "\n\tPort = " << m_Port << std::endl;
-	MessageTarget.vConnectionRequest(m_ClientID, m_Port);
+	MessageTarget.vHandleConnectionRequest(m_ClientID, m_Port);
 }
 
 Glib::ustring DiED::ConnectionRequestMessage::sGetString(void)
@@ -82,7 +81,7 @@ DiED::ConnectionAcceptMessage::ConnectionAcceptMessage(const DiED::clientid_t & 
 void DiED::ConnectionAcceptMessage::vExecute(DiED::MessageTarget & MessageTarget)
 {
 //~ 	std::cout << "Executing a ConnectionAccept message with parameters:\n\tRemoteClientID = " << m_RemoteClientID << "\n\tLocalClientID = " << m_LocalClientID << std::endl;
-	MessageTarget.vConnectionAccept(m_RemoteClientID, m_LocalClientID);
+	MessageTarget.vHandleConnectionAccept(m_RemoteClientID, m_LocalClientID);
 }
 
 Glib::ustring DiED::ConnectionAcceptMessage::sGetString(void)
@@ -121,7 +120,7 @@ DiED::KnownClientsMessage::KnownClientsMessage(u_int32_t u32MessageID, std::vect
 void DiED::KnownClientsMessage::vExecute(DiED::MessageTarget & MessageTarget)
 {
 //~ 	std::cout << "KnownClientsMessage [MessageID = " << m_MessageID << " ; #Connected = " << m_ConnectedClientIDs.size() << " ; #Disconnected = " << m_DisconnectedClientIDs.size() << "]" << std::endl;
-	MessageTarget.vKnownClients(m_MessageID, m_ConnectedClientIDs, m_DisconnectedClientIDs);
+	MessageTarget.vHandleKnownClients(m_MessageID, m_ConnectedClientIDs, m_DisconnectedClientIDs);
 }
 
 Glib::ustring DiED::KnownClientsMessage::sGetString(void)
@@ -154,7 +153,7 @@ DiED::ClientsRegisteredMessage::ClientsRegisteredMessage(DiED::messageid_t Messa
 void DiED::ClientsRegisteredMessage::vExecute(DiED::MessageTarget & MessageTarget)
 {
 //~ 	std::cout << "ClientsRegisteredMessage [MessageID = " << m_MessageID << "]" << std::endl;
-	MessageTarget.vClientsRegistered(m_MessageID);
+	MessageTarget.vHandleClientsRegistered(m_MessageID);
 }
 
 Glib::ustring DiED::ClientsRegisteredMessage::sGetString(void)
@@ -193,7 +192,7 @@ DiED::ConnectionEstablishedMessage::ConnectionEstablishedMessage(const DiED::cli
 void DiED::ConnectionEstablishedMessage::vExecute(DiED::MessageTarget & MessageTarget)
 {
 //~ 	std::cout << "Executing a ConnectionEstablished message with parameters:\n\tClientID = " << m_ClientID << "\n\tClientAddress = " << m_ClientAddress << "\n\tClientPort = " << m_ClientPort << std::endl;
-	MessageTarget.vConnectionEstablished(m_ClientID, m_ClientAddress, m_ClientPort);
+	MessageTarget.vHandleConnectionEstablished(m_ClientID, m_ClientAddress, m_ClientPort);
 }
 
 Glib::ustring DiED::ConnectionEstablishedMessage::sGetString(void)
@@ -231,7 +230,7 @@ DiED::ConnectionLostMessage::ConnectionLostMessage(const DiED::clientid_t & Clie
 
 void DiED::ConnectionLostMessage::vExecute(DiED::MessageTarget & MessageTarget)
 {
-	MessageTarget.vConnectionLost(m_ClientID, m_ClientAddress, m_ClientPort);
+	MessageTarget.vHandleConnectionLost(m_ClientID, m_ClientAddress, m_ClientPort);
 }
 
 Glib::ustring DiED::ConnectionLostMessage::sGetString(void)
@@ -263,7 +262,7 @@ DiED::PingMessage::PingMessage(const DiED::messageid_t & PingID) :
 
 void DiED::PingMessage::vExecute(DiED::MessageTarget & MessageTarget)
 {
-	MessageTarget.vPing(m_PingID);
+	MessageTarget.vHandlePing(m_PingID);
 }
 
 Glib::ustring DiED::PingMessage::sGetString(void)
@@ -295,7 +294,7 @@ DiED::PongMessage::PongMessage(const DiED::messageid_t & PingID) :
 
 void DiED::PongMessage::vExecute(DiED::MessageTarget & MessageTarget)
 {
-	MessageTarget.vPong(m_PingID);
+	MessageTarget.vHandlePong(m_PingID);
 }
 
 Glib::ustring DiED::PongMessage::sGetString(void)
@@ -361,7 +360,7 @@ DiED::InputMessage::InputMessage(const DiED::clientid_t & CreatorID, const DiED:
 
 void DiED::InputMessage::vExecuteEvent(DiED::MessageTarget & MessageTarget)
 {
-	MessageTarget.vInsertText(m_Text);
+	MessageTarget.vHandleInsertText(m_Text);
 }
 
 Glib::ustring DiED::InputMessage::sGetString(void)

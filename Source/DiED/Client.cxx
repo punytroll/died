@@ -5,7 +5,6 @@
 #include "BasicMessage.h"
 
 DiED::Client::Client(DiED::InternalEnvironment & InternalEnvironment) :
-	m_u32KnownClientsMessageID(0),
 	m_InternalEnvironment(InternalEnvironment)
 {
 //~ 	std::cout << "[DiED/Client]: Created new Client." << std::endl;
@@ -18,7 +17,6 @@ DiED::Client::~Client(void)
 
 void DiED::Client::vSetMessageStream(boost::shared_ptr< Network::MessageStream > MessageStream)
 {
-//~ 	std::cout << "[DiED/Client]: Setting MessageStream for Client " << GetClientID() << " to " << MessageStream.get() << std::endl;
 	// disconnect old relations to the current MessageStream
 	m_BytesSentConnection.disconnect();
 	m_MessageBeginConnection.disconnect();
@@ -59,48 +57,48 @@ void DiED::Client::vSetPort(const Network::port_t & Port)
 	m_Port = Port;
 }
 
-void DiED::Client::vInsertText(const Glib::ustring & sString)
+void DiED::Client::vHandleInsertText(const Glib::ustring & sString)
 {
 	m_InternalEnvironment.vInsertText(*this, sString);
 }
 
-void DiED::Client::vConnectionRequest(const DiED::clientid_t & ClientID, const Network::port_t & Port)
+void DiED::Client::vHandleConnectionRequest(const DiED::clientid_t & ClientID, const Network::port_t & Port)
 {
 	m_Port = Port;
 	m_InternalEnvironment.vConnectionRequest(*this, ClientID);
 }
 
-void DiED::Client::vConnectionAccept(const DiED::clientid_t & LocalClientID, const DiED::clientid_t & RemoteClientID)
+void DiED::Client::vHandleConnectionAccept(const DiED::clientid_t & LocalClientID, const DiED::clientid_t & RemoteClientID)
 {
 	m_InternalEnvironment.vConnectionAccept(*this, LocalClientID, RemoteClientID);
 }
 
-void DiED::Client::vKnownClients(const DiED::messageid_t & MessageID, const std::vector< DiED::clientid_t > & ConnectedClientIDs, const std::vector< DiED::clientid_t > & DisconnectedClientIDs)
+void DiED::Client::vHandleKnownClients(const DiED::messageid_t & MessageID, const std::vector< DiED::clientid_t > & ConnectedClientIDs, const std::vector< DiED::clientid_t > & DisconnectedClientIDs)
 {
 	m_InternalEnvironment.vKnownClients(*this, MessageID, ConnectedClientIDs, DisconnectedClientIDs);
 }
 
-void DiED::Client::vClientsRegistered(const DiED::messageid_t & MessageID)
+void DiED::Client::vHandleClientsRegistered(const DiED::messageid_t & MessageID)
 {
 	m_InternalEnvironment.vClientsRegistered(*this, MessageID);
 }
 
-void DiED::Client::vConnectionEstablished(const DiED::clientid_t & ClientID, const Network::address_t & ClientAddress, const Network::port_t & ClientPort)
+void DiED::Client::vHandleConnectionEstablished(const DiED::clientid_t & ClientID, const Network::address_t & ClientAddress, const Network::port_t & ClientPort)
 {
 	m_InternalEnvironment.vConnectionEstablished(*this, ClientID, ClientAddress, ClientPort);
 }
 
-void DiED::Client::vConnectionLost(const DiED::clientid_t & ClientID, const Network::address_t & ClientAddress, const Network::port_t & ClientPort)
+void DiED::Client::vHandleConnectionLost(const DiED::clientid_t & ClientID, const Network::address_t & ClientAddress, const Network::port_t & ClientPort)
 {
 	m_InternalEnvironment.vConnectionLost(*this, ClientID, ClientAddress, ClientPort);
 }
 
-void DiED::Client::vPing(const DiED::messageid_t & PingID)
+void DiED::Client::vHandlePing(const DiED::messageid_t & PingID)
 {
 	std::cout << "TODO: vPing in " << __FILE__ << ':' << __LINE__ << std::endl;
 }
 
-void DiED::Client::vPong(const DiED::messageid_t & PingID)
+void DiED::Client::vHandlePong(const DiED::messageid_t & PingID)
 {
 	std::map< DiED::messageid_t, boost::shared_ptr< sigc::signal< void > > >::iterator iPongSignal(m_PongSignals.find(PingID));
 	
@@ -154,7 +152,7 @@ void DiED::Client::vExecuteTopMessage(void)
 	MessageStream->pop_front();
 }
 
-DiED::Client & DiED::Client::operator<<(boost::shared_ptr< DiED::BasicMessage > Message)
+void DiED::Client::vSend(boost::shared_ptr< DiED::BasicMessage > Message)
 {
 	if(Message->bIsEventMessage() == true)
 	{
@@ -198,8 +196,65 @@ DiED::Client & DiED::Client::operator<<(boost::shared_ptr< DiED::BasicMessage > 
 			std::cout << "VERY BAD: " << __FILE__ << ':' << __LINE__ << std::endl;
 		}
 	}
+}
+
+void DiED::Client::vConnectionRequest(const DiED::clientid_t & ClientID, const Network::port_t & ListenPort)
+{
+	vSend(boost::shared_ptr< DiED::BasicMessage >(new DiED::ConnectionRequestMessage(ClientID, ListenPort)));
+}
+
+void DiED::Client::vConnectionAccept(const DiED::clientid_t & LocalClientID, const DiED::clientid_t & RemoteClientID)
+{
+	vSend(boost::shared_ptr< DiED::BasicMessage >(new DiED::ConnectionAcceptMessage(RemoteClientID, LocalClientID)));
+}
+
+void DiED::Client::vKnownClients(bool bAskForKnownClients)
+{
+	boost::shared_ptr< DiED::BasicMessage > KnownClientsMessage;
+	std::vector< DiED::clientid_t > DisconnectedClientIDs(m_InternalEnvironment.GetDisconnectedClientIDs());
+	std::vector< DiED::clientid_t > ConnectedClientIDs(m_InternalEnvironment.GetConnectedClientIDs());
+	std::vector< DiED::clientid_t >::iterator iClient;
 	
-	return *this;
+	// somewhere in the lists is _this_ client
+	//  => but specification says we don't want to send the receiver's client ID with this message regardless of the list
+	//  => find it and erase it
+	iClient = find(DisconnectedClientIDs.begin(), DisconnectedClientIDs.end(), GetClientID());
+	if(iClient != DisconnectedClientIDs.end())
+	{
+		DisconnectedClientIDs.erase(iClient);
+	}
+	iClient = find(ConnectedClientIDs.begin(), ConnectedClientIDs.end(), GetClientID());
+	if(iClient != ConnectedClientIDs.end())
+	{
+		ConnectedClientIDs.erase(iClient);
+	}
+	if(bAskForKnownClients == true)
+	{
+		KnownClientsMessage = boost::shared_ptr< DiED::BasicMessage >(new DiED::KnownClientsMessage(0, ConnectedClientIDs, DisconnectedClientIDs));
+	}
+	else
+	{
+		DiED::messageid_t MessageID(rand());
+		
+		KnownClientsMessage = boost::shared_ptr< DiED::BasicMessage >(new DiED::KnownClientsMessage(MessageID, ConnectedClientIDs, DisconnectedClientIDs));
+		std::cout << "TODO: What to do with the MessageID? " << __FILE__ << ':' << __LINE__ << std::endl;
+	}
+	vSend(KnownClientsMessage);
+}
+
+void DiED::Client::vClientsRegistered(const DiED::messageid_t & MessageID)
+{
+	vSend(boost::shared_ptr< DiED::BasicMessage >(new DiED::ClientsRegisteredMessage(MessageID)));
+}
+
+void DiED::Client::vConnectionEstablished(const DiED::clientid_t & ClientID, const Network::address_t & ClientAddress, const Network::port_t & ClientPort)
+{
+	vSend(boost::shared_ptr< DiED::BasicMessage >(new DiED::ConnectionEstablishedMessage(ClientID, ClientAddress, ClientPort)));
+}
+
+void DiED::Client::vConnectionLost(const DiED::clientid_t & ClientID, const Network::address_t & ClientAddress, const Network::port_t & ClientPort)
+{
+	vSend(boost::shared_ptr< DiED::BasicMessage >(new DiED::ConnectionLostMessage(ClientID, ClientAddress, ClientPort)));
 }
 
 void DiED::Client::vPing(sigc::slot< void > PongSlot)
@@ -212,6 +267,7 @@ void DiED::Client::vPing(sigc::slot< void > PongSlot)
 	} while(m_PongSignals.find(PingID) != m_PongSignals.end());
 	m_PongSignals[PingID] = boost::shared_ptr< sigc::signal< void > >(new sigc::signal< void >());
 	m_PongSignals[PingID]->connect(PongSlot);
+	vSend(boost::shared_ptr< DiED::BasicMessage >(new DiED::PingMessage(PingID)));
 }
 
 void DiED::Client::vBytesSent(size_t stSize)
