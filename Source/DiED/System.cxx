@@ -193,7 +193,6 @@ void DiED::System::vConnectionRequest(DiED::User & User, const DiED::clientid_t 
 		//  => NO client has the client ID '0'
 		//  => the only exception is the local client _BEFORE_ any network interaction with other clients occures
 		RegisterClient(m_Client);
-		std::cout << "This client is ID " << m_Client->GetID() << "." << std::endl;
 	}
 	
 	// ConnectionRequest messages are not allowed if the client is not in the PreliminaryClients map
@@ -278,7 +277,6 @@ void DiED::System::vConnectionAccept(DiED::User & User, const DiED::clientid_t &
 		else
 		{
 			RegisterClient(m_Client, LocalClientID);
-			std::cout << "This client is ID " << m_Client->GetID() << "." << std::endl;
 		}
 		// newlings are not expected to do anything else
 	}
@@ -608,7 +606,7 @@ boost::shared_ptr< DiED::Client > DiED::System::GetNewPreliminaryClient(void)
 	boost::shared_ptr< DiED::Client > Client(m_ClientFactory->GetClient());
 	
 	m_PreliminaryClients[Client.get()] = Client;
-	std::cout << "[DiED/System] Created a preliminary client at " << Client.get() << '.' << std::endl;
+//~ 	std::cout << "[DiED/System] Created a preliminary client at " << Client.get() << '.' << std::endl;
 	
 	return Client;
 }
