@@ -142,6 +142,17 @@ DiED::KnownClientsMessage::KnownClientsMessage(u_int32_t u32MessageID, std::vect
 	vRegisterValue(m_DisconnectedClientIDs);
 }
 
+DiED::KnownClientsMessage::KnownClientsMessage(u_int32_t u32MessageID, std::set< DiED::clientid_t > ConnectedClientIDs, std::set< DiED::clientid_t > DisconnectedClientIDs) :
+	DiED::BasicMessage(DiED::_KnownClientsMessage),
+	m_MessageID(u32MessageID),
+	m_ConnectedClientIDs(ConnectedClientIDs),
+	m_DisconnectedClientIDs(DisconnectedClientIDs)
+{
+	vRegisterValue(m_MessageID);
+	vRegisterValue(m_ConnectedClientIDs);
+	vRegisterValue(m_DisconnectedClientIDs);
+}
+
 void DiED::KnownClientsMessage::vExecute(DiED::MessageTarget & MessageTarget)
 {
 //~ 	std::cout << "KnownClientsMessage [MessageID = " << m_MessageID << " ; #Connected = " << m_ConnectedClientIDs.size() << " ; #Disconnected = " << m_DisconnectedClientIDs.size() << "]" << std::endl;
@@ -633,8 +644,7 @@ bool DiED::EventMessage::bIsEventMessage(void)
 
 void DiED::EventMessage::vExecute(DiED::MessageTarget & MessageTarget)
 {
-	MessageTarget.vHandleEvent(m_CreatorID, m_EventID, m_LostClientID);
-	vExecuteEvent(MessageTarget);
+	MessageTarget.vHandleEvent(m_CreatorID, m_EventID, m_LostClientID, GetAction());
 }
 
 Glib::ustring DiED::EventMessage::sGetString(void)
@@ -684,16 +694,16 @@ DiED::InsertTextEvent::InsertTextEvent(const DiED::clientid_t & CreatorID, const
 	vRegisterValue(m_Text);
 }
 
-void DiED::InsertTextEvent::vExecuteEvent(DiED::MessageTarget & MessageTarget)
+boost::shared_ptr< DiED::EventAction > DiED::InsertTextEvent::GetAction(void)
 {
-	MessageTarget.vHandleInsertText(m_Text);
+	return boost::shared_ptr< DiED::EventAction >(new DiED::InsertTextAction(m_Text));
 }
 
 Glib::ustring DiED::InsertTextEvent::sGetString(void)
 {
 	std::stringstream ssString;
 	
-	ssString << "InsertText [ Event = " << DiED::EventMessage::sGetString() << " ; Text = " << m_Text.Get() << " ]";
+	ssString << "InsertText [ " << DiED::EventMessage::sGetString() << " ; Text = " << m_Text.Get() << " ]";
 	
 	return ssString.str();
 }

@@ -2,6 +2,8 @@
 
 #include <errno.h>
 
+#include "DiED/User.h"
+
 std::string sErrorCodeToString(int iError)
 {
 	switch(iError)
@@ -63,11 +65,13 @@ std::string sStatusToString(int iStatus)
 {
 	switch(iStatus)
 	{
-	case 0:
+	case DiED::User::Connected:
 		return "Connected";
-	case 1:
+	case DiED::User::Disconnected:
 		return "Disconnected";
-	case 2:
+	case DiED::User::Connecting:
+		return "Connecting";
+	case DiED::User::Deleted:
 		return "Deleted";
 	default:
 		return "Unknown";

@@ -4,7 +4,7 @@
 #include <sys/types.h>
 
 #include <map>
-#include <vector>
+#include <set>
 
 #include <sigc++/sigc++.h>
 
@@ -33,8 +33,8 @@ namespace DiED
 		// Status stuff
 		virtual void vSetStatus(const DiED::clientid_t & ClientID, DiED::User::Status Status);
 		Status GetStatus(const DiED::clientid_t & ClientID);
-		std::vector< DiED::clientid_t > GetConnectedClientIDs(void);
-		std::vector< DiED::clientid_t > GetDisconnectedClientIDs(void);
+		std::set< DiED::clientid_t > GetConnectedClientIDs(void);
+		std::set< DiED::clientid_t > GetDisconnectedClientIDs(void);
 		sigc::signal< void, DiED::clientid_t, DiED::User::Status > StatusChanged;
 		
 		// caret position stuff
