@@ -8,7 +8,7 @@ namespace DiED
 	enum
 	{
 		_NoMessage,
-		_HelloMessage
+		_HelloMessage = 0xB0A0A0A0
 	};
 	
 	class NoMessage : public Network::BasicMessage

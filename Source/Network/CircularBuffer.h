@@ -15,9 +15,12 @@ namespace Network
 	{
 	public:
 		CircularBuffer(size_t stSize);
-		virtual size_t stGetCount(void);
 		boost::shared_ptr< Network::BufferReader > GetReader(void);
 		boost::shared_ptr< Network::BufferWriter > GetWriter(void);
+		virtual size_t stGetCapacity(void);
+		virtual size_t stGetSize(void);
+		virtual size_t stGetFree(void);
+		virtual size_t stRead(u_int8_t * pu8Memory, size_t stSize);
 		virtual void vWrite(const u_int8_t * pu8Memory, size_t stSize);
 	private:
 		u_int8_t * m_pu8StorageBegin;

@@ -8,16 +8,22 @@
 
 #include <iostream>
 
+#include "../Common.h"
+
+const size_t g_stInitialBufferSize = 2048;
+
 Network::Stream::Stream(void) :
 	m_pu8Buffer(new u_int8_t[2048]),
-	m_Buffer(2048)
+	m_IBuffer(g_stInitialBufferSize),
+	m_OBuffer(g_stInitialBufferSize)
 {
 }
 
 Network::Stream::Stream(int iSocket) :
 	Socket(iSocket),
 	m_pu8Buffer(new u_int8_t[2048]),
-	m_Buffer(2048)
+	m_IBuffer(g_stInitialBufferSize),
+	m_OBuffer(g_stInitialBufferSize)
 {
 }
 
@@ -85,7 +91,7 @@ Network::Stream & Network::Stream::operator>>(Network::BasicValue & Value)
 
 Network::Stream & Network::Stream::operator<<(const Network::BasicValue & Value)
 {
-	Value.vWriteTo(m_Buffer.GetWriter());
+	Value.vWriteTo(m_OBuffer.GetWriter());
 	
 	return *this;
 }
@@ -97,6 +103,7 @@ void Network::Stream::vOnIn(void)
 	if(stSize == -1)
 	{
 		vGetError();
+		std::cout << "[Stream]: recv failed. " << sErrorCodeToString(m_iError) << std::endl;
 		
 		return;
 	}
@@ -108,7 +115,9 @@ void Network::Stream::vOnIn(void)
 		return;
 	}
 	std::cout << "Read " << stSize << " bytes from the socket." << std::endl;
-	m_Buffer.vWrite(m_pu8Buffer, stSize);
+	std::cout << "Buffer size is " << m_IBuffer.stGetSize() << "." << std::endl;
+	m_IBuffer.vWrite(m_pu8Buffer, stSize);
+	std::cout << "Buffer size is " << m_IBuffer.stGetSize() << "." << std::endl;
 	
 	std::deque< boost::reference_wrapper< Network::BasicValue > >::iterator iValue(m_Values.begin());
 	
@@ -126,7 +135,27 @@ void Network::Stream::vOnIn(void)
 	}
 }
 
+void Network::Stream::vOnOut(void)
+{
+	std::cout << "Ought to send: " << m_OBuffer.stGetSize() << " bytes." << std::endl;
+	
+	u_int8_t * pu8Temporary = new u_int8_t[m_OBuffer.stGetSize() + 1];
+	size_t stSize = m_OBuffer.stRead(pu8Temporary, Network::BasicBuffer::npos);
+	
+	std::cout << "Read " << stSize << " bytes from m_OBuffer." << std::endl;
+	std::cout << std::hex;
+	for(size_t stI = 0; stI < stSize; ++stI)
+	{
+		std::cout << static_cast< u_int32_t >(pu8Temporary[stI]) << ' ';
+	}
+	std::cout << std::endl;
+	stSize = send(m_iSocket, pu8Temporary, stSize, 0);
+	std::cout << "Sent " << stSize << " bytes through socket." << std::endl;
+	delete[] pu8Temporary;
+	vIgnoreOnOut();
+}
+
 void Network::Stream::vRead(Network::BasicValue & Value)
 {
-	Value.vReadFrom(m_Buffer.GetReader());
+	Value.vReadFrom(m_IBuffer.GetReader());
 }

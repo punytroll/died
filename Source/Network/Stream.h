@@ -23,9 +23,11 @@ namespace Network
 	protected:
 		void vRead(Network::BasicValue & Value);
 		virtual void vOnIn(void);
+		virtual void vOnOut(void);
 	private:
 		u_int8_t * m_pu8Buffer;
-		Network::CircularBuffer m_Buffer;
+		Network::CircularBuffer m_IBuffer;
+		Network::CircularBuffer m_OBuffer;
 		std::deque< boost::reference_wrapper< Network::BasicValue > > m_Values;
 	};
 }

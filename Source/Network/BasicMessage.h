@@ -10,13 +10,18 @@ namespace Network
 	{
 	public:
 		BasicMessage(u_int32_t u32MessageID, bool bForSending);
+		virtual ~BasicMessage(void);
 		bool bIsForSending(void) const;
 		virtual bool bIsReady(void) = 0;
 		virtual void vReadFrom(Network::Stream & Stream) = 0;
 		void vWriteTo(Network::Stream & Stream) const;
+		sigc::signal< void > Ready;
+		u_int32_t u32GetMessageID(void);
 	protected:
 		virtual void vWriteToInternal(Network::Stream & Stream) const = 0;
+		void vRegisterValue(Network::BasicValue & Value);
 	private:
+		void vNotifyValueReady(void);
 		Value< u_int32_t > m_MessageID;
 		bool m_bForSending;
 	};

@@ -20,12 +20,16 @@ namespace Network
 		void vClose(void);
 	protected:
 		void vMonitor(void);
+		void vRequestOnOut(void);
+		void vIgnoreOnOut(void);
 		void vGetError(void);
 		virtual void vOnIn(void);
+		virtual void vOnOut(void);
+		int m_iError;
 		int m_iSocket;
 	private:
 		bool bNotify(const Glib::IOCondition & Condition);
-		int m_iError;
+		Glib::RefPtr< Glib::IOSource > m_OSource;
 	};
 }
 

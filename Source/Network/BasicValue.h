@@ -3,6 +3,8 @@
 
 #include <boost/shared_ptr.hpp>
 
+#include <sigc++/signal.h>
+
 #include "BasicReader.h"
 #include "BasicWriter.h"
 
@@ -16,6 +18,10 @@ namespace Network
 		{
 		}
 		
+		virtual ~BasicValue(void)
+		{
+		}
+		
 		bool bIsReady(void)
 		{
 			return m_bReady;
@@ -23,7 +29,11 @@ namespace Network
 		
 		virtual void vReadFrom(boost::shared_ptr< Network::BasicReader > Reader) = 0;
 		virtual void vWriteTo(boost::shared_ptr< Network::BasicWriter > Writer) const = 0;
+		
+		sigc::signal< void > Ready;
 	protected:
+		void vSetReady(bool bReady);
+	private:
 		bool m_bReady;
 	};
 }

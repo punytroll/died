@@ -77,7 +77,6 @@ int main(int argc, char ** argv)
 			std::cout << "[Client]: Connected to " << sConnectAddress << ':' << u16ConnectPort << std::endl;
 			
 			Client << DiED::HelloMessage();
-//~ 			Client.vClose();
 		}
 	}
 	while(g_bDone == false)
