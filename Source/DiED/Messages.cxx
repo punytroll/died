@@ -149,6 +149,59 @@ void DiED::KnownClientsMessage::vExecute(DiED::MessageTarget & MessageTarget)
 	MessageTarget.vHandleKnownClients(m_MessageID, m_ConnectedClientIDs, m_DisconnectedClientIDs);
 }
 
+bool DiED::KnownClientsMessage::bRequiresConfirmation(void)
+{
+	return true;
+}
+
+bool DiED::KnownClientsMessage::bIsConfirmedBy(boost::shared_ptr< DiED::ConfirmationParameters > ConfirmationParameters)
+{
+	if(m_MessageID == 0)
+	{
+		if(ConfirmationParameters->size() != 1)
+		{
+			return false;
+		}
+		
+		DiED::ConfirmationParameters::iterator iParameter(ConfirmationParameters->find("Type"));
+		
+		if((iParameter == ConfirmationParameters->end()) || (boost::any_cast< Network::BasicMessage::type_t >(iParameter->second) != DiED::_KnownClientsMessage))
+		{
+			return false;
+		}
+	}
+	else
+	{
+		if(ConfirmationParameters->size() != 2)
+		{
+			return false;
+		}
+		
+		DiED::ConfirmationParameters::iterator iParameter(ConfirmationParameters->find("Type"));
+		
+		if((iParameter == ConfirmationParameters->end()) || (boost::any_cast< Network::BasicMessage::type_t >(iParameter->second) != DiED::_ClientsRegisteredMessage))
+		{
+			return false;
+		}
+		iParameter = ConfirmationParameters->find("MessageID");
+		if((iParameter == ConfirmationParameters->end()) || (boost::any_cast< DiED::messageid_t >(iParameter->second) != m_MessageID))
+		{
+			return false;
+		}
+	}
+	
+	return true;
+}
+
+boost::shared_ptr< DiED::ConfirmationParameters > DiED::KnownClientsMessage::GetConfirmationParameters(void)
+{
+	boost::shared_ptr< DiED::ConfirmationParameters > ConfirmationParameters(new DiED::ConfirmationParameters());
+	
+	ConfirmationParameters->insert(std::make_pair("Type", boost::any(static_cast< Network::BasicMessage::type_t >(GetType()))));
+	
+	return ConfirmationParameters;
+}
+
 Glib::ustring DiED::KnownClientsMessage::sGetString(void)
 {
 	std::stringstream ssString;
@@ -180,6 +233,16 @@ void DiED::ClientsRegisteredMessage::vExecute(DiED::MessageTarget & MessageTarge
 {
 //~ 	std::cout << "ClientsRegisteredMessage [MessageID = " << m_MessageID << "]" << std::endl;
 	MessageTarget.vHandleClientsRegistered(m_MessageID);
+}
+
+boost::shared_ptr< DiED::ConfirmationParameters > DiED::ClientsRegisteredMessage::GetConfirmationParameters(void)
+{
+	boost::shared_ptr< DiED::ConfirmationParameters > ConfirmationParameters(new DiED::ConfirmationParameters());
+	
+	ConfirmationParameters->insert(std::make_pair("Type", boost::any(static_cast< Network::BasicMessage::type_t >(GetType()))));
+	ConfirmationParameters->insert(std::make_pair("MessageID", boost::any(static_cast< DiED::messageid_t >(m_MessageID))));
+	
+	return ConfirmationParameters;
 }
 
 Glib::ustring DiED::ClientsRegisteredMessage::sGetString(void)
