@@ -25,6 +25,10 @@ namespace DiED
 		virtual void vHandleEvent(const DiED::clientid_t & CreatorID, const DiED::messageid_t & EventID, const DiED::clientid_t & LostClientID, boost::shared_ptr< DiED::EventAction > EventAction) = 0;
 		virtual void vHandleEventReceived(const DiED::clientid_t & CreatorID, const DiED::messageid_t & EventID) = 0;
 		
+		virtual void vHandleConnectionRequestConfirmationTimeout(boost::shared_ptr< DiED::ConfirmationParameters > ConfirmationParameters) = 0;
+		virtual void vHandleKnownClientsConfirmationTimeout(boost::shared_ptr< DiED::ConfirmationParameters > ConfirmationParameters) = 0;
+		virtual void vHandleConnectionEstablishedConfirmationTimeout(boost::shared_ptr< DiED::ConfirmationParameters > ConfirmationParameters) = 0;
+		virtual void vHandleConnectionLostConfirmationTimeout(boost::shared_ptr< DiED::ConfirmationParameters > ConfirmationParameters) = 0;
 		virtual void vHandlePingConfirmationTimeout(boost::shared_ptr< DiED::ConfirmationParameters > ConfirmationParameters) = 0;
 		virtual void vHandleEventConfirmationTimeout(boost::shared_ptr< DiED::ConfirmationParameters > ConfirmationParameters) = 0;
 	};

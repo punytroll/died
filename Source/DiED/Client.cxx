@@ -560,10 +560,98 @@ void DiED::Client::vSetStatus(const DiED::clientid_t & ClientID, DiED::User::Sta
 ///                          ConfirmationTimeout-Handler                                        ///
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 
+void DiED::Client::vHandleConnectionRequestConfirmationTimeout(boost::shared_ptr< DiED::ConfirmationParameters > ConfirmationParameters)
+{
+	DiED::Client::WaitingMessage WaitingMessage(RemoveWaitingMessage(ConfirmationParameters));
+	
+	if(WaitingMessage.m_Message.get() == 0)
+	{
+		std::cout << "VERY BAD: " << __FILE__ << ':' << __LINE__ << std::endl;
+		
+		return;
+	}
+	if(WaitingMessage.m_TimeoutSignal.get() != 0)
+	{
+		WaitingMessage.m_TimeoutSignal->emit();
+	}
+	if(m_MessageStream.get() != 0)
+	{
+		m_MessageStream->vClose();
+	}
+}
+
+void DiED::Client::vHandleKnownClientsConfirmationTimeout(boost::shared_ptr< DiED::ConfirmationParameters > ConfirmationParameters)
+{
+	DiED::Client::WaitingMessage WaitingMessage(RemoveWaitingMessage(ConfirmationParameters));
+	
+	if(WaitingMessage.m_Message.get() == 0)
+	{
+		std::cout << "VERY BAD: " << __FILE__ << ':' << __LINE__ << std::endl;
+		
+		return;
+	}
+	if(WaitingMessage.m_TimeoutSignal.get() != 0)
+	{
+		WaitingMessage.m_TimeoutSignal->emit();
+	}
+	if(m_MessageStream.get() != 0)
+	{
+		m_MessageStream->vClose();
+	}
+}
+
+void DiED::Client::vHandleConnectionEstablishedConfirmationTimeout(boost::shared_ptr< DiED::ConfirmationParameters > ConfirmationParameters)
+{
+	DiED::Client::WaitingMessage WaitingMessage(RemoveWaitingMessage(ConfirmationParameters));
+	
+	if(WaitingMessage.m_Message.get() == 0)
+	{
+		std::cout << "VERY BAD: " << __FILE__ << ':' << __LINE__ << std::endl;
+		
+		return;
+	}
+	if(WaitingMessage.m_TimeoutSignal.get() != 0)
+	{
+		WaitingMessage.m_TimeoutSignal->emit();
+	}
+	if(m_MessageStream.get() != 0)
+	{
+		m_MessageStream->vClose();
+	}
+	m_InternalEnvironment.vAnnounceConnectionLost(GetID());
+}
+
+void DiED::Client::vHandleConnectionLostConfirmationTimeout(boost::shared_ptr< DiED::ConfirmationParameters > ConfirmationParameters)
+{
+	DiED::Client::WaitingMessage WaitingMessage(RemoveWaitingMessage(ConfirmationParameters));
+	
+	if(WaitingMessage.m_Message.get() == 0)
+	{
+		std::cout << "VERY BAD: " << __FILE__ << ':' << __LINE__ << std::endl;
+		
+		return;
+	}
+	if(WaitingMessage.m_TimeoutSignal.get() != 0)
+	{
+		WaitingMessage.m_TimeoutSignal->emit();
+	}
+	if(m_MessageStream.get() != 0)
+	{
+		m_MessageStream->vClose();
+	}
+	m_InternalEnvironment.vAnnounceConnectionLost(GetID());
+}
+
 void DiED::Client::vHandlePingConfirmationTimeout(boost::shared_ptr< DiED::ConfirmationParameters > ConfirmationParameters)
 {
 	DiED::Client::WaitingMessage WaitingMessage(RemoveWaitingMessage(ConfirmationParameters));
 	
+	if(WaitingMessage.m_Message.get() == 0)
+	{
+		std::cout << "VERY BAD: " << __FILE__ << ':' << __LINE__ << std::endl;
+		
+		return;
+	}
 	if(WaitingMessage.m_TimeoutSignal.get() != 0)
 	{
 		WaitingMessage.m_TimeoutSignal->emit();
