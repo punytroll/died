@@ -1,5 +1,6 @@
 #include "System.h"
 
+#include <iomanip>
 #include <iostream>
 
 #include "../Common.h"
@@ -94,6 +95,11 @@ bool DiED::System::bConnectTo(const Network::address_t & ConnectAddress, const N
 	Client->vConnectionRequest(m_Client->GetID(), m_ServicePort);
 	
 	return true;
+}
+
+void DiED::System::vTryReconnect(const DiED::clientid_t & ClientID)
+{
+	bTryReconnect(ClientID, true);
 }
 
 DiED::clientid_t DiED::System::GetLocalClientID(void)
@@ -367,7 +373,7 @@ void DiED::System::vLogOut(void)
 	vAnnounceLogOutNotification(EventCounter);
 }
 
-void DiED::System::vHandleConnectionRequest(DiED::User & User, const DiED::clientid_t & ClientID, const Network::port_t & Port)
+void DiED::System::vHandleConnectionRequest(DiED::User & User, const DiED::clientid_t & ClientID, const Network::port_t & ListenPort)
 {
 	LOG(DebugSystem, "DiED/System", "Processing ConnectionRequest message from " << User.GetID());
 	
@@ -413,7 +419,7 @@ void DiED::System::vHandleConnectionRequest(DiED::User & User, const DiED::clien
 	{
 		// => the local client is unknown in the network it is connecting to
 		RegisterClient(Client);
-		Client->vSetPort(Port);
+		Client->vSetPort(ListenPort);
 		// now we can answer the message with ConnectionAccept according to specification
 		Client->vConnectionAccept(m_Client->GetID(), Client->GetID());
 		// send KnownClients to this client
@@ -422,14 +428,30 @@ void DiED::System::vHandleConnectionRequest(DiED::User & User, const DiED::clien
 	else
 	{
 		// => the local client is known in the network it is connecting to
-		if(GetStatus(0, Client->GetID()) == DiED::Connected)
+		switch(GetStatus(0, Client->GetID()))
 		{
-			LOG(TODO, "DiED/System", "Test connection with ping.");
+		case DiED::Connected:
+			{
+				Client->vPing(sigc::bind(sigc::mem_fun(*this, &DiED::System::vPongOnConnectionRequest), boost::ref(User), ListenPort), sigc::bind(sigc::mem_fun(*this, &DiED::System::vPongTimeoutOnConnectionRequest), boost::ref(User), ClientID, ListenPort));
+				
+				break;
+			}
+		case DiED::Connecting:
+			{
+				Client->vSetMessageStream(boost::shared_ptr< Network::MessageStream >());
+				
+				break;
+			}
+		default:
+			{
+				iClient->second->vSetMessageStream(Client->GetMessageStream());
+				iClient->second->vConnectionAccept(m_Client->GetID(), ClientID);
+				Client->vSetMessageStream(boost::shared_ptr< Network::MessageStream >());
+				Client->vSetPort(ListenPort);
+				
+				break;
+			}
 		}
-		iClient->second->vSetMessageStream(Client->GetMessageStream());
-		iClient->second->vConnectionAccept(m_Client->GetID(), ClientID);
-		Client->vSetMessageStream(boost::shared_ptr< Network::MessageStream >());
-		Client->vSetPort(Port);
 		// TODO: what to do with the iPreliminaryClient ... it is invalid and emtpy (no socket) but MUST NOT be deleted from here
 	}
 	LOG(DebugSystem, "DiED/System", "           ConnectionRequest message from " << User.GetID() << '\n');
@@ -856,6 +878,60 @@ void DiED::System::vPongTimeout(boost::shared_ptr< DiED::Client > Client)
 	LOG(Debug, "DiED/System", "Pong missing from " << Client->GetID() << ".");
 }
 
+void DiED::System::vPongOnConnectionRequest(boost::reference_wrapper< DiED::User > User, const Network::port_t & ListenPort)
+{
+	std::map< DiED::User *, boost::shared_ptr< DiED::Client > >::iterator iPreliminaryClient(m_PreliminaryClients.find(&(User.get())));
+	
+	if(iPreliminaryClient == m_PreliminaryClients.end())
+	{
+		LOG(Error, "DiED/System", "VERY BAD: " << __FILE__ << ':' << __LINE__ << " How to handle a preliminary client that ceased to exist?");
+	}
+	
+	boost::shared_ptr< DiED::Client > Client(iPreliminaryClient->second);
+	
+	// => the local client is unknown in the network it is connecting to
+	RegisterClient(Client);
+	Client->vSetPort(ListenPort);
+	// now we can answer the message with ConnectionAccept according to specification
+	Client->vConnectionAccept(m_Client->GetID(), Client->GetID());
+	// send KnownClients to this client
+	Client->vSessionSnapshot(true, m_pExternalEnvironment->sGetDocument());
+}
+
+void DiED::System::vPongTimeoutOnConnectionRequest(boost::reference_wrapper< DiED::User > User, const DiED::clientid_t & ClientID, const Network::port_t & ListenPort)
+{
+	std::map< DiED::User *, boost::shared_ptr< DiED::Client > >::iterator iPreliminaryClient(m_PreliminaryClients.find(&(User.get())));
+	
+	if(iPreliminaryClient == m_PreliminaryClients.end())
+	{
+		LOG(Error, "DiED/System", "VERY BAD: " << __FILE__ << ':' << __LINE__ << " How to handle a preliminary client that ceased to exist?");
+	}
+	
+	boost::shared_ptr< DiED::Client > Client(iPreliminaryClient->second);
+	std::map< DiED::clientid_t, boost::shared_ptr< DiED::Client > >::iterator iClient(m_Clients.find(ClientID));
+	
+	if(iClient == m_Clients.end())
+	{
+		LOG(Error, "DiED/System", "VERY BAD: " << __FILE__ << ':' << __LINE__ << " How to handle a client that ceased to exist?");
+	}
+	else
+	{
+		// => the local client is known in the network it is connecting to
+		if(GetStatus(0, Client->GetID()) == DiED::Connected)
+		{
+			LOG(Error, "DiED/System", "VERY BAD: " << __FILE__ << ':' << __LINE__ << " Weird weird!");
+		}
+		else
+		{
+			iClient->second->vSetMessageStream(Client->GetMessageStream());
+			iClient->second->vConnectionAccept(m_Client->GetID(), ClientID);
+			Client->vSetMessageStream(boost::shared_ptr< Network::MessageStream >());
+			Client->vSetPort(ListenPort);
+		}
+		// TODO: what to do with the iPreliminaryClient ... it is invalid and emtpy (no socket) but MUST NOT be deleted from here
+	}
+}
+
 void DiED::System::vPongTimeoutOnConnectionEstablished(boost::shared_ptr< DiED::Client > Client, const Network::address_t & ClientAddress, const Network::port_t & ClientPort)
 {
 	if(ClientPort == 0)
@@ -1039,37 +1115,66 @@ void DiED::System::vAnnounceMessage(boost::shared_ptr< DiED::BasicMessage > Mess
 
 void DiED::System::vClientStatusChanged(const DiED::clientid_t & ClientID, const DiED::clientstatus_t & Status)
 {
-	if(Status == DiED::Disconnected)
+	switch(Status)
 	{
-		Glib::signal_timeout().connect(sigc::bind(sigc::mem_fun(*this, &DiED::System::bTryReconnect), ClientID), g_uiReconnectTryTimeout + rand() % 2000);
+	case DiED::Disconnected:
+		{
+			LOG(Info, "DiED/System", "Disconnected from " << pGetClient(ClientID)->GetAddress() << ':' << pGetClient(ClientID)->GetPort() << '.');
+			pGetClient(ClientID)->vNewReconnectTimeout(sigc::bind(sigc::mem_fun(*this, &DiED::System::bTryReconnect), ClientID, true));
+			
+			break;
+		}
+	case DiED::Connected:
+		{
+			pGetClient(ClientID)->vProcessEventQueue();
+			
+			break;
+		}
+	default:
+		{
+			break;
+		}
 	}
 }
 
-bool DiED::System::bTryReconnect(const DiED::clientid_t & ClientID)
+bool DiED::System::bTryReconnect(const DiED::clientid_t & ClientID, bool bAnnounceConnectionLost = true)
 {
+	LOG(Debug, "DiED/Client", "bTryReconnect: ClientID = " << ClientID << " ; bAnnounceConnectionLost = " << std::boolalpha << bAnnounceConnectionLost);
+	
 	boost::shared_ptr< DiED::Client > Client(RegisterClient(boost::shared_ptr< DiED::Client >(), ClientID));
 	
 	if(Client.get() == 0)
 	{
+		LOG(Debug, "DiED/Client", "               No Client.");
+		
 		return false;
 	}
 	if(GetStatus(ClientID, 0) != DiED::Disconnected)
 	{
+		LOG(Debug, "DiED/Client", "               Client is not Disconnected but " << sStatusToString(GetStatus(ClientID, 0)));
+		
 		return false;
 	}
 	
 	boost::shared_ptr< Network::MessageStream > MessageStream(new Network::MessageStream(m_MessageFactory));
 	
-	MessageStream->vOpen(Client->GetAddress(), Client->GetPort());
-	if(MessageStream->bIsOpen() == false)
+	if(Client->GetPort() != 0)
 	{
-		vAnnounceConnectionLost(Client->GetID());
-	}
-	else
-	{
-		Client->vSetMessageStream(MessageStream);
-		vSetStatus(m_Client->GetID(), Client->GetID(), DiED::Connecting);
-		Client->vConnectionRequest(m_Client->GetID(), m_ServicePort);
+		MessageStream->vOpen(Client->GetAddress(), Client->GetPort());
+		if(MessageStream->bIsOpen() == false)
+		{
+			if(bAnnounceConnectionLost == true)
+			{
+				vAnnounceConnectionLost(Client->GetID());
+			}
+			Client->vNewReconnectTimeout(sigc::bind(sigc::mem_fun(*this, &DiED::System::bTryReconnect), ClientID, false));
+		}
+		else
+		{
+			Client->vSetMessageStream(MessageStream);
+			vSetStatus(m_Client->GetID(), Client->GetID(), DiED::Connecting);
+			Client->vConnectionRequest(m_Client->GetID(), m_ServicePort);
+		}
 	}
 	
 	return false;

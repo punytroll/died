@@ -17,7 +17,7 @@ namespace DiED
 		virtual bool bIsConfirmedBy(boost::shared_ptr< DiED::ConfirmationParameters > ConfirmationParameters);
 		virtual void vExecute(DiED::MessageTarget & MessageTarget) = 0;
 		virtual Glib::ustring sGetString(void) = 0;
-		virtual bool bIsEventMessage(void);
+		virtual bool bIsEvent(void);
 		virtual bool bRequiresConfirmation(void);
 		virtual boost::shared_ptr< DiED::BasicMessage > Clone(void);
 	

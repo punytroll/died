@@ -22,6 +22,7 @@ namespace DiED
 		// functions which will setup the server or the connection to a network
 		bool bListen(const Network::port_t & ServicePort);
 		bool bConnectTo(const Network::address_t & ConnectAddress, const Network::port_t & ConnectPort);
+		void vTryReconnect(const DiED::clientid_t & ClientID);
 		DiED::clientid_t GetLocalClientID(void);
 		
 		// functions which will send messages to the connected clients
@@ -50,7 +51,7 @@ namespace DiED
 		void vDelete(DiED::User & User, int iLineRelative, int iCharacterRelative, bool bForwardToEnvironment);
 		virtual void vAccepted(boost::shared_ptr< Network::MessageStream > MessageStream);
 		void vClientStatusChanged(const DiED::clientid_t & ClientID, const DiED::clientstatus_t & Status);
-		bool bTryReconnect(const DiED::clientid_t & ClientID);
+		bool bTryReconnect(const DiED::clientid_t & ClientID, bool bAnnounceConnectionLost);
 	private:
 		// implementation of the InternalEnvironment interface
 		virtual void vHandleConnectionRequest(DiED::User & User, const DiED::clientid_t & ClientID, const Network::port_t & Port);
@@ -73,6 +74,8 @@ namespace DiED
 		// private callbacks
 		void vPongTimeout(boost::shared_ptr< DiED::Client > Client);
 		void vPongTimeoutOnConnectionEstablished(boost::shared_ptr< DiED::Client > Client, const Network::address_t & ClientAddress, const Network::port_t & ClientPort);
+		void vPongOnConnectionRequest(boost::reference_wrapper< DiED::User > User, const Network::port_t & ListenPort);
+		void vPongTimeoutOnConnectionRequest(boost::reference_wrapper< DiED::User > User, const DiED::clientid_t & ClientID, const Network::port_t & ListenPort);
 		
 		boost::shared_ptr< DiED::MessageFactory > m_MessageFactory;
 		boost::shared_ptr< DiED::ClientFactory > m_ClientFactory;

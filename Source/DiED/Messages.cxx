@@ -693,7 +693,7 @@ bool DiED::EventMessage::bIsConfirmedBy(boost::shared_ptr< DiED::ConfirmationPar
 	return true;
 }
 
-bool DiED::EventMessage::bIsEventMessage(void)
+bool DiED::EventMessage::bIsEvent(void)
 {
 	return true;
 }
