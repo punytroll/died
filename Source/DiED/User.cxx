@@ -9,6 +9,7 @@ DiED::User::User(void) :
 	m_iCharacter(0),
 	m_ID(0)
 {
+	m_Status.insert(std::make_pair(m_ID, DiED::Local));
 }
 
 DiED::User::~User(void)
@@ -59,7 +60,9 @@ void DiED::User::vSetCharacter(int iCharacter)
 
 void DiED::User::vSetID(const DiED::clientid_t & ID)
 {
+	m_Status.erase(m_Status.find(m_ID));
 	m_ID = ID;
+	m_Status.insert(std::make_pair(m_ID, DiED::Local));
 }
 
 DiED::clientid_t DiED::User::GetID(void) const
@@ -73,7 +76,7 @@ void DiED::User::vSetStatus(const DiED::clientid_t & ClientID, const DiED::clien
 	
 	std::map< DiED::clientid_t, DiED::clientstatus_t >::iterator iClient(m_Status.find(ClientID));
 	
-	if(Status == DiED::Deleted)
+	if(Status == DiED::Undefined)
 	{
 		if(iClient != m_Status.end())
 		{
@@ -118,7 +121,7 @@ DiED::clientstatus_t DiED::User::GetStatus(const DiED::clientid_t & ClientID)
 		return iClient->second;
 	}
 	
-	return DiED::Deleted;
+	return DiED::Undefined;
 }
 
 std::set< DiED::clientid_t > DiED::User::GetConnectedClientIDs(void)

@@ -497,6 +497,8 @@ void DiED::System::vHandleSessionSnapshot(DiED::User & User, const DiED::message
 	
 	while(iClientInfo != ClientInfos.end())
 	{
+		LOG(DebugCurrent, "DiED/System", "ClientID = " << iClientInfo->ClientID << " ; Status = " << sStatusToString(iClientInfo->Status) << " ; EventCounter = " << iClientInfo->EventCounter);
+		
 		boost::shared_ptr< DiED::Client > Client;
 		
 		if(pGetClient(iClientInfo->ClientID) == 0)
@@ -519,8 +521,10 @@ void DiED::System::vHandleSessionSnapshot(DiED::User & User, const DiED::message
 			{
 				LOG(Error, "DiED/System", "VERY BAD: " << __FILE__ << ':' << __LINE__ << ": ClientID = " << iClientInfo->ClientID);
 			}
-			LOG(DebugCurrent, "DiED/System", "ClientID = " << iClientInfo->ClientID << " ; Status = " << sStatusToString(iClientInfo->Status) << " ; Line = " << iClientInfo->iLine << " ; Character = " << iClientInfo->iCharacter);
-			if(iClientInfo->Status == DiED::Deleted)
+			// TODO: is this necessary???
+			// if we consider a client which is Local to itself it is this very client
+			//  => we have to set the EventCounter, Line and Character information
+			if(iClientInfo->Status == DiED::Local)
 			{
 				Client->vSetEventCounter(iClientInfo->EventCounter);
 				Client->vSetLine(iClientInfo->iLine);
@@ -529,7 +533,7 @@ void DiED::System::vHandleSessionSnapshot(DiED::User & User, const DiED::message
 			LOG_NO_NL(Debug, "DiED/System", "Known client " << iClientInfo->ClientID << " is ");
 		}
 		LOG_PURE(Debug, "DiED/System", sStatusToString(iClientInfo->Status) << " to client " << User.GetID() << std::endl);
-		if(iClientInfo->Status != DiED::Deleted)
+		if(iClientInfo->Status != DiED::Local)
 		{
 			vSetStatus(User.GetID(), Client->GetID(), iClientInfo->Status);
 		}
@@ -925,7 +929,7 @@ DiED::clientstatus_t DiED::System::GetStatus(const DiED::clientid_t & _ClientID1
 		
 		if(iClient == m_Clients.end())
 		{
-			return DiED::Deleted;
+			return DiED::Undefined;
 		}
 		Client1 = iClient->second;
 	}
@@ -940,13 +944,15 @@ DiED::clientstatus_t DiED::System::GetStatus(const DiED::clientid_t & _ClientID1
 		
 		if(iClient == m_Clients.end())
 		{
-			return DiED::Deleted;
+			return DiED::Undefined;
 		}
 		Client2 = iClient->second;
 	}
-	if((Client1.get() == 0) || (Client2.get() == 0) || (Client1 == Client2))
+	// I changed the logic here:
+	//  => this function will NOT consider that Client1 and Client2 may be equal!
+	if((Client1.get() == 0) || (Client2.get() == 0))
 	{
-		return DiED::Deleted;
+		return DiED::Undefined;
 	}
 	
 	return Client2->GetStatus(ClientID1);

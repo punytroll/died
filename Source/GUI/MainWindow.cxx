@@ -15,7 +15,7 @@
 GdkColor Connecting = { 0x0000, 0xE0E0, 0xE0E0, 0x0000 };
 GdkColor Connected = { 0x0000, 0x0000, 0xC0C0, 0x0000 };
 GdkColor Disconnected = { 0x0000, 0xC0C0, 0x0000, 0x0000 };
-GdkColor Deleted = { 0x0000, 0x6060, 0x6060, 0x6060 };
+GdkColor Undefined = { 0x0000, 0x6060, 0x6060, 0x6060 };
 
 void GUI::vDeleteRange(GtkTextBuffer * pTextBuffer, GtkTextIter * pBeginIterator, GtkTextIter * pEndIterator, GUI::MainWindow * pMainWindow)
 {
@@ -273,6 +273,20 @@ void GUI::MainWindow::vClientStatusChanged(const DiED::clientid_t & ClientID, co
 	
 	switch(Status)
 	{
+	case DiED::Undefined:
+		{
+			pLabel->modify_fg(Gtk::STATE_NORMAL, Gdk::Color(&Undefined));
+			pLabel->modify_fg(Gtk::STATE_ACTIVE, Gdk::Color(&Undefined));
+			
+			break;
+		}
+	case DiED::Connecting:
+		{
+			pLabel->modify_fg(Gtk::STATE_NORMAL, Gdk::Color(&Connecting));
+			pLabel->modify_fg(Gtk::STATE_ACTIVE, Gdk::Color(&Connecting));
+			
+			break;
+		}
 	case DiED::Connected:
 		{
 			pLabel->modify_fg(Gtk::STATE_NORMAL, Gdk::Color(&Connected));
@@ -287,17 +301,9 @@ void GUI::MainWindow::vClientStatusChanged(const DiED::clientid_t & ClientID, co
 			
 			break;
 		}
-	case DiED::Deleted:
+	case DiED::Local:
 		{
-			pLabel->modify_fg(Gtk::STATE_NORMAL, Gdk::Color(&Deleted));
-			pLabel->modify_fg(Gtk::STATE_ACTIVE, Gdk::Color(&Deleted));
-			
-			break;
-		}
-	case DiED::Connecting:
-		{
-			pLabel->modify_fg(Gtk::STATE_NORMAL, Gdk::Color(&Connecting));
-			pLabel->modify_fg(Gtk::STATE_ACTIVE, Gdk::Color(&Connecting));
+			LOG(Error, "GUI/MainWindow", "This should not happen: " << __FILE__ << ':' << __LINE__);
 			
 			break;
 		}

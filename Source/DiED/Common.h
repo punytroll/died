@@ -15,10 +15,11 @@ namespace DiED
 {
 	enum clientstatus_t
 	{
+		Undefined,
+		Local,
 		Connecting,
 		Connected,
-		Disconnected,
-		Deleted
+		Disconnected
 	};
 	
 	typedef u_int32_t messageid_t;
