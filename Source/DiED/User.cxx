@@ -68,6 +68,10 @@ void DiED::User::vSetStatus(const DiED::clientid_t & ClientID, DiED::User::Statu
 		if(iClient == m_Status.end())
 		{
 			m_Status.insert(std::make_pair(ClientID, Status));
+			if(Status == Disconnected)
+			{
+				return;
+			}
 		}
 		else
 		{
