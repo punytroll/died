@@ -19,9 +19,10 @@ namespace DiED
 		virtual Glib::ustring sGetString(void) = 0;
 		virtual bool bIsEventMessage(void);
 		virtual bool bRequiresConfirmation(void);
-		void vTriggerTimeout(DiED::MessageTarget * pMessageTarget, unsigned int uiMilliSeconds);
-		void vDisconnectTimeout(void);
 		virtual boost::shared_ptr< DiED::BasicMessage > Clone(void);
+	
+		void vInitiateTimeout(DiED::MessageTarget * pMessageTarget, unsigned int uiMilliSeconds);
+		void vDisconnectTimeout(void);
 	private:
 		sigc::connection m_TimeoutConnection;
 		virtual bool bOnTimeout(DiED::MessageTarget * pMessageTarget);

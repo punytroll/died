@@ -398,7 +398,7 @@ void DiED::Client::vBytesSent(size_t stSize)
 		MessageSent(*iMessage);
 		if((*iMessage)->bRequiresConfirmation() == true)
 		{
-			(*iMessage)->vTriggerTimeout(this, g_u16TimeOutMilliSeconds);
+			(*iMessage)->vInitiateTimeout(this, g_u16TimeOutMilliSeconds);
 		}
 		m_QueuedQueue.erase(iMessage);
 		iMessage = m_QueuedQueue.begin();
@@ -445,11 +445,11 @@ void DiED::Client::vHandleEventConfirmationTimeout(boost::shared_ptr< DiED::Conf
 	{
 		m_MessageStream->vClose();
 	}
-	m_InternalEnvironment.vSendConnectionLost(GetID());
+	m_InternalEnvironment.vAnnounceConnectionLost(GetID());
 	m_EventQueue.push_front(boost::dynamic_pointer_cast< DiED::EventMessage >(WaitingMessage.m_Message));
 	
 	boost::shared_ptr< DiED::EventMessage > NewMessage(boost::dynamic_pointer_cast< DiED::EventMessage >(WaitingMessage.m_Message->Clone()));
 	
 	NewMessage->vSetLostClientID(GetID());
-	m_InternalEnvironment.vSendToConnected(NewMessage);
+	m_InternalEnvironment.vAnnounceMessage(NewMessage);
 }

@@ -32,7 +32,7 @@ bool DiED::BasicMessage::bRequiresConfirmation(void)
 	return false;
 }
 
-void DiED::BasicMessage::vTriggerTimeout(DiED::MessageTarget * pMessageTarget, unsigned int uiMilliSeconds)
+void DiED::BasicMessage::vInitiateTimeout(DiED::MessageTarget * pMessageTarget, unsigned int uiMilliSeconds)
 {
 	m_TimeoutConnection = Glib::signal_timeout().connect(sigc::bind(sigc::mem_fun(*this, &DiED::BasicMessage::bOnTimeout), pMessageTarget), uiMilliSeconds);
 }
