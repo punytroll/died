@@ -290,10 +290,7 @@ void DiED::Client::vKnownClients(bool bAskForKnownClients)
 	}
 	else
 	{
-		DiED::messageid_t MessageID(rand());
-		
-		KnownClientsMessage = boost::shared_ptr< DiED::BasicMessage >(new DiED::KnownClientsMessage(MessageID, ConnectedClientIDs, DisconnectedClientIDs));
-		std::cout << "TODO: What to do with the MessageID? " << __FILE__ << ':' << __LINE__ << std::endl;
+		KnownClientsMessage = boost::shared_ptr< DiED::BasicMessage >(new DiED::KnownClientsMessage(rand(), ConnectedClientIDs, DisconnectedClientIDs));
 	}
 	vSend(KnownClientsMessage);
 }
