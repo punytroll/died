@@ -9,7 +9,7 @@ Network::MessageStream::MessageStream(boost::shared_ptr< Network::MessageFactory
 	
 	Stream >> m_MessageType;
 	m_MessageType.Ready.connect(sigc::mem_fun(*this, &Network::MessageStream::vMessageTypeReady));
-	m_NotifyValue.Ready.connect(sigc::mem_fun(*this, &Network::MessageStream::vMessageReady));
+	m_NotifyValue.Ready.connect(sigc::mem_fun(*this, &Network::MessageStream::vOnMessageReady));
 }
 
 Network::MessageStream::MessageStream(int iSocket, boost::shared_ptr< Network::MessageFactory > MessageFactory) :
@@ -20,12 +20,13 @@ Network::MessageStream::MessageStream(int iSocket, boost::shared_ptr< Network::M
 	
 	Stream >> m_MessageType;
 	m_MessageType.Ready.connect(sigc::mem_fun(*this, &Network::MessageStream::vMessageTypeReady));
-	m_NotifyValue.Ready.connect(sigc::mem_fun(*this, &Network::MessageStream::vMessageReady));
+	m_NotifyValue.Ready.connect(sigc::mem_fun(*this, &Network::MessageStream::vOnMessageReady));
 }
 
 Network::MessageStream & Network::MessageStream::operator>>(boost::shared_ptr< Network::BasicMessage > Message)
 {
-	m_Messages.push_back(Message);
+	push_back(Message);
+	vOnMessageBegin();
 	Message->vReadFrom(*this);
 	
 	return *this;
@@ -52,28 +53,4 @@ void Network::MessageStream::vMessageTypeReady(void)
 	*this >> m_MessageFactory->GetMessage(m_MessageType);
 	Stream::operator>>(m_NotifyValue);
 	Stream::operator>>(m_MessageType);
-}
-
-boost::shared_ptr< Network::BasicMessage > Network::MessageStream::rbegin(void)
-{
-	std::deque< boost::shared_ptr< Network::BasicMessage > >::reverse_iterator iLast(m_Messages.rbegin());
-	
-	if(iLast != m_Messages.rend())
-	{
-		return *iLast;
-	}
-	else
-	{
-		return boost::shared_ptr< Network::BasicMessage >();
-	}
-}
-
-boost::shared_ptr< Network::BasicMessage > Network::MessageStream::PopMessage(void)
-{
-	std::deque< boost::shared_ptr< Network::BasicMessage > >::iterator iBegin(m_Messages.begin());
-	boost::shared_ptr< Network::BasicMessage > Message(*iBegin);
-	
-	m_Messages.erase(iBegin);
-	
-	return Message;
 }
