@@ -60,7 +60,7 @@ void GUI::MainWindow::vNewClient(DiED::Client & DiEDClient)
 		std::stringstream ssName;
 		
 		ssName << DiEDClient.GetID();
-		set_title(ssName.str());
+		set_title(std::string("DiED: ") + ssName.str());
 		m_StatusChangedConnection = DiEDClient.StatusChanged.connect(sigc::bind(sigc::mem_fun(*this, &GUI::MainWindow::vClientStatusChanged), boost::ref(DiEDClient)));
 		
 		return;
