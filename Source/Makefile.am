@@ -3,8 +3,7 @@ SUBDIRS = \
 	Network
 
 INCLUDES = \
-	@GLIBMM_CFLAGS@ \
-	@SKSTREAM_CFLAGS@
+	@GLIBMM_CFLAGS@
 	
 bin_PROGRAMS = \
 	died
