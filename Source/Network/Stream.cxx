@@ -164,14 +164,10 @@ void Network::Stream::vOnOut(void)
 //~ 	std::cout << "Sent " << std::dec << stSize << " bytes through socket." << std::endl;
 	delete[] pu8Temporary;
 	vIgnoreOnOut();
-	vBytesSent(stSentSize);
+	BytesSent(stSentSize);
 }
 
 void Network::Stream::vRead(Network::BasicValue & Value)
 {
 	Value.vReadFrom(m_IBuffer.GetReader());
-}
-
-void Network::Stream::vBytesSent(size_t stSize)
-{
 }

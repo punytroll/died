@@ -29,8 +29,6 @@ namespace Network
 		void vMessageTypeReady(void);
 		void vMessageReady(void);
 		
-		virtual void vBytesSent(size_t stSize);
-		
 		boost::shared_ptr< Network::MessageFactory > m_MessageFactory;
 		Network::Value< u_int32_t > m_MessageType;
 		Network::NotifyValue m_NotifyValue;

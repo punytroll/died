@@ -25,11 +25,13 @@ namespace Network
 		// input/output streaming of Values
 		Stream & operator>>(Network::BasicValue & Value);
 		Stream & operator<<(const Network::BasicValue & Value);
+		
+		// signals
+		sigc::signal< void, size_t > BytesSent;
 	protected:
 		void vRead(Network::BasicValue & Value);
 		virtual void vOnIn(void);
 		virtual void vOnOut(void);
-		virtual void vBytesSent(size_t stSize);
 	private:
 		u_int8_t * m_pu8Buffer;
 		Network::CircularBuffer m_IBuffer;

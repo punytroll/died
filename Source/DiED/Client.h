@@ -44,6 +44,7 @@ namespace DiED
 		virtual void vOnMessageReady(void);
 		virtual void vOnMessageBegin(void);
 		virtual void vOnMessageExecuted(void);
+		void vBytesSent(size_t stSize);
 		// operations
 		virtual void vExecuteTopMessage(void);
 	private:
@@ -52,8 +53,10 @@ namespace DiED
 		boost::shared_ptr< Network::MessageStream > m_MessageStream;
 	private:
 		Network::port_t m_Port;
+		sigc::connection m_BytesSentConnection;
 		sigc::connection m_MessageBeginConnection;
 		sigc::connection m_MessageReadyConnection;
+		std::deque< boost::shared_ptr< Network::BasicMessage > > m_MessageQueue;
 	};
 }
 
