@@ -26,8 +26,15 @@ namespace Network
 		void vRequestOnOut(void);
 		void vIgnoreOnOut(void);
 		void vGetError(void);
+		
+		// virtual functions to make inherited classes act on socket events
 		virtual void vOnIn(void);
 		virtual void vOnOut(void);
+		
+		// virtual functions to signal connec and disconnect to inherited classes
+		virtual void vOnConnect(void);
+		virtual void vOnDisconnect(void);
+		
 		int m_iError;
 		int m_iSocket;
 	private:
