@@ -7,7 +7,6 @@
 #include <gtkmm/buttonbox.h>
 #include <gtkmm/scrolledwindow.h>
 #include <gtkmm/stock.h>
-#include <gtkmm/treeview.h>
 
 #include "Client.h"
 
@@ -59,6 +58,7 @@ void GUI::MainWindow::vNewClient(DiED::Client & DiEDClient)
 	pClientView->append_column("Name", Client.GetMessageListStore()->Columns.Name);
 	pClientView->append_column("Status", Client.GetMessageListStore()->Columns.Status);
 	pClientView->show();
+	Client.GetMessageListStore()->signal_row_inserted().connect(sigc::bind(sigc::mem_fun(*this, &GUI::MainWindow::vRowInsertedForClient), pClientView));
 	pScrolledWindow->add(*pClientView);
 	pScrolledWindow->show();
 	pHoldFlowButton->set_label(((Client.bIsHoldingMessagesBack() == true) ? ("Flow") : ("Hold")));
@@ -107,4 +107,9 @@ void GUI::MainWindow::vHoldFlowButtonClicked(Gtk::Button * pHoldFlowButton, Gtk:
 void GUI::MainWindow::vNextButtonClicked(boost::reference_wrapper< GUI::Client > Client)
 {
 	Client.get().vExecuteTopMessage();
+}
+
+void GUI::MainWindow::vRowInsertedForClient(const Gtk::TreePath & Path, const Gtk::TreeIter & Iterator, Gtk::TreeView * pTreeView)
+{
+	pTreeView->scroll_to_row(Path);
 }

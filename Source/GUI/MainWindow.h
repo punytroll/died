@@ -4,6 +4,7 @@
 #include <gtkmm/notebook.h>
 #include <gtkmm/paned.h>
 #include <gtkmm/textview.h>
+#include <gtkmm/treeview.h>
 #include <gtkmm/window.h>
 
 #include <DiED/System.h>
@@ -28,6 +29,7 @@ namespace GUI
 		void vClientIDChanged(boost::reference_wrapper< DiED::Client > Client, Gtk::Widget * pClientWidget);
 		void vHoldFlowButtonClicked(Gtk::Button * pHoldFlowButton, Gtk::Button * pNextButton, boost::reference_wrapper< GUI::Client > Client);
 		void vNextButtonClicked(boost::reference_wrapper< GUI::Client > Client);
+		void vRowInsertedForClient(const Gtk::TreePath & Path, const Gtk::TreeIter & Iterator, Gtk::TreeView * pTreeView);
 	private:
 		DiED::System & m_System;
 		Gtk::VPaned m_Pane;
