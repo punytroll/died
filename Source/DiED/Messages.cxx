@@ -481,6 +481,13 @@ bool DiED::PingMessage::bIsConfirmedBy(boost::shared_ptr< DiED::ConfirmationPara
 	return true;
 }
 
+bool DiED::PingMessage::bOnTimeout(DiED::MessageTarget * pMessageTarget)
+{
+	std::cout << "WE GOT A PING TIMEOUT. EEEEEEK." << std::endl;
+	
+	return false;
+}
+
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 ///                                         PongMessage                                         ///

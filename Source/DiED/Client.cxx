@@ -6,6 +6,8 @@
 
 #include "BasicMessage.h"
 
+const u_int16_t g_u16TimeOutMilliSeconds = 2000;
+
 DiED::Client::Client(DiED::InternalEnvironment & InternalEnvironment) :
 	m_InternalEnvironment(InternalEnvironment),
 	m_Address("localhost"),
@@ -377,6 +379,10 @@ void DiED::Client::vBytesSent(size_t stSize)
 		m_stBytesSent -= stMessageSize;
 //~ 		std::cout << "\t" << m_stBytesSent << " bytes remaining." << std::endl;
 		MessageSent(*iMessage);
+		if((*iMessage)->bRequiresConfirmation() == true)
+		{
+			Glib::signal_timeout().connect(sigc::bind(sigc::mem_fun(**iMessage, &DiED::BasicMessage::bOnTimeout), this), g_u16TimeOutMilliSeconds);
+		}
 		m_QueuedQueue.erase(iMessage);
 		iMessage = m_QueuedQueue.begin();
 	}

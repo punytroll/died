@@ -24,3 +24,8 @@ bool DiED::BasicMessage::bRequiresConfirmation(void)
 {
 	return false;
 }
+
+bool DiED::BasicMessage::bOnTimeout(DiED::MessageTarget * pMessageTarget)
+{
+	return false;
+}
