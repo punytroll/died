@@ -1,4 +1,5 @@
 INCLUDES = \
+	-I.. \
 	@GLIBMM_CFLAGS@
 
 noinst_LIBRARIES = \
