@@ -49,7 +49,7 @@ int main(int argc, char ** argv)
 	DiED::System DiEDSystem;
 	boost::shared_ptr< GUI::ClientFactory > ClientFactory(new GUI::ClientFactory(DiEDSystem));
 	
-	DiEDSystem.vSetClientFactory(ClientFactory);
+	DiEDSystem.GetServer().vSetSocketFactory(ClientFactory);
 	DiEDSystem.bListen(u16ServerPort);
 	if(sConnectAddress != "")
 	{

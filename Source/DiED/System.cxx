@@ -7,17 +7,14 @@
 #include "Messages.h"
 
 DiED::System::System(void) :
-	m_MessageFactory(new DiED::MessageFactory())
+	m_MessageFactory(new DiED::MessageFactory()),
+	m_Client(new DiED::Client(m_MessageFactory, *this))
 {
+	m_Clients.push_back(m_Client);
 }
 
 DiED::System::~System(void)
 {
-}
-
-void DiED::System::vSetClientFactory(boost::shared_ptr< DiED::ClientFactory > ClientFactory)
-{
-	m_Server.vSetSocketFactory(m_ClientFactory);
 }
 
 void DiED::System::vSetExternalEnvironment(DiED::ExternalEnvironment * pExternalEnvironment)
@@ -28,6 +25,11 @@ void DiED::System::vSetExternalEnvironment(DiED::ExternalEnvironment * pExternal
 boost::shared_ptr< Network::MessageFactory > DiED::System::GetMessageFactory(void)
 {
 	return m_MessageFactory;
+}
+
+DiED::Server & DiED::System::GetServer(void)
+{
+	return m_Server;
 }
 
 bool DiED::System::bListen(u_int16_t u16ServicePort)
@@ -49,11 +51,10 @@ bool DiED::System::bListen(u_int16_t u16ServicePort)
 
 bool DiED::System::bConnectTo(const std::string & sConnectAddress, u_int16_t u16ConnectPort)
 {
-	DiED::Client * pClient = new DiED::Client(m_MessageFactory, *this);
-	boost::shared_ptr< Network::Socket > Client(pClient);
+	boost::shared_ptr< DiED::Client > Client(new DiED::Client(m_MessageFactory, *this));
 	
-	pClient->vOpen(sConnectAddress, u16ConnectPort);
-	if(pClient->bIsOpen() == false)
+	Client->vOpen(sConnectAddress, u16ConnectPort);
+	if(Client->bIsOpen() == false)
 	{
 		std::cout << "[Client]: Connection failed." << std::endl;
 	}
@@ -61,8 +62,8 @@ bool DiED::System::bConnectTo(const std::string & sConnectAddress, u_int16_t u16
 	{
 		std::cout << "[Client]: Connected to " << sConnectAddress << ':' << u16ConnectPort << std::endl;
 		
-		pClient->operator<<(DiED::HelloMessage());
-		pClient->operator<<(DiED::PingMessage());
+		Client->operator<<(DiED::HelloMessage());
+		Client->operator<<(DiED::PingMessage());
 	}
 	m_Clients.push_back(Client);
 }
@@ -72,45 +73,58 @@ void DiED::System::vInput(const Glib::ustring & sString)
 	DiED::InputMessage Message(sString);
 	
 	vSendMessage(Message);
+	vInsertText(*m_Client, sString, false);
 }
 
 void DiED::System::vInsertText(DiED::User & User, const Glib::ustring & sString)
 {
+	vInsertText(User, sString, true);
+}
+
+void DiED::System::vInsertText(DiED::User & User, const Glib::ustring & sString, bool bWriteToEnvironment)
+{
 	int iLine(User.iGetLine());
 	int iCharacter(User.iGetCharacter());
 	
-	if(m_pExternalEnvironment != 0)
+	if((m_pExternalEnvironment != 0) && (bWriteToEnvironment == true))
 	{
 		m_pExternalEnvironment->vInsertText(sString, iLine, iCharacter);
-		
-		int iDeltaLine = 0;
-		int iDeltaCharacter = 0;
-		
-		for(Glib::ustring::size_type stI = 0; stI < sString.length(); ++stI)
+	}
+	
+	int iDeltaLine = 0;
+	int iDeltaCharacter = 0;
+	
+	for(Glib::ustring::size_type stI = 0; stI < sString.length(); ++stI)
+	{
+		if(sString[stI] == '\n')
 		{
-			if(sString[stI] == '\n')
-			{
-				++iDeltaLine;
-				iDeltaCharacter = 0;
-			}
-			else
-			{
-				++iDeltaCharacter;
-			}
+			++iDeltaLine;
+			iDeltaCharacter = 0;
 		}
-		
-		std::vector< boost::shared_ptr< Network::Socket > >::iterator iClient = m_Clients.begin();
-		
-		while(iClient != m_Clients.end())
+		else
 		{
-			DiED::User & OtherUser = dynamic_cast< DiED::User & >(**iClient);
-			
-			if((&User == &OtherUser) || (iLine < OtherUser.iGetLine()) || ((iLine == OtherUser.iGetLine()) && (iCharacter < OtherUser.iGetCharacter())))
+			++iDeltaCharacter;
+		}
+	}
+	
+	std::vector< boost::shared_ptr< Network::Socket > >::iterator iClient = m_Clients.begin();
+	
+	while(iClient != m_Clients.end())
+	{
+		DiED::User & OtherUser = dynamic_cast< DiED::User & >(**iClient);
+		
+		if((&User == &OtherUser) || (iLine < OtherUser.iGetLine()) || ((iLine == OtherUser.iGetLine()) && (iCharacter < OtherUser.iGetCharacter())))
+		{
+			if(iDeltaLine == 0)
 			{
 				OtherUser.vModifyCaretPosition(iDeltaLine, iDeltaCharacter);
 			}
-			++iClient;
+			else
+			{
+				OtherUser.vModifyCaretPosition(iDeltaLine, OtherUser.iGetCharacter() - iCharacter + iDeltaCharacter);
+			}
 		}
+		++iClient;
 	}
 }
 

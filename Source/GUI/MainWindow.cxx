@@ -15,7 +15,8 @@ GUI::MainWindow::MainWindow(DiED::System & System) :
 
 void GUI::MainWindow::vInserted(const Gtk::TextBuffer::iterator & Iterator, const Glib::ustring & sString, int)
 {
-	std::cout << "Inserted text: " << sString << std::endl;
+	std::cout << "Inserted text: \"" << sString << "\" [" << sString.length() << ']' << std::endl;
+	// TODO: handle input at positions other than "insert" mark
 	m_System.vInput(sString);
 }
 
