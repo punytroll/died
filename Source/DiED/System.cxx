@@ -11,7 +11,6 @@ DiED::System::System(void) :
 	m_Client(new DiED::Client(*this)),
 	m_ServicePort(0)
 {
-	m_Client->vSetClientID(rand());
 	m_Clients.insert(std::make_pair(m_Client->GetClientID(), m_Client));
 }
 
@@ -57,7 +56,6 @@ bool DiED::System::bConnectTo(const Network::address_t & ConnectAddress, const N
 {
 	boost::shared_ptr< DiED::Client > Client(boost::dynamic_pointer_cast< DiED::Client >(m_ClientFactory->GetSocket()));
 	
-	Client->vSetClientID(rand());
 	Client->vOpen(ConnectAddress, ConnectPort);
 	if(Client->bIsOpen() == false)
 	{
@@ -165,7 +163,6 @@ void DiED::System::vAccepted(boost::shared_ptr< Network::Socket > Socket)
 {
 	boost::shared_ptr< DiED::Client > NewClient(boost::dynamic_pointer_cast< DiED::Client >(Socket));
 	
-	NewClient->vSetClientID(rand());
 	m_Clients.insert(std::make_pair(NewClient->GetClientID(), NewClient));
 //~ 	ClientConnected(*NewClient);
 }

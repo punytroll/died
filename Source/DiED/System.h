@@ -39,7 +39,7 @@ namespace DiED
 		boost::shared_ptr< DiED::ClientFactory > m_ClientFactory;
 		boost::shared_ptr< DiED::Client > m_Client;
 		DiED::Server m_Server;
-		std::map< DiED::clientid_t, boost::shared_ptr< DiED::Client > > m_Clients;
+		std::multimap< DiED::clientid_t, boost::shared_ptr< DiED::Client > > m_Clients;
 		DiED::ExternalEnvironment * m_pExternalEnvironment;
 		Network::port_t m_ServicePort;
 	};
