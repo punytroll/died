@@ -15,10 +15,10 @@ GUI::ClientFactory::~ClientFactory(void)
 
 boost::shared_ptr< Network::Socket > GUI::ClientFactory::GetSocket(void)
 {
-	return boost::shared_ptr< Network::Socket >(new GUI::Client(m_InternalEnvironment.GetMessageFactory(), m_InternalEnvironment));
+	return boost::shared_ptr< Network::Socket >(new GUI::Client(m_InternalEnvironment));
 }
 
 boost::shared_ptr< Network::Socket > GUI::ClientFactory::GetSocket(int iSocket)
 {
-	return boost::shared_ptr< Network::Socket >(new GUI::Client(iSocket, m_InternalEnvironment.GetMessageFactory(), m_InternalEnvironment));
+	return boost::shared_ptr< Network::Socket >(new GUI::Client(iSocket, m_InternalEnvironment));
 }

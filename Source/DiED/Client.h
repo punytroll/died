@@ -10,8 +10,8 @@ namespace DiED
 	class Client : public Network::MessageStream, public DiED::User
 	{
 	public:
-		Client(boost::shared_ptr< Network::MessageFactory > MessageFactory, DiED::InternalEnvironment & InternalEnvironment);
-		Client(int iSocket, boost::shared_ptr< Network::MessageFactory > MessageFactory, DiED::InternalEnvironment & InternalEnvironment);
+		Client(DiED::InternalEnvironment & InternalEnvironment);
+		Client(int iSocket, DiED::InternalEnvironment & InternalEnvironment);
 		virtual ~Client(void);
 		void vInsertText(const Glib::ustring & sString);
 	protected:

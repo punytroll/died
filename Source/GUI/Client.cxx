@@ -1,14 +1,14 @@
 #include "Client.h"
 
-GUI::Client::Client(boost::shared_ptr< Network::MessageFactory > MessageFactory, DiED::InternalEnvironment & InternalEnvironment) :
-	DiED::Client(MessageFactory, InternalEnvironment),
+GUI::Client::Client(DiED::InternalEnvironment & InternalEnvironment) :
+	DiED::Client(InternalEnvironment),
 	m_bHoldMessagesBack(false)
 {
 //~ 	std::cout << "[GUI/Client]: Created new Client." << std::endl;
 }
 
-GUI::Client::Client(int iSocket, boost::shared_ptr< Network::MessageFactory > MessageFactory, DiED::InternalEnvironment & InternalEnvironment) :
-	DiED::Client(iSocket, MessageFactory, InternalEnvironment),
+GUI::Client::Client(int iSocket, DiED::InternalEnvironment & InternalEnvironment) :
+	DiED::Client(iSocket, InternalEnvironment),
 	m_bHoldMessagesBack(false)
 {
 //~ 	std::cout << "[GUI/Client]: Created new Client from socket." << std::endl;
