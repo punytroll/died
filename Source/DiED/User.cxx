@@ -39,7 +39,7 @@ int DiED::User::iGetCharacter(void) const
 
 void DiED::User::vSetLine(int iLine)
 {
-	if(iLine != m_iLine)
+	if(iLine == m_iLine)
 	{
 		return;
 	}
@@ -49,7 +49,7 @@ void DiED::User::vSetLine(int iLine)
 
 void DiED::User::vSetCharacter(int iCharacter)
 {
-	if(iCharacter != m_iCharacter)
+	if(iCharacter == m_iCharacter)
 	{
 		return;
 	}
