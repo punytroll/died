@@ -308,17 +308,17 @@ void DiED::System::vDelete(DiED::User & User, int iLineRelative, int iCharacterR
 
 void DiED::System::vPosition(int iLine, int iCharacter)
 {
-	LOG(DebugSystem, "DiED/System", "Changing the local position to Line = " << iLine << " ; Character = " << iCharacter);
+	LOG(Verbose, "DiED/System", "Changing the local position to Line = " << iLine << " ; Character = " << iCharacter);
 	
 	int iOldLine(m_Client->iGetLine());
 	int iOldCharacter(m_Client->iGetCharacter());
 	
-	LOG(DebugSystem, "DiED/System", "\told position      @ Line = " << iOldLine << " ; Character = " << iOldCharacter);
+	LOG(Verbose, "DiED/System", "\told position      @ Line = " << iOldLine << " ; Character = " << iOldCharacter);
 	
 	int iLineRelative(iLine - iOldLine);
 	int iCharacterRelative(iCharacter - iOldCharacter);
 	
-	LOG(DebugSystem, "DiED/System", "\trelative position @ Line = " << iLineRelative << " ; Character = " << iCharacterRelative);
+	LOG(Verbose, "DiED/System", "\trelative position @ Line = " << iLineRelative << " ; Character = " << iCharacterRelative);
 	
 	int iLineAbsolute(0);
 	int iCharacterAbsolute(0);
@@ -343,7 +343,7 @@ void DiED::System::vPosition(int iLine, int iCharacter)
 	{
 		iCharacterAbsolute = m_pExternalEnvironment->iGetLengthOfLine(iLine) - iCharacter;
 	}
-	LOG(DebugSystem, "DiED/System", "\tabsolute position @ Line = " << iLineAbsolute << " ; Character = " << iCharacterAbsolute);
+	LOG(Verbose, "DiED/System", "\tabsolute position @ Line = " << iLineAbsolute << " ; Character = " << iCharacterAbsolute);
 	m_Client->vSetLine(iLine);
 	m_Client->vSetCharacter(iCharacter);
 	
@@ -369,7 +369,7 @@ void DiED::System::vLogOut(void)
 
 void DiED::System::vHandleConnectionRequest(DiED::User & User, const DiED::clientid_t & ClientID, const Network::port_t & Port)
 {
-	LOG(Debug, "DiED/System", "Processing ConnectionRequest message from " << User.GetID());
+	LOG(DebugSystem, "DiED/System", "Processing ConnectionRequest message from " << User.GetID());
 	
 	// first of all: if we have no ID yet (not connected to a network) and somebody connects to us we have to generate an ID ourself
 	if(m_Client->GetID() == 0)
@@ -432,12 +432,12 @@ void DiED::System::vHandleConnectionRequest(DiED::User & User, const DiED::clien
 		Client->vSetPort(Port);
 		// TODO: what to do with the iPreliminaryClient ... it is invalid and emtpy (no socket) but MUST NOT be deleted from here
 	}
-	LOG(Debug, "DiED/System", "           ConnectionRequest message from " << User.GetID() << '\n');
+	LOG(DebugSystem, "DiED/System", "           ConnectionRequest message from " << User.GetID() << '\n');
 }
 
 void DiED::System::vHandleConnectionAccept(DiED::User & User, const DiED::clientid_t & AccepterClientID, const DiED::clientid_t & RequesterClientID)
 {
-	LOG(Debug, "DiED/System", "Processing ConnectionAccept message from " << User.GetID());
+	LOG(DebugSystem, "DiED/System", "Processing ConnectionAccept message from " << User.GetID());
 	
 	std::map< DiED::User *, boost::shared_ptr< DiED::Client > >::iterator iPreliminaryClient(m_PreliminaryClients.find(&User));
 	boost::shared_ptr< DiED::Client > Client;
@@ -492,19 +492,19 @@ void DiED::System::vHandleConnectionAccept(DiED::User & User, const DiED::client
 		// the local client is not a newling => answer with KnownClients
 		Client->vSessionSnapshot(false, "", true);
 	}
-	LOG(Debug, "DiED/System", "           ConnectionAccept message from " << User.GetID() << '\n');
+	LOG(DebugSystem, "DiED/System", "           ConnectionAccept message from " << User.GetID() << '\n');
 }
 
 void DiED::System::vHandleSessionSnapshot(DiED::User & User, const DiED::messageid_t & MessageID, const std::vector< ClientInfo > & ClientInfos, bool bDocumentValid, const Glib::ustring & sDocument)
 {
-	LOG(Debug, "DiED/System", "Processing SessionSnapshot message from " << User.GetID());
+	LOG(DebugSystem, "DiED/System", "Processing SessionSnapshot message from " << User.GetID());
 	
 	// iterating through the connected list to set the status of the sender to the client ID appropriately
 	std::vector< DiED::ClientInfo >::const_iterator iClientInfo(ClientInfos.begin());
 	
 	while(iClientInfo != ClientInfos.end())
 	{
-		LOG(DebugCurrent, "DiED/System", "ClientID = " << iClientInfo->ClientID << " ; Status = " << sStatusToString(iClientInfo->Status) << " ; EventCounter = " << iClientInfo->EventCounter);
+		LOG(DebugSystem, "DiED/System", "ClientID = " << iClientInfo->ClientID << " ; Status = " << sStatusToString(iClientInfo->Status) << " ; EventCounter = " << iClientInfo->EventCounter);
 		
 		boost::shared_ptr< DiED::Client > Client;
 		
@@ -528,10 +528,10 @@ void DiED::System::vHandleSessionSnapshot(DiED::User & User, const DiED::message
 			{
 				LOG(Error, "DiED/System", "VERY BAD: " << __FILE__ << ':' << __LINE__ << ": ClientID = " << iClientInfo->ClientID);
 			}
-			// TODO: is this necessary???
+			// TODO: is this necessary??? yes! but: evil HACK!!
 			// if we consider a client which is Local to itself it is this very client
 			//  => we have to set the EventCounter, Line and Character information
-			if(iClientInfo->Status == DiED::Local)
+			if((iClientInfo->Status == DiED::Local) && (bDocumentValid == true))
 			{
 				Client->vSetEventCounter(iClientInfo->EventCounter);
 				Client->vSetLine(iClientInfo->iLine);
@@ -584,12 +584,12 @@ void DiED::System::vHandleSessionSnapshot(DiED::User & User, const DiED::message
 	{
 		m_pExternalEnvironment->vSetDocument(sDocument);
 	}
-	LOG(Debug, "DiED/System", "           SessionSnapshot message from " << User.GetID() << '\n');
+	LOG(DebugSystem, "DiED/System", "           SessionSnapshot message from " << User.GetID() << '\n');
 }
 
 void DiED::System::vHandleClientsRegistered(DiED::User & User, const DiED::messageid_t & MessageID)
 {
-	LOG(Debug, "DiED/System", "Processing ClientsRegistered message from " << User.GetID());
+	LOG(DebugSystem, "DiED/System", "Processing ClientsRegistered message from " << User.GetID());
 	
 	vSetStatus(User.GetID(), m_Client->GetID(), DiED::Connected);
 	
@@ -608,12 +608,12 @@ void DiED::System::vHandleClientsRegistered(DiED::User & User, const DiED::messa
 		iClient->second->vConnectionEstablished(Client->GetID(), Client->GetAddress(), Client->GetPort());
 		++iClient;
 	}
-	LOG(Debug, "DiED/System", "           ClientsRegistered message from " << User.GetID() << '\n');
+	LOG(DebugSystem, "DiED/System", "           ClientsRegistered message from " << User.GetID() << '\n');
 }
 
 void DiED::System::vHandleConnectionEstablished(DiED::User & User, const DiED::clientid_t & ClientID, const Network::address_t & ClientAddress, const Network::port_t & ClientPort)
 {
-	LOG(Debug, "DiED/System", "Processing ConnectionEstablished message from " << User.GetID());
+	LOG(DebugSystem, "DiED/System", "Processing ConnectionEstablished message from " << User.GetID());
 	
 	boost::shared_ptr< DiED::Client > Client;
 	std::map< DiED::clientid_t, boost::shared_ptr< DiED::Client > >::iterator iClient(m_Clients.find(ClientID));
@@ -702,12 +702,12 @@ void DiED::System::vHandleConnectionEstablished(DiED::User & User, const DiED::c
 			break;
 		}
 	}
-	LOG(Debug, "DiED/System", "           ConnectionEstablished message from " << User.GetID() << '\n');
+	LOG(DebugSystem, "DiED/System", "           ConnectionEstablished message from " << User.GetID() << '\n');
 }
 
 void DiED::System::vHandleConnectionLost(DiED::User & User, const DiED::clientid_t & ClientID, const Network::address_t & ClientAddress, const Network::port_t & ClientPort)
 {
-	LOG(Debug, "DiED/System", "Processing ConnectionLost message from " << User.GetID());
+	LOG(DebugSystem, "DiED/System", "Processing ConnectionLost message from " << User.GetID());
 	
 	boost::shared_ptr< DiED::Client > Client(RegisterClient(boost::shared_ptr< DiED::Client >(), ClientID));
 	
@@ -773,19 +773,19 @@ void DiED::System::vHandleConnectionLost(DiED::User & User, const DiED::clientid
 			break;
 		}
 	}
-	LOG(Debug, "DiED/System", "           ConnectionLost message from " << User.GetID() << '\n');
+	LOG(DebugSystem, "DiED/System", "           ConnectionLost message from " << User.GetID() << '\n');
 }
 
 void DiED::System::vHandleInsert(DiED::User & User, const Glib::ustring & sString)
 {
-	LOG(Debug, "DiED/System", "Processing Insert message from " << User.GetID());
+	LOG(DebugSystem, "DiED/System", "Processing Insert message from " << User.GetID() << " ; Text = \"" << sString << '"');
 	vInsert(User, sString, true);
-	LOG(Debug, "DiED/System", "           Insert message from " << User.GetID() << '\n');
+	LOG(DebugSystem, "DiED/System", "           Insert message from " << User.GetID() << '\n');
 }
 
 void DiED::System::vHandleDelete(DiED::User & User, int iLineRelative, int iCharacterRelative, int iLineAbsolute, int iCharacterAbsolute)
 {
-	LOG(Debug, "DiED/System", "Processing Delete message from " << User.GetID());
+	LOG(DebugSystem, "DiED/System", "Processing Delete message from " << User.GetID());
 	if(iLineRelative != 0)
 	{
 		if(iLineRelative > 0)
@@ -811,12 +811,12 @@ void DiED::System::vHandleDelete(DiED::User & User, int iLineRelative, int iChar
 //~ 		}
 //~ 	}
 	vDelete(User, iLineRelative, iCharacterRelative, true);
-	LOG(Debug, "DiED/System", "           Delete message from " << User.GetID() << '\n');
+	LOG(DebugSystem, "DiED/System", "           Delete message from " << User.GetID() << '\n');
 }
 
 void DiED::System::vHandlePosition(DiED::User & User, int iLineRelative, int iCharacterRelative, int iLineAbsolute, int iCharacterAbsolute)
 {
-	LOG(Debug, "DiED/System", "Processing Position message from " << User.GetID());
+	LOG(DebugSystem, "DiED/System", "Processing Position message from " << User.GetID());
 	LOG(Debug, "DiED/System", "\tUser @ Line = " << User.iGetLine() << " ; Character = " << User.iGetCharacter());
 	if(iLineRelative != 0)
 	{
@@ -843,7 +843,7 @@ void DiED::System::vHandlePosition(DiED::User & User, int iLineRelative, int iCh
 //~ 		}
 //~ 	}
 	User.vModifyCaretPosition(iLineRelative, iCharacterRelative);
-	LOG(Debug, "DiED/System", "           Position message from " << User.GetID() << '\n');
+	LOG(DebugSystem, "DiED/System", "           Position message from " << User.GetID() << '\n');
 }
 
 void DiED::System::vHandleLogOutNotification(DiED::User & User)
