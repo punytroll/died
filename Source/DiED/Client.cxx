@@ -5,19 +5,10 @@
 #include "BasicMessage.h"
 
 DiED::Client::Client(DiED::InternalEnvironment & InternalEnvironment) :
-	Network::MessageStream(InternalEnvironment.GetMessageFactory()),
-	m_InternalEnvironment(InternalEnvironment),
-	m_u32KnownClientsMessageID(0)
+	m_u32KnownClientsMessageID(0),
+	m_InternalEnvironment(InternalEnvironment)
 {
 	std::cout << "[DiED/Client]: Created new Client." << std::endl;
-}
-
-DiED::Client::Client(int iSocket, DiED::InternalEnvironment & InternalEnvironment) :
-	Network::MessageStream(iSocket, InternalEnvironment.GetMessageFactory()),
-	m_InternalEnvironment(InternalEnvironment),
-	m_u32KnownClientsMessageID(0)
-{
-	std::cout << "[DiED/Client]: Created new Client from socket." << std::endl;
 }
 
 DiED::Client::~Client(void)
@@ -56,10 +47,28 @@ void DiED::Client::vOnMessageExecuted(void)
 
 void DiED::Client::vExecuteTopMessage(void)
 {
-	boost::shared_ptr< Network::BasicMessage > Message(front());
+	boost::shared_ptr< Network::BasicMessage > Message(m_MessageStream->front());
 	DiED::BasicMessage & DiEDMessage = dynamic_cast< DiED::BasicMessage & >(*Message);
 	
 	DiEDMessage.vExecute(*this);
 	vOnMessageExecuted();
-	pop_front();
+	m_MessageStream->pop_front();
+}
+
+void DiED::Client::vSetMessageStream(boost::shared_ptr< Network::MessageStream > MessageStream)
+{
+//~ 	std::cout << "[DiED/Client]: Setting MessageStream." << std::endl;
+	m_MessageStream = MessageStream;
+	m_MessageStream->MessageBegin.connect(sigc::mem_fun(*this, &DiED::Client::vOnMessageBegin));
+	m_MessageStream->MessageReady.connect(sigc::mem_fun(*this, &DiED::Client::vOnMessageReady));
+}
+
+DiED::Client & DiED::Client::operator<<(const Network::BasicMessage & Message)
+{
+	if(m_MessageStream.get() != 0)
+	{
+		m_MessageStream->operator<<(Message);
+	}
+	
+	return *this;
 }

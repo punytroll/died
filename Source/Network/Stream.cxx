@@ -152,7 +152,7 @@ void Network::Stream::vOnOut(void)
 //~ 	}
 //~ 	std::cout << std::endl;
 	stSize = send(m_iSocket, pu8Temporary, stSize, 0);
-//~ 	std::cout << "Sent " << stSize << " bytes through socket." << std::endl;
+//~ 	std::cout << "Sent " << std::dec << stSize << " bytes through socket." << std::endl;
 	delete[] pu8Temporary;
 	vIgnoreOnOut();
 }

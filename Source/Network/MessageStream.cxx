@@ -9,7 +9,7 @@ Network::MessageStream::MessageStream(boost::shared_ptr< Network::MessageFactory
 	
 	Stream >> m_MessageType;
 	m_MessageType.Ready.connect(sigc::mem_fun(*this, &Network::MessageStream::vMessageTypeReady));
-	m_NotifyValue.Ready.connect(sigc::mem_fun(*this, &Network::MessageStream::vOnMessageReady));
+	m_NotifyValue.Ready.connect(sigc::mem_fun(*this, &Network::MessageStream::vMessageReady));
 }
 
 Network::MessageStream::MessageStream(int iSocket, boost::shared_ptr< Network::MessageFactory > MessageFactory) :
@@ -20,13 +20,13 @@ Network::MessageStream::MessageStream(int iSocket, boost::shared_ptr< Network::M
 	
 	Stream >> m_MessageType;
 	m_MessageType.Ready.connect(sigc::mem_fun(*this, &Network::MessageStream::vMessageTypeReady));
-	m_NotifyValue.Ready.connect(sigc::mem_fun(*this, &Network::MessageStream::vOnMessageReady));
+	m_NotifyValue.Ready.connect(sigc::mem_fun(*this, &Network::MessageStream::vMessageReady));
 }
 
 Network::MessageStream & Network::MessageStream::operator>>(boost::shared_ptr< Network::BasicMessage > Message)
 {
 	push_back(Message);
-	vOnMessageBegin();
+	MessageBegin();
 	Message->vReadFrom(*this);
 	
 	return *this;
@@ -37,12 +37,12 @@ Network::MessageStream & Network::MessageStream::operator<<(const Network::Basic
 	if(Message.bIsForSending() == true)
 	{
 		Message.vWriteTo(*this);
-//~ 		std::cout << "[MessageStream]: Requesting OnOut." << std::endl;
+//~ 		std::cout << "[Network/MessageStream]: Requesting OnOut." << std::endl;
 		vRequestOnOut();
 	}
 	else
 	{
-		std::cout << "[MessageStream]: Trying to send Message [" << Message.GetType() << "] which is not for sending." << std::endl;
+		std::cout << "[Network/MessageStream]: Trying to send Message [" << Message.GetType() << "] which is not for sending." << std::endl;
 	}
 	
 	return *this;
@@ -53,4 +53,9 @@ void Network::MessageStream::vMessageTypeReady(void)
 	*this >> m_MessageFactory->GetMessage(m_MessageType);
 	Stream::operator>>(m_NotifyValue);
 	Stream::operator>>(m_MessageType);
+}
+
+void Network::MessageStream::vMessageReady(void)
+{
+	MessageReady();
 }

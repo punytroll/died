@@ -8,6 +8,7 @@
 
 DiED::System::System(void) :
 	m_MessageFactory(new DiED::MessageFactory()),
+	m_Server(m_MessageFactory),
 	m_ServicePort(0)
 {
 }
@@ -28,13 +29,12 @@ boost::shared_ptr< Network::MessageFactory > DiED::System::GetMessageFactory(voi
 
 void DiED::System::vSetClientFactory(boost::shared_ptr< DiED::ClientFactory > ClientFactory)
 {
-	if((!m_ClientFactory) && (!m_Client))
+	m_ClientFactory = ClientFactory;
+	if(m_Client.get() == 0)
 	{
-		m_Client = boost::dynamic_pointer_cast< DiED::Client >(ClientFactory->GetSocket());
+		m_Client = ClientFactory->GetClient();
 		vRegisterClient(m_Client);
 	}
-	m_ClientFactory = ClientFactory;
-	m_Server.vSetSocketFactory(ClientFactory);
 }
 
 bool DiED::System::bListen(const Network::port_t & ServicePort)
@@ -57,10 +57,10 @@ bool DiED::System::bListen(const Network::port_t & ServicePort)
 
 bool DiED::System::bConnectTo(const Network::address_t & ConnectAddress, const Network::port_t & ConnectPort)
 {
-	boost::shared_ptr< DiED::Client > Client(boost::dynamic_pointer_cast< DiED::Client >(m_ClientFactory->GetSocket()));
+	boost::shared_ptr< Network::MessageStream > MessageStream(new Network::MessageStream(m_MessageFactory));
 	
-	Client->vOpen(ConnectAddress, ConnectPort);
-	if(Client->bIsOpen() == false)
+	MessageStream->vOpen(ConnectAddress, ConnectPort);
+	if(MessageStream->bIsOpen() == false)
 	{
 		std::cout << "[Client]: Connection failed." << std::endl;
 		
@@ -69,9 +69,13 @@ bool DiED::System::bConnectTo(const Network::address_t & ConnectAddress, const N
 	else
 	{
 		std::cout << "[Client]: Connected to " << ConnectAddress << ':' << ConnectPort << std::endl;
-		Client->operator<<(DiED::ConnectionRequestMessage(m_Client->GetClientID(), m_ServicePort));
 	}
+	
+	boost::shared_ptr< DiED::Client > Client(m_ClientFactory->GetClient());
+	
+	Client->vSetMessageStream(MessageStream);
 	vRegisterClient(Client);
+	Client->operator<<(DiED::ConnectionRequestMessage(m_Client->GetClientID(), m_ServicePort));
 	
 	return true;
 }
@@ -153,7 +157,11 @@ void DiED::System::vConnectionRequest(DiED::User & User, const DiED::clientid_t 
 		Client << ConnectionAcceptMessage(Client.GetClientID(), m_Client->GetClientID());
 		// send KnownClients to this client
 		Client.m_u32KnownClientsMessageID = rand();
-		Client << KnownClientsMessage(Client.m_u32KnownClientsMessageID, GetConnectedClientIDs(), GetDisconnectedClientIDs());
+		
+		std::vector< DiED::clientid_t > ConnectedClientIDs(GetConnectedClientIDs());
+		std::vector< DiED::clientid_t > DisconnectedClientIDs(GetDisconnectedClientIDs());
+		
+		Client << KnownClientsMessage(Client.m_u32KnownClientsMessageID, ConnectedClientIDs, DisconnectedClientIDs);
 	}
 	else
 	{
@@ -212,7 +220,7 @@ void DiED::System::vConnectionAccept(DiED::User & User, const DiED::clientid_t &
 	
 	if(LocalClientID == 0)
 	{
-		Client.vClose();
+		Client.vSetMessageStream(boost::shared_ptr< Network::MessageStream >());
 	}
 	vAssignClientID(Client, RemoteClientID);
 	if(m_Client->GetClientID() != LocalClientID)
@@ -237,17 +245,18 @@ void DiED::System::vSendMessage(Network::BasicMessage & Message)
 	
 	while(iClient != m_Clients.end())
 	{
-		Network::MessageStream & Stream(*(iClient->second));
+		DiED::Client & Client(*(iClient->second));
 		
-		Stream << Message;
+		Client << Message;
 		++iClient;
 	}
 }
 
-void DiED::System::vAccepted(boost::shared_ptr< Network::Socket > Socket)
+void DiED::System::vAccepted(boost::shared_ptr< Network::MessageStream > MessageStream)
 {
-	boost::shared_ptr< DiED::Client > Client(boost::dynamic_pointer_cast< DiED::Client >(Socket));
+	boost::shared_ptr< DiED::Client > Client(m_ClientFactory->GetClient());
 	
+	Client->vSetMessageStream(MessageStream);
 	vRegisterClient(Client);
 }
 

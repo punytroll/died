@@ -3,19 +3,17 @@
 
 #include <boost/shared_ptr.hpp>
 
-#include <Network/SocketFactory.h>
-
+#include "Client.h"
 #include "InternalEnvironment.h"
 
 namespace DiED
 {
-	class ClientFactory : public Network::SocketFactory
+	class ClientFactory
 	{
 	public:
 		ClientFactory(DiED::InternalEnvironment & InternalEnvironment);
 		virtual ~ClientFactory(void);
-		virtual boost::shared_ptr< Network::Socket > GetSocket(void);
-		virtual boost::shared_ptr< Network::Socket > GetSocket(int iSocket);
+		virtual boost::shared_ptr< DiED::Client > GetClient(void);
 	protected:
 		DiED::InternalEnvironment & m_InternalEnvironment;
 	};

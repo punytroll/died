@@ -36,8 +36,8 @@ namespace Network
 		virtual void vOnConnect(void);
 		virtual void vOnDisconnect(void);
 		
-		int m_iError;
 		int m_iSocket;
+		int m_iError;
 	private:
 		bool bNotify(const Glib::IOCondition & Condition);
 		Glib::RefPtr< Glib::IOSource > m_OSource;

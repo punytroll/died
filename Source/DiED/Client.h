@@ -7,17 +7,27 @@
 
 namespace DiED
 {
-	class Client : public Network::MessageStream, public DiED::User
+	class Client : public DiED::User
 	{
 	public:
+		// constructor and destructor
 		Client(DiED::InternalEnvironment & InternalEnvironment);
-		Client(int iSocket, DiED::InternalEnvironment & InternalEnvironment);
 		virtual ~Client(void);
+		
+		// socket
+		void vSetMessageStream(boost::shared_ptr< Network::MessageStream > MessageStream);
+		
 		void vInsertText(const Glib::ustring & sString);
 		void vConnectionRequest(const DiED::clientid_t & ClientID, const Network::port_t & Port);
 		void vConnectionAccept(const DiED::clientid_t & LocalClientID, const DiED::clientid_t & RemoteClientID);
 		
+		// messages
+		DiED::Client & operator<<(const Network::BasicMessage & Message);
+		
 		u_int32_t m_u32KnownClientsMessageID;
+		
+		//signals
+		sigc::signal< void > MessageStreamSet;
 	protected:
 		// callbacks from template pattern
 //~ 		virtual void vOnConnect(void);
@@ -28,8 +38,11 @@ namespace DiED
 		// operations
 		virtual void vExecuteTopMessage(void);
 	private:
-		Network::port_t m_Port;
 		DiED::InternalEnvironment & m_InternalEnvironment;
+	protected:
+		boost::shared_ptr< Network::MessageStream > m_MessageStream;
+	private:
+		Network::port_t m_Port;
 	};
 }
 

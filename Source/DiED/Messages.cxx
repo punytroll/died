@@ -53,7 +53,7 @@ void DiED::ConnectionRequestMessage::vReadFrom(Network::Stream & Stream)
 
 void DiED::ConnectionRequestMessage::vExecute(DiED::Client & Client)
 {
-	std::cout << "Executing a ConnectionRequest message with parameters:\n\tClientID = " << m_ClientID << "\n\tPort = " << m_Port << std::endl;
+//~ 	std::cout << "Executing a ConnectionRequest message with parameters:\n\tClientID = " << m_ClientID << "\n\tPort = " << m_Port << std::endl;
 	Client.vConnectionRequest(m_ClientID, m_Port);
 }
 
@@ -96,7 +96,7 @@ void DiED::ConnectionAcceptMessage::vReadFrom(Network::Stream & Stream)
 
 void DiED::ConnectionAcceptMessage::vExecute(DiED::Client & Client)
 {
-	std::cout << "Executing a ConnectionAccept message with parameters:\n\tRemoteClientID = " << m_RemoteClientID << "\n\tLocalClientID = " << m_LocalClientID << std::endl;
+//~ 	std::cout << "Executing a ConnectionAccept message with parameters:\n\tRemoteClientID = " << m_RemoteClientID << "\n\tLocalClientID = " << m_LocalClientID << std::endl;
 	Client.vConnectionAccept(m_LocalClientID, m_RemoteClientID);
 }
 
@@ -141,7 +141,7 @@ void DiED::KnownClientsMessage::vReadFrom(Network::Stream & Stream)
 
 void DiED::KnownClientsMessage::vExecute(DiED::Client & Client)
 {
-	std::cout << "KnownClientsMessage [MessageID = " << m_MessageID << " ; #Connected = " << m_ConnectedClientIDs.size() << " ; #Disconnected = " << m_DisconnectedClientIDs.size() << "]" << std::endl;
+//~ 	std::cout << "KnownClientsMessage [MessageID = " << m_MessageID << " ; #Connected = " << m_ConnectedClientIDs.size() << " ; #Disconnected = " << m_DisconnectedClientIDs.size() << "]" << std::endl;
 }
 
 Glib::ustring DiED::KnownClientsMessage::sGetString(void)
@@ -288,7 +288,7 @@ void DiED::ConnectionEstablishedMessage::vReadFrom(Network::Stream & Stream)
 
 void DiED::ConnectionEstablishedMessage::vExecute(DiED::Client & Client)
 {
-	std::cout << "Executing a ConnectionEstablished message with parameters:\n\tClientID = " << m_ClientID << "\n\tClientAddress = " << m_ClientAddress << "\n\tClientPort = " << m_ClientPort << std::endl;
+//~ 	std::cout << "Executing a ConnectionEstablished message with parameters:\n\tClientID = " << m_ClientID << "\n\tClientAddress = " << m_ClientAddress << "\n\tClientPort = " << m_ClientPort << std::endl;
 }
 
 Glib::ustring DiED::ConnectionEstablishedMessage::sGetString(void)
@@ -328,7 +328,7 @@ void DiED::ConnectionLostMessage::vReadFrom(Network::Stream & Stream)
 
 void DiED::ConnectionLostMessage::vExecute(DiED::Client & Client)
 {
-	std::cout << "Executing a ConnectionLost message with parameters:\n\tClientID = " << m_ClientID << std::endl;
+//~ 	std::cout << "Executing a ConnectionLost message with parameters:\n\tClientID = " << m_ClientID << std::endl;
 }
 
 Glib::ustring DiED::ConnectionLostMessage::sGetString(void)
@@ -362,8 +362,8 @@ void DiED::TestMessage::vReadFrom(Network::Stream & Stream)
 
 void DiED::TestMessage::vExecute(DiED::Client & Client)
 {
-	std::cout << "Executing a Test message with " << m_Values.size() << " parameter(s):";
-	std::cout << std::endl;
+//~ 	std::cout << "Executing a Test message with " << m_Values.size() << " parameter(s):";
+//~ 	std::cout << std::endl;
 }
 
 Glib::ustring DiED::TestMessage::sGetString(void)
