@@ -62,13 +62,13 @@ void GUI::vInsertText(GtkTextBuffer * pTextBuffer, GtkTextIter * pIterator, char
 	}
 }
 
-GUI::MainWindow::MainWindow(DiED::System & System, bool bDebugWindow) :
+GUI::MainWindow::MainWindow(DiED::System & System, bool bShowMessageList) :
 	m_System(System),
 	m_TextBuffer(m_TextView.get_buffer()),
 	m_KeyPressedConnection(m_TextView.signal_key_press_event().connect(sigc::mem_fun(*this, &GUI::MainWindow::bKeyPressed), false)),
 	m_ulInsertTextHandlerID(g_signal_connect(m_TextBuffer->gobj(), "insert-text", GCallback(GUI::vInsertText), this)),
 	m_ulDeleteRangeHandlerID(g_signal_connect(m_TextBuffer->gobj(), "delete-range", GCallback(GUI::vDeleteRange), this)),
-	m_bDebugWindow(bDebugWindow)
+	m_bShowMessageList(bShowMessageList)
 {
 	m_System.vSetExternalEnvironment(this);
 	
@@ -77,18 +77,11 @@ GUI::MainWindow::MainWindow(DiED::System & System, bool bDebugWindow) :
 	m_TextView.show();
 	pScrolledWindow->add(m_TextView);
 #ifndef NODEBUG
-	if(m_bDebugWindow == true)
-	{
-		m_Notebook.show();
-		m_Pane.show();
-		m_Pane.pack1(*pScrolledWindow, true, true);
-		m_Pane.pack2(m_Notebook, true, true);
-		add(m_Pane);
-	}
-	else
-	{
-		add(*pScrolledWindow);
-	}
+	m_Notebook.show();
+	m_Pane.show();
+	m_Pane.pack1(*pScrolledWindow, true, true);
+	m_Pane.pack2(m_Notebook, true, true);
+	add(m_Pane);
 #else
 	add(*pScrolledWindow);
 #endif
@@ -135,58 +128,68 @@ void GUI::MainWindow::vNewClient(DiED::Client & DiEDClient)
 	}
 
 #ifndef NODEBUG
-	if(m_bDebugWindow == false)
-	{
-		return;
-	}
-	
 	GUI::Client & Client(dynamic_cast< GUI::Client & >(DiEDClient));
-	Gtk::VBox * pBox(manage(new Gtk::VBox()));
-	Gtk::ScrolledWindow * pScrolledWindow(manage(new Gtk::ScrolledWindow()));
-	Gtk::TreeView * pClientView(manage(new Gtk::TreeView(Client.GetMessageListStore())));
-	Gtk::HButtonBox * pButtonBox(manage(new Gtk::HButtonBox()));
-	Gtk::Button * pHoldFlowButton(manage(new Gtk::Button("Hold/Flow")));
-	Gtk::Button * pNextButton(manage(new Gtk::Button("Next")));
-	Gtk::Button * pPingButton(manage(new Gtk::Button("Ping")));
 	std::stringstream ssName;
 	
 	ssName << Client.GetID();
-	pClientView->append_column("Name", Client.GetMessageListStore()->Columns.Name);
-	pClientView->append_column("Status", Client.GetMessageListStore()->Columns.Status);
 	
-	Gtk::CellRendererText * pCellRenderer = 0;
+	Gtk::Widget * pClientWidget(0);
+	Gtk::HButtonBox * pButtonBox(manage(new Gtk::HButtonBox()));
+	Gtk::Button * pConnectButton(manage(new Gtk::Button("Connect")));
+	Gtk::Button * pPingButton(manage(new Gtk::Button("Ping")));
 	
-	pCellRenderer = dynamic_cast< Gtk::CellRendererText * >(pClientView->get_column_cell_renderer(0));
-	pClientView->get_column(0)->add_attribute(pCellRenderer->property_foreground_gdk(), Client.GetMessageListStore()->Columns.Color);
-	pCellRenderer = dynamic_cast< Gtk::CellRendererText * >(pClientView->get_column_cell_renderer(1));
-	pClientView->get_column(1)->add_attribute(pCellRenderer->property_foreground_gdk(), Client.GetMessageListStore()->Columns.Color);
-	pClientView->show();
-	Client.GetMessageListStore()->signal_row_inserted().connect(sigc::bind(sigc::mem_fun(*this, &GUI::MainWindow::vRowInsertedForClient), pClientView));
-	pScrolledWindow->add(*pClientView);
-	pScrolledWindow->show();
-	pHoldFlowButton->set_label(((Client.bIsHoldingMessagesBack() == true) ? ("Flow") : ("Hold")));
-	pHoldFlowButton->signal_clicked().connect(sigc::bind(sigc::bind(sigc::mem_fun(*this, &GUI::MainWindow::vHoldFlowButtonClicked), boost::ref(Client)), pHoldFlowButton, pNextButton));
-	pHoldFlowButton->show();
+	if(m_bShowMessageList == true)
+	{
+		Gtk::VBox * pBox(manage(new Gtk::VBox()));
+		Gtk::ScrolledWindow * pScrolledWindow(manage(new Gtk::ScrolledWindow()));
+		Gtk::TreeView * pClientView(manage(new Gtk::TreeView(Client.GetMessageListStore())));
+		Gtk::Button * pHoldFlowButton(manage(new Gtk::Button("Hold/Flow")));
+		Gtk::Button * pNextButton(manage(new Gtk::Button("Next")));
+		Gtk::CellRendererText * pCellRenderer = 0;
+		
+		pClientWidget = pBox;
+		pClientView->append_column("Name", Client.GetMessageListStore()->Columns.Name);
+		pClientView->append_column("Status", Client.GetMessageListStore()->Columns.Status);
+		pCellRenderer = dynamic_cast< Gtk::CellRendererText * >(pClientView->get_column_cell_renderer(0));
+		pClientView->get_column(0)->add_attribute(pCellRenderer->property_foreground_gdk(), Client.GetMessageListStore()->Columns.Color);
+		pCellRenderer = dynamic_cast< Gtk::CellRendererText * >(pClientView->get_column_cell_renderer(1));
+		pClientView->get_column(1)->add_attribute(pCellRenderer->property_foreground_gdk(), Client.GetMessageListStore()->Columns.Color);
+		pClientView->show();
+		Client.GetMessageListStore()->signal_row_inserted().connect(sigc::bind(sigc::mem_fun(*this, &GUI::MainWindow::vRowInsertedForClient), pClientView));
+		pScrolledWindow->add(*pClientView);
+		pScrolledWindow->show();
+		pHoldFlowButton->set_label(((Client.bIsHoldingMessagesBack() == true) ? ("Flow") : ("Hold")));
+		pHoldFlowButton->signal_clicked().connect(sigc::bind(sigc::bind(sigc::mem_fun(*this, &GUI::MainWindow::vHoldFlowButtonClicked), boost::ref(Client)), pHoldFlowButton, pNextButton));
+		pHoldFlowButton->show();
+		pNextButton->set_sensitive(Client.bIsHoldingMessagesBack());
+		pNextButton->signal_clicked().connect(sigc::bind(sigc::mem_fun(*this, &GUI::MainWindow::vNextButtonClicked), boost::ref(Client)));
+		pNextButton->show();
+		pBox->pack_start(*pScrolledWindow, true, true);
+		pBox->pack_start(*pButtonBox, false, false);
+		pButtonBox->pack_start(*pHoldFlowButton);
+		pButtonBox->pack_start(*pNextButton);
+		pBox->show();
+	}
+	else
+	{
+		pClientWidget = pButtonBox;
+	}
+	pConnectButton->signal_clicked().connect(sigc::bind(sigc::mem_fun(*this, &GUI::MainWindow::vConnectButtonClicked), boost::ref(Client)));
+	pConnectButton->show();
 	pPingButton->signal_clicked().connect(sigc::bind(sigc::mem_fun(*this, &GUI::MainWindow::vPingButtonClicked), boost::ref(Client)));
 	pPingButton->show();
-	pNextButton->set_sensitive(Client.bIsHoldingMessagesBack());
-	pNextButton->signal_clicked().connect(sigc::bind(sigc::mem_fun(*this, &GUI::MainWindow::vNextButtonClicked), boost::ref(Client)));
-	pNextButton->show();
-	pButtonBox->pack_start(*pHoldFlowButton);
+	pButtonBox->pack_start(*pConnectButton);
 	pButtonBox->pack_start(*pPingButton);
-	pButtonBox->pack_start(*pNextButton);
 	pButtonBox->show();
-	pBox->pack_start(*pScrolledWindow, true, true);
-	pBox->pack_start(*pButtonBox, false, false);
-	pBox->show();
-	m_Notebook.append_page(*pBox, ssName.str());
-	Client.vSetWidget(pBox);
+	Client.vSetWidget(pClientWidget);
+	m_Notebook.append_page(*pClientWidget, ssName.str());
 	vClientStatusChanged(DiEDClient.GetID(), DiEDClient.GetStatus(m_System.GetLocalClientID()), boost::ref(DiEDClient));
 #endif
 }
 
 void GUI::MainWindow::vInsert(const Glib::ustring & sString, int iLine, int iCharacter)
 {
+	LOG(DebugGUI, "GUI/MainWindow", "Inserting " << sString << " @ Line = " << iLine << " ; Character = " << iCharacter);
 //~ 	m_InsertConnection.block();
 	g_signal_handler_block(m_TextBuffer->gobj(), m_ulInsertTextHandlerID);
 	
@@ -198,6 +201,7 @@ void GUI::MainWindow::vInsert(const Glib::ustring & sString, int iLine, int iCha
 	m_TextBuffer->delete_mark(Marker);
 	g_signal_handler_unblock(m_TextBuffer->gobj(), m_ulInsertTextHandlerID);
 //~ 	m_InsertConnection.unblock();
+	LOG(DebugGUI, "GUI/MainWindow", "         ... done inserting.");
 }
 
 void GUI::MainWindow::vDelete(int iFromLine, int iFromCharacter, int iToLine, int iToCharacter)
@@ -262,10 +266,6 @@ void GUI::MainWindow::vClientStatusChanged(const DiED::clientid_t & ClientID, co
 	{
 		// this can happen quite often during client registration.
 		//  => The local client is set to Disconnected to the new client during registration but the client is not yet in the list.
-		return;
-	}
-	if(m_bDebugWindow == false)
-	{
 		return;
 	}
 	
@@ -339,6 +339,11 @@ void GUI::MainWindow::vHoldFlowButtonClicked(Gtk::Button * pHoldFlowButton, Gtk:
 void GUI::MainWindow::vNextButtonClicked(boost::reference_wrapper< GUI::Client > Client)
 {
 	Client.get().vExecuteTopMessage();
+}
+
+void GUI::MainWindow::vConnectButtonClicked(boost::reference_wrapper< GUI::Client > Client)
+{
+	LOG(TODO, "GUI/MainWindow", "Try Reconnect.");
 }
 
 void GUI::MainWindow::vPingButtonClicked(boost::reference_wrapper< GUI::Client > Client)

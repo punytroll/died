@@ -23,7 +23,7 @@ namespace GUI
 		friend void vDeleteRange(GtkTextBuffer * pTextBuffer, GtkTextIter * pBeginIterator, GtkTextIter * pEndIterator, GUI::MainWindow * pMainWindow);
 		friend void vInsertText(GtkTextBuffer * pTextBuffer, GtkTextIter * pIterator, char * pcData, int, GUI::MainWindow * pMainWindow);
 	public:
-		MainWindow(DiED::System & System, bool bDebugWindow = false);
+		MainWindow(DiED::System & System, bool bMessageList = false);
 		~MainWindow(void);
 	protected:
 		void vInserted(const Gtk::TextBuffer::iterator & Iterator, const Glib::ustring & sString, int);
@@ -46,8 +46,9 @@ namespace GUI
 		// callbacks
 		void vClientStatusChanged(const DiED::clientid_t & ClientID, const DiED::clientstatus_t & Status, boost::reference_wrapper< DiED::Client > Client);
 		void vHoldFlowButtonClicked(Gtk::Button * pHoldFlowButton, Gtk::Button * pNextButton, boost::reference_wrapper< GUI::Client > Client);
-		void vPingButtonClicked(boost::reference_wrapper< GUI::Client > Client);
 		void vNextButtonClicked(boost::reference_wrapper< GUI::Client > Client);
+		void vConnectButtonClicked(boost::reference_wrapper< GUI::Client > Client);
+		void vPingButtonClicked(boost::reference_wrapper< GUI::Client > Client);
 		void vRowInsertedForClient(const Gtk::TreePath & Path, const Gtk::TreeIter & Iterator, Gtk::TreeView * pTreeView);
 	private:
 		virtual bool on_delete_event(GdkEventAny * pEvent);
@@ -64,7 +65,7 @@ namespace GUI
 		sigc::connection m_StatusChangedConnection;
 		gulong m_ulInsertTextHandlerID;
 		gulong m_ulDeleteRangeHandlerID;
-		bool m_bDebugWindow;
+		bool m_bShowMessageList;
 	};
 }
 
