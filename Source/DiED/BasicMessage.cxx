@@ -5,6 +5,16 @@ DiED::BasicMessage::BasicMessage(const Network::BasicMessage::type_t & Type) :
 {
 }
 
+boost::shared_ptr< DiED::ConfirmationParameters > DiED::BasicMessage::GetConfirmationParameters(void)
+{
+	return boost::shared_ptr< DiED::ConfirmationParameters >();
+}
+
+bool DiED::BasicMessage::bIsConfirmedBy(boost::shared_ptr< DiED::ConfirmationParameters > ConfirmationParameters)
+{
+	return false;
+}
+
 bool DiED::BasicMessage::bIsEventMessage(void)
 {
 	return false;

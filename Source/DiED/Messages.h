@@ -7,7 +7,7 @@
 
 namespace DiED
 {
-	enum
+	enum MessageTypes
 	{
 		_NoMessage,
 		_ConnectionRequestMessage,
@@ -18,6 +18,7 @@ namespace DiED
 		_ConnectionLostMessage,
 		_PingMessage,
 		_PongMessage,
+		_EventReceivedMessage,
 		_InputMessage,
 	};
 	
@@ -125,13 +126,29 @@ namespace DiED
 		Network::Value< DiED::messageid_t > m_PingID;
 	};
 	
+	class EventReceivedMessage : public DiED::BasicMessage
+	{
+	public:
+		EventReceivedMessage(void);
+		EventReceivedMessage(const DiED::clientid_t & CreatorID, const DiED::messageid_t & EventID);
+		virtual boost::shared_ptr< DiED::ConfirmationParameters > GetConfirmationParameters(void);
+		virtual void vExecute(DiED::MessageTarget & MessageTarget);
+		virtual Glib::ustring sGetString(void);
+	private:
+		Network::Value< DiED::clientid_t > m_CreatorID;
+		Network::Value< DiED::messageid_t > m_EventID;
+	};
+	
 	class EventMessage : public DiED::BasicMessage
 	{
 	public:
 		EventMessage(const Network::BasicMessage::type_t & Type);
 		EventMessage(const Network::BasicMessage::type_t & Type, const DiED::clientid_t & CreatorID, const DiED::messageid_t & EventID, const DiED::clientid_t & LostClientID);
+		virtual bool bIsConfirmedBy(boost::shared_ptr< DiED::ConfirmationParameters > ConfirmationParameters);
 		virtual void vExecute(DiED::MessageTarget & MessageTarget);
 		virtual bool bIsEventMessage(void);
+		virtual bool bRequiresConfirmation(void);
+		virtual Glib::ustring sGetString(void);
 	protected:
 		virtual void vExecuteEvent(DiED::MessageTarget & MessageTarget) = 0;
 	private:

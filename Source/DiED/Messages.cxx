@@ -308,6 +308,51 @@ Glib::ustring DiED::PongMessage::sGetString(void)
 
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
+///                                    EventReceivedMessage                                     ///
+///////////////////////////////////////////////////////////////////////////////////////////////////
+
+DiED::EventReceivedMessage::EventReceivedMessage(void) :
+	DiED::BasicMessage(DiED::_EventReceivedMessage)
+{
+	vRegisterValue(m_CreatorID);
+	vRegisterValue(m_EventID);
+}
+
+DiED::EventReceivedMessage::EventReceivedMessage(const DiED::clientid_t & CreatorID, const DiED::messageid_t & EventID) :
+	DiED::BasicMessage(DiED::_EventReceivedMessage),
+	m_CreatorID(CreatorID),
+	m_EventID(EventID)
+{
+	vRegisterValue(m_CreatorID);
+	vRegisterValue(m_EventID);
+}
+
+boost::shared_ptr< DiED::ConfirmationParameters > DiED::EventReceivedMessage::GetConfirmationParameters(void)
+{
+	boost::shared_ptr< DiED::ConfirmationParameters > ConfirmationParameters(new DiED::ConfirmationParameters());
+	
+	ConfirmationParameters->insert(std::make_pair("CreatorID", boost::any(static_cast< DiED::clientid_t >(m_CreatorID))));
+	ConfirmationParameters->insert(std::make_pair("EventID", boost::any(static_cast< DiED::messageid_t >(m_EventID))));
+	
+	return ConfirmationParameters;
+}
+
+void DiED::EventReceivedMessage::vExecute(DiED::MessageTarget & MessageTarget)
+{
+	MessageTarget.vHandleEventReceived(m_CreatorID, m_EventID);
+}
+
+Glib::ustring DiED::EventReceivedMessage::sGetString(void)
+{
+	std::stringstream ssString;
+	
+	ssString << "EventReceivedMessage [ CreatorID = " << m_CreatorID << " ; EventID = " << m_EventID << " ]";
+	
+	return ssString.str();
+}
+
+
+///////////////////////////////////////////////////////////////////////////////////////////////////
 ///                                        EventMessage                                         ///
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -330,6 +375,23 @@ DiED::EventMessage::EventMessage(const Network::BasicMessage::type_t & Type, con
 	vRegisterValue(m_LostClientID);
 }
 
+bool DiED::EventMessage::bIsConfirmedBy(boost::shared_ptr< DiED::ConfirmationParameters > ConfirmationParameters)
+{
+	DiED::ConfirmationParameters::iterator iParameter(ConfirmationParameters->find("CreatorID"));
+	
+	if((iParameter == ConfirmationParameters->end()) || (boost::any_cast< DiED::clientid_t >(iParameter->second) != m_CreatorID))
+	{
+		return false;
+	}
+	iParameter = ConfirmationParameters->find("EventID");
+	if((iParameter == ConfirmationParameters->end()) || (boost::any_cast< DiED::clientid_t >(iParameter->second) != m_EventID))
+	{
+		return false;
+	}
+	
+	return true;
+}
+
 bool DiED::EventMessage::bIsEventMessage(void)
 {
 	return true;
@@ -337,7 +399,22 @@ bool DiED::EventMessage::bIsEventMessage(void)
 
 void DiED::EventMessage::vExecute(DiED::MessageTarget & MessageTarget)
 {
+	MessageTarget.vHandleEvent(m_CreatorID, m_EventID, m_LostClientID);
 	vExecuteEvent(MessageTarget);
+}
+
+Glib::ustring DiED::EventMessage::sGetString(void)
+{
+	std::stringstream ssString;
+	
+	ssString << "EventMessage [ CreatorID = " << m_CreatorID << " ; EventID = " << m_EventID << " ; LostClientIO = " << m_LostClientID << " ]";
+	
+	return ssString.str();
+}
+
+bool DiED::EventMessage::bRequiresConfirmation(void)
+{
+	return true;
 }
 
 
@@ -367,7 +444,7 @@ Glib::ustring DiED::InputMessage::sGetString(void)
 {
 	std::stringstream ssString;
 	
-	ssString << "InputMessage [ Text = " << m_Text << " ]";
+	ssString << "InputMessage [ Event = " << DiED::EventMessage::sGetString() << " ; Text = " << m_Text << " ]";
 	
 	return ssString.str();
 }

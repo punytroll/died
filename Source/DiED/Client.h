@@ -57,6 +57,8 @@ namespace DiED
 		virtual void vHandleConnectionLost(const DiED::clientid_t & ClientID, const Network::address_t & ClientAddress, const Network::port_t & ClientPort);
 		virtual void vHandlePing(const DiED::messageid_t & PingID);
 		virtual void vHandlePong(const DiED::messageid_t & PingID);
+		virtual void vHandleEvent(const DiED::clientid_t & CreatorID, const DiED::messageid_t & EventID, const DiED::clientid_t & LostClientID);
+		virtual void vHandleEventReceived(const DiED::clientid_t & CreatorID, const DiED::messageid_t & EventID);
 	private:
 		DiED::InternalEnvironment & m_InternalEnvironment;
 	protected:

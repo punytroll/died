@@ -111,6 +111,32 @@ void DiED::Client::vHandlePong(const DiED::messageid_t & PingID)
 	}
 }
 
+void DiED::Client::vHandleEvent(const DiED::clientid_t & CreatorID, const DiED::messageid_t & EventID, const DiED::clientid_t & LostClientID)
+{
+//~ 	std::cout << "Handle Event message: CreatorID = " << CreatorID << " ; EventID = " << EventID << " ; LostClientID = " << LostClientID << std::endl;
+	// TODO: handle the LostClientID parameter
+	vSend(boost::shared_ptr< DiED::BasicMessage >(new DiED::EventReceivedMessage(CreatorID, EventID)));
+}
+
+void DiED::Client::vHandleEventReceived(const DiED::clientid_t & CreatorID, const DiED::messageid_t & EventID)
+{
+	// TODO: not specified yet, but I'm taking an educated guess
+	std::deque< boost::shared_ptr< DiED::BasicMessage > >::iterator iMessage(m_AwaitingConfirmationQueue.begin());
+	// TODO: this front() does not look good
+	boost::shared_ptr< DiED::ConfirmationParameters > ConfirmationParameters(boost::dynamic_pointer_cast< DiED::BasicMessage >(m_MessageStream->front())->GetConfirmationParameters());
+	
+	while(iMessage != m_AwaitingConfirmationQueue.end())
+	{
+		if((*iMessage)->bIsConfirmedBy(ConfirmationParameters) == true)
+		{
+			m_AwaitingConfirmationQueue.erase(iMessage);
+			
+			break;
+		}
+		++iMessage;
+	}
+}
+
 void DiED::Client::vOnMessageReady(void)
 {
 	vExecuteTopMessage();
