@@ -242,9 +242,9 @@ Glib::ustring DiED::SessionSnapshotMessage::sGetString(void)
 {
 	std::stringstream ssString;
 	
-	ssString << "SessionSnapshot [MessageID = " << m_MessageID << " ; #Clients = " << m_ClientInfos.size() << ((m_DocumentValid == true) ? (Glib::ustring(" ; Document = ") + m_Document) : ("")) << "]";
+	ssString << "SessionSnapshot [MessageID = " << m_MessageID << " ; #Clients = " << m_ClientInfos.size();
 	
-	return ssString.str();
+	return Glib::ustring(ssString.str()) + ((m_DocumentValid == true) ? (Glib::ustring(" ; Document = \"") + m_Document + '"') : ("")) + "]";
 }
 
 
@@ -752,11 +752,7 @@ DiED::InsertEvent::InsertEvent(const DiED::clientid_t & CreatorID, const DiED::m
 
 Glib::ustring DiED::InsertEvent::sGetString(void)
 {
-	std::stringstream ssString;
-	
-	ssString << "Insert [ " << DiED::EventMessage::sGetString() << " ; Text = " << m_Text.Get() << " ]";
-	
-	return ssString.str();
+	return Glib::ustring("Insert [ ") + DiED::EventMessage::sGetString() + " ; Text = \"" + m_Text.Get() + "\" ]";
 }
 
 boost::shared_ptr< DiED::EventAction > DiED::InsertEvent::GetAction(void)
