@@ -1,4 +1,4 @@
-AC_INIT([died], [0.3], [hagen.moebius@starschiffchen.de])
+AC_INIT([died], [0.5], [hagen.moebius@starschiffchen.de])
 AC_CONFIG_SRCDIR([Source])
 AM_INIT_AUTOMAKE([dist-bzip2])
 AC_CONFIG_HEADERS([config.h])
