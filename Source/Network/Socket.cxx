@@ -45,6 +45,7 @@ int Network::Socket::iGetError(void) const
 
 void Network::Socket::vClose(void)
 {
+	vIgnoreOnOut();
 	close(m_iSocket);
 	m_iSocket = g_iInvalidSocket;
 	if(m_bOnDisconnected != true)
@@ -75,8 +76,11 @@ void Network::Socket::vRequestOnOut(void)
 void Network::Socket::vIgnoreOnOut(void)
 {
 //~ 	std::cout << "[Socket]: OnOut ignored." << std::endl;
-	m_OSource->destroy();
-	m_OSource.clear();
+	if(m_OSource == true)
+	{
+		m_OSource->destroy();
+		m_OSource.clear();
+	}
 }
 
 bool Network::Socket::bNotify(const Glib::IOCondition & Condition)
