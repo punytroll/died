@@ -29,33 +29,34 @@ namespace DiED
 		void vSetPort(const Network::port_t & Port);
 		
 		// messages
+		void vSend(boost::shared_ptr< DiED::BasicMessage > Message);
+		void vConnectionRequest(const DiED::clientid_t & ClientID, const Network::port_t & Port);
+		void vConnectionAccept(const DiED::clientid_t & LocalClientID, const DiED::clientid_t & RemoteClientID);
+		void vKnownClients(bool bAskForKnownClients = false);
+		void vClientsRegistered(const DiED::messageid_t & MessageID);
+		void vConnectionEstablished(const DiED::clientid_t & ClientID, const Network::address_t & ClientAddress, const Network::port_t & ClientPort);
+		void vConnectionLost(const DiED::clientid_t & ClientID, const Network::address_t & ClientAddress, const Network::port_t & ClientPort);
 		void vPing(sigc::slot< void > PongSlot);
-		DiED::Client & operator<<(boost::shared_ptr< DiED::BasicMessage > Message);
 		virtual void vExecuteTopMessage(void);
-		
-		u_int32_t m_u32KnownClientsMessageID;
 		
 		//signals
 		sigc::signal< void > MessageStreamSet;
 	protected:
-		// callbacks from template pattern
-//~ 		virtual void vOnConnect(void);
-//~ 		virtual void vOnDisconnect(void);
 		virtual void vOnMessageReady(void);
 		virtual void vOnMessageBegin(void);
 		virtual void vOnMessageExecuted(void);
 		void vBytesSent(size_t stSize);
 		
 		// message handler
-		virtual void vInsertText(const Glib::ustring & sString);
-		virtual void vConnectionRequest(const DiED::clientid_t & ClientID, const Network::port_t & Port);
-		virtual void vConnectionAccept(const DiED::clientid_t & LocalClientID, const DiED::clientid_t & RemoteClientID);
-		virtual void vKnownClients(const DiED::messageid_t & MessageID, const std::vector< DiED::clientid_t > & ConnectedClientIDs, const std::vector< DiED::clientid_t > & DisconnectedClientIDs);
-		virtual void vClientsRegistered(const DiED::messageid_t & MessageID);
-		virtual void vConnectionEstablished(const DiED::clientid_t & ClientID, const Network::address_t & ClientAddress, const Network::port_t & ClientPort);
-		virtual void vConnectionLost(const DiED::clientid_t & ClientID, const Network::address_t & ClientAddress, const Network::port_t & ClientPort);
-		virtual void vPing(const DiED::messageid_t & PingID);
-		virtual void vPong(const DiED::messageid_t & PingID);
+		virtual void vHandleInsertText(const Glib::ustring & sString);
+		virtual void vHandleConnectionRequest(const DiED::clientid_t & ClientID, const Network::port_t & Port);
+		virtual void vHandleConnectionAccept(const DiED::clientid_t & LocalClientID, const DiED::clientid_t & RemoteClientID);
+		virtual void vHandleKnownClients(const DiED::messageid_t & MessageID, const std::vector< DiED::clientid_t > & ConnectedClientIDs, const std::vector< DiED::clientid_t > & DisconnectedClientIDs);
+		virtual void vHandleClientsRegistered(const DiED::messageid_t & MessageID);
+		virtual void vHandleConnectionEstablished(const DiED::clientid_t & ClientID, const Network::address_t & ClientAddress, const Network::port_t & ClientPort);
+		virtual void vHandleConnectionLost(const DiED::clientid_t & ClientID, const Network::address_t & ClientAddress, const Network::port_t & ClientPort);
+		virtual void vHandlePing(const DiED::messageid_t & PingID);
+		virtual void vHandlePong(const DiED::messageid_t & PingID);
 	private:
 		DiED::InternalEnvironment & m_InternalEnvironment;
 	protected:
