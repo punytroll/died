@@ -2,7 +2,8 @@
 
 DiED::User::User(void) :
 	m_iLine(0),
-	m_iCharacter(0)
+	m_iCharacter(0),
+	m_ClientID(0)
 {
 }
 
@@ -29,4 +30,14 @@ int DiED::User::iGetLine(void) const
 int DiED::User::iGetCharacter(void) const
 {
 	return m_iCharacter;
+}
+
+void DiED::User::vSetClientID(DiED::clientid_t ClientID)
+{
+	m_ClientID = ClientID;
+}
+
+DiED::clientid_t DiED::User::GetClientID(void)
+{
+	return m_ClientID;
 }
