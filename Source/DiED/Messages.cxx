@@ -82,23 +82,22 @@ bool DiED::ConnectionRequestMessage::bIsConfirmedBy(boost::shared_ptr< DiED::Con
 DiED::ConnectionAcceptMessage::ConnectionAcceptMessage(void) :
 	DiED::BasicMessage(DiED::_ConnectionAcceptMessage)
 {
-	vRegisterValue(m_RemoteClientID);
-	vRegisterValue(m_LocalClientID);
+	vRegisterValue(m_AccepterClientID);
+	vRegisterValue(m_RequesterClientID);
 }
 
-DiED::ConnectionAcceptMessage::ConnectionAcceptMessage(const DiED::clientid_t & RemoteClientID, const DiED::clientid_t & LocalClientID) :
+DiED::ConnectionAcceptMessage::ConnectionAcceptMessage(const DiED::clientid_t & AccepterClientID, const DiED::clientid_t & RequesterClientID) :
 	DiED::BasicMessage(DiED::_ConnectionAcceptMessage),
-	m_RemoteClientID(RemoteClientID),
-	m_LocalClientID(LocalClientID)
+	m_AccepterClientID(AccepterClientID),
+	m_RequesterClientID(RequesterClientID)
 {
-	vRegisterValue(m_RemoteClientID);
-	vRegisterValue(m_LocalClientID);
+	vRegisterValue(m_AccepterClientID);
+	vRegisterValue(m_RequesterClientID);
 }
 
 void DiED::ConnectionAcceptMessage::vExecute(DiED::MessageTarget & MessageTarget)
 {
-//~ 	std::cout << "Executing a ConnectionAccept message with parameters:\n\tRemoteClientID = " << m_RemoteClientID << "\n\tLocalClientID = " << m_LocalClientID << std::endl;
-	MessageTarget.vHandleConnectionAccept(m_RemoteClientID, m_LocalClientID);
+	MessageTarget.vHandleConnectionAccept(m_AccepterClientID, m_RequesterClientID);
 }
 
 boost::shared_ptr< DiED::ConfirmationParameters > DiED::ConnectionAcceptMessage::GetConfirmationParameters(void)
@@ -114,7 +113,7 @@ Glib::ustring DiED::ConnectionAcceptMessage::sGetString(void)
 {
 	std::stringstream ssString;
 	
-	ssString << "ConnectionAccept [RemoteClientID = " << m_RemoteClientID << " ; LocalClientID = " << m_LocalClientID << "]";
+	ssString << "ConnectionAccept [AccepterClientID = " << m_AccepterClientID << " ; RequesterClientID = " << m_RequesterClientID << "]";
 	
 	return ssString.str();
 }
@@ -288,7 +287,7 @@ Glib::ustring DiED::ConnectionEstablishedMessage::sGetString(void)
 {
 	std::stringstream ssString;
 	
-	ssString << "ConnectionEstablished [ ClientID = " << m_ClientID << " ;  ClientAddress = " << m_ClientAddress << " ;  ClientPort = " << m_ClientPort << " ]";
+	ssString << "ConnectionEstablished [ClientID = " << m_ClientID << " ;  ClientAddress = " << m_ClientAddress << " ;  ClientPort = " << m_ClientPort << "]";
 	
 	return ssString.str();
 }
@@ -326,7 +325,7 @@ Glib::ustring DiED::ConnectionLostMessage::sGetString(void)
 {
 	std::stringstream ssString;
 	
-	ssString << "ConnectionLost [ ClientID = " << m_ClientID << " ; ClientAddress = " << m_ClientAddress << " ; ClientPort = " << m_ClientPort << " ]";
+	ssString << "ConnectionLost [ClientID = " << m_ClientID << " ; ClientAddress = " << m_ClientAddress << " ; ClientPort = " << m_ClientPort << "]";
 	
 	return ssString.str();
 }

@@ -48,13 +48,13 @@ namespace DiED
 	{
 	public:
 		ConnectionAcceptMessage(void);
-		ConnectionAcceptMessage(const DiED::clientid_t & RemoteClientID, const DiED::clientid_t & LocalClientID);
+		ConnectionAcceptMessage(const DiED::clientid_t & AccepterClientID, const DiED::clientid_t & RequesterClientID);
 		virtual void vExecute(DiED::MessageTarget & MessageTarget);
 		virtual boost::shared_ptr< DiED::ConfirmationParameters > GetConfirmationParameters(void);
 		virtual Glib::ustring sGetString(void);
 	private:
-		Network::Value< DiED::clientid_t > m_RemoteClientID;
-		Network::Value< DiED::clientid_t > m_LocalClientID;
+		Network::Value< DiED::clientid_t > m_AccepterClientID;
+		Network::Value< DiED::clientid_t > m_RequesterClientID;
 	};
 	
 	class KnownClientsMessage : public DiED::BasicMessage

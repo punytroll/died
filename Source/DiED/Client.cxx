@@ -78,10 +78,10 @@ void DiED::Client::vHandleConnectionRequest(const DiED::clientid_t & ClientID, c
 	m_InternalEnvironment.vConnectionRequest(*this, ClientID);
 }
 
-void DiED::Client::vHandleConnectionAccept(const DiED::clientid_t & LocalClientID, const DiED::clientid_t & RemoteClientID)
+void DiED::Client::vHandleConnectionAccept(const DiED::clientid_t & AccepterClientID, const DiED::clientid_t & RequesterClientID)
 {
 	vHandleAnswer();
-	m_InternalEnvironment.vConnectionAccept(*this, LocalClientID, RemoteClientID);
+	m_InternalEnvironment.vConnectionAccept(*this, AccepterClientID, RequesterClientID);
 }
 
 void DiED::Client::vHandleKnownClients(const DiED::messageid_t & MessageID, const std::vector< DiED::clientid_t > & ConnectedClientIDs, const std::vector< DiED::clientid_t > & DisconnectedClientIDs)
@@ -289,9 +289,9 @@ void DiED::Client::vConnectionRequest(const DiED::clientid_t & ClientID, const N
 	vSend(boost::shared_ptr< DiED::BasicMessage >(new DiED::ConnectionRequestMessage(ClientID, ListenPort)));
 }
 
-void DiED::Client::vConnectionAccept(const DiED::clientid_t & LocalClientID, const DiED::clientid_t & RemoteClientID)
+void DiED::Client::vConnectionAccept(const DiED::clientid_t & AccepterClientID, const DiED::clientid_t & RequesterClientID)
 {
-	vSend(boost::shared_ptr< DiED::BasicMessage >(new DiED::ConnectionAcceptMessage(RemoteClientID, LocalClientID)));
+	vSend(boost::shared_ptr< DiED::BasicMessage >(new DiED::ConnectionAcceptMessage(AccepterClientID, RequesterClientID)));
 }
 
 void DiED::Client::vKnownClients(bool bAskForKnownClients)
