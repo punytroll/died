@@ -23,6 +23,7 @@ enum LogLevel
 	Object,
 	Verbose,
 	TODO,
+	DebugCurrent,
 	NumberOfLogLevels
 };
 
