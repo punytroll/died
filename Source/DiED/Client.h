@@ -27,13 +27,6 @@ namespace DiED
 		Network::port_t GetPort(void);
 		Network::address_t GetAddress(void);
 		
-		virtual void vInsertText(const Glib::ustring & sString);
-		virtual void vConnectionRequest(const DiED::clientid_t & ClientID, const Network::port_t & Port);
-		virtual void vConnectionAccept(const DiED::clientid_t & LocalClientID, const DiED::clientid_t & RemoteClientID);
-		virtual void vKnownClients(const DiED::messageid_t & MessageID, const std::vector< DiED::clientid_t > & ConnectedClientIDs, const std::vector< DiED::clientid_t > & DisconnectedClientIDs);
-		virtual void vClientsRegistered(const DiED::messageid_t & MessageID);
-		virtual void vConnectionEstablished(const DiED::clientid_t & ClientID, const Network::address_t & ClientAddress, const Network::port_t & ClientPort);
-		
 		// messages
 		DiED::Client & operator<<(boost::shared_ptr< DiED::BasicMessage > Message);
 		virtual void vExecuteTopMessage(void);
@@ -50,6 +43,17 @@ namespace DiED
 		virtual void vOnMessageBegin(void);
 		virtual void vOnMessageExecuted(void);
 		void vBytesSent(size_t stSize);
+		
+		// message handler
+		virtual void vInsertText(const Glib::ustring & sString);
+		virtual void vConnectionRequest(const DiED::clientid_t & ClientID, const Network::port_t & Port);
+		virtual void vConnectionAccept(const DiED::clientid_t & LocalClientID, const DiED::clientid_t & RemoteClientID);
+		virtual void vKnownClients(const DiED::messageid_t & MessageID, const std::vector< DiED::clientid_t > & ConnectedClientIDs, const std::vector< DiED::clientid_t > & DisconnectedClientIDs);
+		virtual void vClientsRegistered(const DiED::messageid_t & MessageID);
+		virtual void vConnectionEstablished(const DiED::clientid_t & ClientID, const Network::address_t & ClientAddress, const Network::port_t & ClientPort);
+		virtual void vConnectionLost(const DiED::clientid_t & ClientID);
+		virtual void vPing(const DiED::messageid_t & PingID);
+		virtual void vPong(const DiED::messageid_t & PingID);
 	private:
 		DiED::InternalEnvironment & m_InternalEnvironment;
 	protected:

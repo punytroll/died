@@ -105,16 +105,22 @@ namespace DiED
 	{
 	public:
 		PingMessage(void);
+		PingMessage(const DiED::messageid_t & PingID);
 		virtual void vExecute(DiED::MessageTarget & MessageTarget);
 		virtual Glib::ustring sGetString(void);
+	private:
+		Network::Value< DiED::messageid_t > m_PingID;
 	};
 	
 	class PongMessage : public DiED::BasicMessage
 	{
 	public:
 		PongMessage(void);
+		PongMessage(const DiED::messageid_t & PingID);
 		virtual void vExecute(DiED::MessageTarget & MessageTarget);
 		virtual Glib::ustring sGetString(void);
+	private:
+		Network::Value< DiED::messageid_t > m_PingID;
 	};
 	
 	class EventMessage : public DiED::BasicMessage

@@ -225,7 +225,7 @@ DiED::ConnectionLostMessage::ConnectionLostMessage(const DiED::clientid_t & Clie
 
 void DiED::ConnectionLostMessage::vExecute(DiED::MessageTarget & MessageTarget)
 {
-//~ 	std::cout << "Executing a ConnectionLost message with parameters:\n\tClientID = " << m_ClientID << std::endl;
+	MessageTarget.vConnectionLost(m_ClientID);
 }
 
 Glib::ustring DiED::ConnectionLostMessage::sGetString(void)
@@ -245,18 +245,26 @@ Glib::ustring DiED::ConnectionLostMessage::sGetString(void)
 DiED::PingMessage::PingMessage(void) :
 	DiED::BasicMessage(DiED::_PingMessage)
 {
+	vRegisterValue(m_PingID);
+}
+
+DiED::PingMessage::PingMessage(const DiED::messageid_t & PingID) :
+	DiED::BasicMessage(DiED::_PingMessage),
+	m_PingID(PingID)
+{
+	vRegisterValue(m_PingID);
 }
 
 void DiED::PingMessage::vExecute(DiED::MessageTarget & MessageTarget)
 {
-//~ 	MessageTarget << boost::shared_ptr< Network::BasicMessage >(new DiED::PongMessage());
+	MessageTarget.vPing(m_PingID);
 }
 
 Glib::ustring DiED::PingMessage::sGetString(void)
 {
 	std::stringstream ssString;
 	
-	ssString << "PingMessage []";
+	ssString << "PingMessage [ PingID = " << m_PingID << " ]";
 	
 	return ssString.str();
 }
@@ -269,17 +277,26 @@ Glib::ustring DiED::PingMessage::sGetString(void)
 DiED::PongMessage::PongMessage(void) :
 	DiED::BasicMessage(DiED::_PongMessage)
 {
+	vRegisterValue(m_PingID);
+}
+
+DiED::PongMessage::PongMessage(const DiED::messageid_t & PingID) :
+	DiED::BasicMessage(DiED::_PongMessage),
+	m_PingID(PingID)
+{
+	vRegisterValue(m_PingID);
 }
 
 void DiED::PongMessage::vExecute(DiED::MessageTarget & MessageTarget)
 {
+	MessageTarget.vPong(m_PingID);
 }
 
 Glib::ustring DiED::PongMessage::sGetString(void)
 {
 	std::stringstream ssString;
 	
-	ssString << "PongMessage []";
+	ssString << "PongMessage [ PingID = " << m_PingID << " ]";
 	
 	return ssString.str();
 }
