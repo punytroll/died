@@ -1,5 +1,7 @@
 #include "Messages.h"
 
+#include <sstream>
+
 DiED::NoMessage::NoMessage(void) :
 	DiED::BasicMessage(DiED::_NoMessage, false)
 {
@@ -16,6 +18,11 @@ void DiED::NoMessage::vReadFrom(Network::Stream & Stream)
 
 void DiED::NoMessage::vExecute(DiED::Client & Client)
 {
+}
+
+Glib::ustring DiED::NoMessage::sGetString(void)
+{
+	return "NoMessage []";
 }
 
 void DiED::NoMessage::vWriteToInternal(Network::Stream & Stream) const
@@ -47,6 +54,15 @@ void DiED::ConnectMessage::vReadFrom(Network::Stream & Stream)
 void DiED::ConnectMessage::vExecute(DiED::Client & Client)
 {
 	std::cout << "Executing a Connect message with parameters:\n\tClientID = " << m_ClientID << "\n\tPort = " << m_Port << std::endl;
+}
+
+Glib::ustring DiED::ConnectMessage::sGetString(void)
+{
+	std::stringstream ssString;
+	
+	ssString << "ConnectMessage [ClientID = " << m_ClientID << " ;  Port = " << m_Port << "]";
+	
+	return ssString.str();
 }
 
 void DiED::ConnectMessage::vWriteToInternal(Network::Stream & Stream) const
@@ -85,6 +101,15 @@ void DiED::InputMessage::vExecute(DiED::Client & Client)
 	Client.vInsertText(m_String);
 }
 
+Glib::ustring DiED::InputMessage::sGetString(void)
+{
+	std::stringstream ssString;
+	
+	ssString << "InputMessage [Text = " << m_String << "]";
+	
+	return ssString.str();
+}
+
 DiED::PingMessage::PingMessage(void) :
 	DiED::BasicMessage(DiED::_PingMessage, true)
 {
@@ -108,6 +133,15 @@ void DiED::PingMessage::vExecute(DiED::Client & Client)
 	Client << DiED::PongMessage();
 }
 
+Glib::ustring DiED::PingMessage::sGetString(void)
+{
+	std::stringstream ssString;
+	
+	ssString << "PingMessage []";
+	
+	return ssString.str();
+}
+
 DiED::PongMessage::PongMessage(void) :
 	DiED::BasicMessage(DiED::_PongMessage, true)
 {
@@ -128,6 +162,15 @@ void DiED::PongMessage::vWriteToInternal(Network::Stream & Stream) const
 
 void DiED::PongMessage::vExecute(DiED::Client & Client)
 {
+}
+
+Glib::ustring DiED::PongMessage::sGetString(void)
+{
+	std::stringstream ssString;
+	
+	ssString << "PongMessage []";
+	
+	return ssString.str();
 }
 
 DiED::ConnectionEstablishedMessage::ConnectionEstablishedMessage(void) :
@@ -156,6 +199,15 @@ void DiED::ConnectionEstablishedMessage::vReadFrom(Network::Stream & Stream)
 void DiED::ConnectionEstablishedMessage::vExecute(DiED::Client & Client)
 {
 	std::cout << "Executing a ConnectionEstablished message with parameters:\n\tClientID = " << m_ClientID << "\n\tClientAddress = " << m_ClientAddress << "\n\tClientPort = " << m_ClientPort << std::endl;
+}
+
+Glib::ustring DiED::ConnectionEstablishedMessage::sGetString(void)
+{
+	std::stringstream ssString;
+	
+	ssString << "ConnectionEstablished [ClientID = " << m_ClientID << " ;  ClientAddress = " << m_ClientAddress << " ;  ClientPort = " << m_ClientPort << "]";
+	
+	return ssString.str();
 }
 
 void DiED::ConnectionEstablishedMessage::vWriteToInternal(Network::Stream & Stream) const
@@ -189,6 +241,15 @@ void DiED::ConnectionLostMessage::vExecute(DiED::Client & Client)
 	std::cout << "Executing a ConnectionLost message with parameters:\n\tClientID = " << m_ClientID << std::endl;
 }
 
+Glib::ustring DiED::ConnectionLostMessage::sGetString(void)
+{
+	std::stringstream ssString;
+	
+	ssString << "ConnectionLostMessage [ClientID = " << m_ClientID << "]";
+	
+	return ssString.str();
+}
+
 void DiED::ConnectionLostMessage::vWriteToInternal(Network::Stream & Stream) const
 {
 	Stream << m_ClientID;
@@ -213,6 +274,15 @@ void DiED::TestMessage::vExecute(DiED::Client & Client)
 {
 	std::cout << "Executing a Test message with " << m_Values.size() << " parameter(s):";
 	std::cout << std::endl;
+}
+
+Glib::ustring DiED::TestMessage::sGetString(void)
+{
+	std::stringstream ssString;
+	
+	ssString << "TestMessage []";
+	
+	return ssString.str();
 }
 
 void DiED::TestMessage::vWriteToInternal(Network::Stream & Stream) const
