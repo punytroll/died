@@ -15,6 +15,7 @@ int main(int argc, char ** argv)
 #ifndef NODEBUG
 	g_bLogLevels[DebugCurrent] = true;
 	g_bLogLevels[TODO] = true;
+	bool bDebugWindow = false;
 #endif
 	srand(time(0));
 	
@@ -48,12 +49,16 @@ int main(int argc, char ** argv)
 				ConnectAddress = ConnectAddress.substr(0, stPort);
 			}
 		}
+		else if(std::string(argv[iI]) == "--debug")
+		{
+			bDebugWindow = true;
+		}
 		++iI;
 	}
 	
 	Gtk::Main Main(argc, argv);
 	DiED::System DiEDSystem;
-	GUI::MainWindow MainWindow(DiEDSystem);
+	GUI::MainWindow MainWindow(DiEDSystem, bDebugWindow);
 	boost::shared_ptr< DiED::ClientFactory > DummyFactoryFactory(new DiED::ClientFactory(DiEDSystem));
 	boost::shared_ptr< GUI::ClientFactory > ClientFactory(new GUI::ClientFactory(DiEDSystem));
 	
