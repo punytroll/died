@@ -51,7 +51,7 @@ namespace DiED
 		virtual void vKnownClients(const DiED::messageid_t & MessageID, const std::vector< DiED::clientid_t > & ConnectedClientIDs, const std::vector< DiED::clientid_t > & DisconnectedClientIDs);
 		virtual void vClientsRegistered(const DiED::messageid_t & MessageID);
 		virtual void vConnectionEstablished(const DiED::clientid_t & ClientID, const Network::address_t & ClientAddress, const Network::port_t & ClientPort);
-		virtual void vConnectionLost(const DiED::clientid_t & ClientID);
+		virtual void vConnectionLost(const DiED::clientid_t & ClientID, const Network::address_t & ClientAddress, const Network::port_t & ClientPort);
 		virtual void vPing(const DiED::messageid_t & PingID);
 		virtual void vPong(const DiED::messageid_t & PingID);
 	private:

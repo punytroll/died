@@ -200,7 +200,7 @@ Glib::ustring DiED::ConnectionEstablishedMessage::sGetString(void)
 {
 	std::stringstream ssString;
 	
-	ssString << "ConnectionEstablished [ClientID = " << m_ClientID << " ;  ClientAddress = " << m_ClientAddress << " ;  ClientPort = " << m_ClientPort << "]";
+	ssString << "ConnectionEstablished [ ClientID = " << m_ClientID << " ;  ClientAddress = " << m_ClientAddress << " ;  ClientPort = " << m_ClientPort << " ]";
 	
 	return ssString.str();
 }
@@ -214,25 +214,31 @@ DiED::ConnectionLostMessage::ConnectionLostMessage(void) :
 	DiED::BasicMessage(DiED::_ConnectionLostMessage)
 {
 	vRegisterValue(m_ClientID);
+	vRegisterValue(m_ClientAddress);
+	vRegisterValue(m_ClientPort);
 }
 
-DiED::ConnectionLostMessage::ConnectionLostMessage(const DiED::clientid_t & ClientID) :
+DiED::ConnectionLostMessage::ConnectionLostMessage(const DiED::clientid_t & ClientID, const Network::address_t & ClientAddress, const Network::port_t & ClientPort) :
 	DiED::BasicMessage(DiED::_ConnectionLostMessage),
-	m_ClientID(ClientID)
+	m_ClientID(ClientID),
+	m_ClientAddress(ClientAddress),
+	m_ClientPort(ClientPort)
 {
 	vRegisterValue(m_ClientID);
+	vRegisterValue(m_ClientAddress);
+	vRegisterValue(m_ClientPort);
 }
 
 void DiED::ConnectionLostMessage::vExecute(DiED::MessageTarget & MessageTarget)
 {
-	MessageTarget.vConnectionLost(m_ClientID);
+	MessageTarget.vConnectionLost(m_ClientID, m_ClientAddress, m_ClientPort);
 }
 
 Glib::ustring DiED::ConnectionLostMessage::sGetString(void)
 {
 	std::stringstream ssString;
 	
-	ssString << "ConnectionLostMessage [ClientID = " << m_ClientID << "]";
+	ssString << "ConnectionLostMessage [ ClientID = " << m_ClientID << " ; ClientAddress = " << m_ClientAddress << " ; ClientPort = " << m_ClientPort << " ]";
 	
 	return ssString.str();
 }
@@ -362,7 +368,7 @@ Glib::ustring DiED::InputMessage::sGetString(void)
 {
 	std::stringstream ssString;
 	
-	ssString << "InputMessage [Text = " << m_Text << "]";
+	ssString << "InputMessage [ Text = " << m_Text << " ]";
 	
 	return ssString.str();
 }
