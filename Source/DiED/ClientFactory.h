@@ -14,6 +14,7 @@ namespace DiED
 	public:
 		ClientFactory(DiED::InternalEnvironment & InternalEnvironment);
 		virtual ~ClientFactory(void);
+		virtual boost::shared_ptr< Network::Socket > GetSocket(void);
 		virtual boost::shared_ptr< Network::Socket > GetSocket(int iSocket);
 	protected:
 		DiED::InternalEnvironment & m_InternalEnvironment;
