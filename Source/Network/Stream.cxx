@@ -120,13 +120,13 @@ void Network::Stream::vOnIn(void)
 	if(stSize == -1)
 	{
 		vGetError();
-		std::cout << "[Stream]: recv failed. " << sErrorCodeToString(m_iError) << std::endl;
+		std::cout << "[Network/Stream]: recv failed. " << sErrorCodeToString(m_iError) << std::endl;
 		
 		return;
 	}
 	if(stSize == 0)
 	{
-		std::cout << "Remote disconnected. " << GetAddress() << ':' << GetPort() << std::endl;
+		std::cout << "[Network/Stream] Remote disconnected. Address = " << GetAddress() << ':' << GetPort() << std::endl;
 		vClose();
 		
 		return;
@@ -185,18 +185,17 @@ void Network::Stream::vOnOut(void)
 		}
 		m_bConnectingInProgress = false;
 	}
-	std::cout << "Ought to send: " << m_OBuffer.stGetSize() << " bytes." << std::endl;
 	
 	u_int8_t * pu8Temporary = new u_int8_t[m_OBuffer.stGetSize() + 1];
 	ssize_t stSize = m_OBuffer.stRead(pu8Temporary, Network::BasicBuffer::npos);
 	
-	std::cout << "Read " << stSize << " bytes from m_OBuffer." << std::endl;
-	std::cout << std::hex;
-	for(ssize_t stI = 0; stI < stSize; ++stI)
-	{
-		std::cout << static_cast< u_int32_t >(pu8Temporary[stI]) << ' ';
-	}
-	std::cout << std::endl;
+//~ 	std::cout << "[Network/Stream]: " << m_OBuffer.stGetSize() << " bytes to send." << " (" << stSize << " bytes from buffer)" << std::endl << std::hex;
+//~ 	for(ssize_t stI = 0; stI < stSize; ++stI)
+//~ 	{
+//~ 		std::cout << static_cast< u_int32_t >(pu8Temporary[stI]) << ' ';
+//~ 	}
+//~ 	std::cout << std::endl;
+	
 	ssize_t stSentSize = send(m_iSocket, pu8Temporary, stSize, 0);
 	
 	if(stSentSize == -1)
@@ -221,7 +220,7 @@ void Network::Stream::vOnOut(void)
 	{
 		vIgnoreOnOut();
 	}
-	std::cout << "Sent " << std::dec << stSize << " bytes through socket." << std::endl;
+//~ 	std::cout << "                  " << std::dec << stSize << " bytes sent." << std::endl;
 	delete[] pu8Temporary;
 	BytesSent(stSentSize);
 }
