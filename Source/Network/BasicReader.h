@@ -18,6 +18,7 @@ namespace Network
 		virtual bool bRead(u_int32_t & u32Value) = 0;
 		virtual bool bRead(int32_t & s32Value) = 0;
 		virtual bool bRead(Glib::ustring & sValue) = 0;
+		virtual bool bRead(void * pvMemory, std::size_t stSize) = 0;
 	};
 }
 

@@ -148,3 +148,13 @@ bool Network::BufferReader::bRead(Glib::ustring & sValue)
 	
 	return true;
 }
+
+bool Network::BufferReader::bRead(void * pvMemory, std::size_t stSize)
+{
+	if(m_Buffer.stGetSize() < stSize)
+	{
+		return false;
+	}
+	
+	return m_Buffer.stRead(reinterpret_cast< u_int8_t * >(pvMemory), stSize) == stSize;
+}
