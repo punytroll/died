@@ -16,16 +16,24 @@ libdied_a_SOURCES = \
 	Server.cxx \
 	System.cxx \
 	User.cxx
+	
+libdied_a_CXXFLAGS = \
+	-Wall \
+	-O0 \
+	-g
 
 EXTRA_DIST = \
+	ActionTarget.h \
 	BasicMessage.h \
 	Client.h \
 	ClientFactory.h \
 	Common.h \
+	EventAction.h \
 	ExternalEnvironment.h \
 	InternalEnvironment.h \
 	MessageFactory.h \
 	Messages.h \
+	MessageTarget.h \
 	Server.h \
 	System.h \
 	User.h

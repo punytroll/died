@@ -14,7 +14,9 @@ died_SOURCES = \
 	DiED.cxx
 	
 died_CXXFLAGS = \
-	-Wall -O2 -g
+	-Wall \
+	-O0 \
+	-g
 	
 died_LDFLAGS = \
 	@GTKMM_LIBS@
