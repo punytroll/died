@@ -49,7 +49,7 @@ DiED::clientid_t DiED::User::GetID(void)
 
 void DiED::User::vSetStatus(const DiED::clientid_t & ClientID, DiED::User::Status Status)
 {
-	std::cout << "[DiED/User]: Client " << GetID() << " is setting client " << ClientID << " to " << sStatusToString(Status) << std::endl;
+//~ 	std::cout << "[DiED/User]: Client " << GetID() << " is setting client " << ClientID << " to " << sStatusToString(Status) << std::endl;
 	std::map< DiED::clientid_t, DiED::User::Status >::iterator iClient(m_Status.find(ClientID));
 	
 	if(Status == Deleted)
