@@ -216,7 +216,7 @@ void DiED::System::vConnectionRequest(DiED::User & User, const DiED::clientid_t 
 	else
 	{
 		// => client known
-		Client->vConnectionAccept(ClientID, m_Client->GetClientID());
+		Client->vConnectionAccept(m_Client->GetClientID(), ClientID);
 		iClient->second->vSetMessageStream(Client->GetMessageStream());
 		Client->vSetMessageStream(boost::shared_ptr< Network::MessageStream >());
 	}
@@ -263,9 +263,7 @@ void DiED::System::vConnectionAccept(DiED::User & User, const DiED::clientid_t &
 		{
 			// this seems to be a reconnection to a network and we have a client id, meaning m_Client already is in the client list
 			//  => if this happens we need to examine the case
-			std::cout << "VERY BAD: " << __FILE__ << ':' << __LINE__ << std::endl;
-			
-			throw;
+			std::cout << "VERY BAD: m_Client->GetClientID() = " << m_Client->GetClientID() << " ; LocalClientID = " << LocalClientID << "  " << __FILE__ << ':' << __LINE__ << std::endl;
 		}
 		else
 		{
@@ -451,7 +449,10 @@ void DiED::System::vConnectionLost(DiED::User & User, const DiED::clientid_t & C
 		{
 			boost::shared_ptr< DiED::Client > UserClient(RegisterClient(boost::shared_ptr< DiED::Client >(), User.GetClientID()));
 			
-			Client->vConnectionEstablished(User.GetClientID(), UserClient->GetAddress(), UserClient->GetPort());
+			if(UserClient->GetPort() != 0)
+			{
+				Client->vConnectionEstablished(User.GetClientID(), UserClient->GetAddress(), UserClient->GetPort());
+			}
 			Client->vPing(sigc::bind(sigc::mem_fun(*this, &DiED::System::vPongReceived), Client));
 			
 			break;
