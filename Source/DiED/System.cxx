@@ -485,15 +485,19 @@ void DiED::System::vHandleConnectionEstablished(DiED::User & User, const DiED::c
 				MessageStream->vOpen(ClientAddress, ClientPort);
 				if(MessageStream->bIsOpen() == false)
 				{
-					std::map< DiED::clientid_t, boost::shared_ptr< DiED::Client > >::iterator iClient(m_Clients.begin());
-					
-					while(iClient != m_Clients.end())
+					if((ClientAddress != Client->GetAddress()) || (ClientPort != Client->GetPort()))
 					{
-						if((iClient->second != m_Client) && (m_Client->GetStatus(iClient->first) == DiED::Connected))
+						// TODO: vAnnounceConnectionLost
+						std::map< DiED::clientid_t, boost::shared_ptr< DiED::Client > >::iterator iClient(m_Clients.begin());
+						
+						while(iClient != m_Clients.end())
 						{
-							iClient->second->vConnectionLost(Client->GetID(), ClientAddress, ClientPort);
+							if(m_Client->GetStatus(iClient->first) == DiED::Connected)
+							{
+								iClient->second->vConnectionLost(Client->GetID(), ClientAddress, ClientPort);
+							}
+							++iClient;
 						}
-						++iClient;
 					}
 				}
 				else
@@ -533,7 +537,7 @@ void DiED::System::vHandleConnectionLost(DiED::User & User, const DiED::clientid
 	case DiED::Disconnected:
 		{
 			// if we are disconnected to the specific client
-			if((ClientPort != 0) && ((ClientAddress != Client->GetAddress()) || ClientPort != Client->GetPort()))
+			if((ClientPort != 0) && (Client->GetAddress() != "") && ((ClientAddress != Client->GetAddress()) || ClientPort != Client->GetPort()))
 			{
 				// only if something in the connection parameters changed we will retry a connection
 				boost::shared_ptr< Network::MessageStream > MessageStream(new Network::MessageStream(m_MessageFactory));
@@ -543,6 +547,7 @@ void DiED::System::vHandleConnectionLost(DiED::User & User, const DiED::clientid
 				{
 					LOG(Info, "DiED/System", "Connecting to " << ClientAddress << ':' << ClientPort << " failed. " << __FILE__ << __LINE__);
 					
+					// TODO: vAnnounceConnectionLost
 					std::map< DiED::clientid_t, boost::shared_ptr< DiED::Client > >::iterator iClient(m_Clients.begin());
 					
 					while(iClient != m_Clients.end())
@@ -594,6 +599,35 @@ void DiED::System::vHandleConnectionLost(DiED::User & User, const DiED::clientid
 void DiED::System::vHandleInsertText(DiED::User & User, const Glib::ustring & sString)
 {
 	vInsertText(User, sString, true);
+}
+
+void DiED::System::vHandlePosition(DiED::User & User, int iLineRelative, int iCharacterRelative, int iLineAbsolute, int iCharacterAbsolute)
+{
+	if(iLineRelative != 0)
+	{
+		if(iLineRelative > 0)
+		{
+			if((User.iGetLine() + iLineRelative + iLineAbsolute) != m_pExternalEnvironment->iGetNumberOfLines())
+			{
+				LOG(TODO, "DiED/System", "The absolute and relative values don't match.\n\t\tUser.iLine = " << User.iGetLine() << "; iLineRelative = " << iLineRelative << "; iLineAbsolute = " << iLineAbsolute << "; #Lines = " << m_pExternalEnvironment->iGetNumberOfLines());
+			}
+		}
+		else
+		{
+			if((User.iGetLine() + iLineRelative + iLineAbsolute) != 0)
+			{
+				LOG(TODO, "DiED/System", "The absolute and relative values don't match.\n\t\tUser.iLine = " << User.iGetLine() << "; iLineRelative = " << iLineRelative << "; iLineAbsolute = " << iLineAbsolute << "; #Lines = " << m_pExternalEnvironment->iGetNumberOfLines());
+			}
+		}
+	}
+//~ 	if(iCharacterRelative > 0)
+//~ 	{
+//~ 		if((User.iGetCharacter() + iCharacterRelative + iCharacterAbsolute) != m_pExternalEnvironment->iGetLengthOfLine())
+//~ 		{
+//~ 			// TODO change iCharacterRelative
+//~ 		}
+//~ 	}
+	User.vModifyCaretPosition(iLineRelative, iCharacterRelative);
 }
 
 void DiED::System::vPongTimeout(boost::shared_ptr< DiED::Client > Client)

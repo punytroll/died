@@ -26,6 +26,7 @@ namespace DiED
 		
 		// functions which will send messages to the connected clients
 		void vInput(const Glib::ustring & sString);
+		void vMove();
 		
 		// helper functions
 		virtual std::set< DiED::clientid_t > GetConnectedClientIDs(void);
@@ -55,6 +56,7 @@ namespace DiED
 		virtual void vHandleConnectionEstablished(DiED::User & User, const DiED::clientid_t & ClientID, const Network::address_t & ClientAddress, const Network::port_t & ClientPort);
 		virtual void vHandleConnectionLost(DiED::User & User, const DiED::clientid_t & ClientID, const Network::address_t & ClientAddress, const Network::port_t & ClientPort);
 		virtual void vHandleInsertText(DiED::User & User, const Glib::ustring & sString);
+		virtual void vHandlePosition(DiED::User & User, int iLineRelative, int iCharacterRelative, int iLineAbsolute, int iCharacterAbsolute);
 		
 		// status manipulation ... TODO@ replace this with a symmetric map of references.
 		virtual void vSetStatus(const DiED::clientid_t & ClientID1, const DiED::clientid_t & ClientID2, const DiED::clientstatus_t & Status);

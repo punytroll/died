@@ -7,6 +7,7 @@ namespace DiED
 	{
 	public:
 		virtual void vHandleInsertText(const Glib::ustring & sString) = 0;
+		virtual void vHandlePosition(int iLineRelative, int iCharacterRelative, int iLineAbsolute, int iCharacterAbsolute) = 0;
 	};
 }
 
