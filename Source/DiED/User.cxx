@@ -7,6 +7,10 @@ DiED::User::User(void) :
 {
 }
 
+DiED::User::~User(void)
+{
+}
+
 void DiED::User::vModifyCaretPosition(int iDeltaLine, int iDeltaCharacter)
 {
 	// if n lines where inserted before our position we have to go down n lines
@@ -35,6 +39,7 @@ int DiED::User::iGetCharacter(void) const
 void DiED::User::vSetClientID(DiED::clientid_t ClientID)
 {
 	m_ClientID = ClientID;
+	ClientIDChanged();
 }
 
 DiED::clientid_t DiED::User::GetClientID(void)
