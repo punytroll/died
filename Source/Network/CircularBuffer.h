@@ -7,36 +7,18 @@
 
 #include "BasicBuffer.h"
 #include "BufferReader.h"
+#include "BufferWriter.h"
 
 namespace Network
 {
 	class CircularBuffer : public Network::BasicBuffer
 	{
 	public:
-		CircularBuffer(size_t stSize) :
-			m_pu8StorageBegin(new u_int8_t[stSize]),
-			m_pu8StorageEnd(m_pu8StorageBegin + stSize),
-			m_pu8DataBegin(m_pu8StorageBegin),
-			m_pu8DataEnd(m_pu8DataEnd)
-		{
-		}
-		
-		virtual size_t stGetCount(void)
-		{
-			if(m_pu8DataBegin <= m_pu8DataEnd)
-			{
-				return (m_pu8DataEnd - m_pu8DataBegin);
-			}
-			else
-			{
-				return (m_pu8StorageEnd - m_pu8DataBegin) + (m_pu8DataEnd - m_pu8StorageBegin);
-			}
-		}
-	public:
-		boost::shared_ptr< Network::BufferReader > GetReader(void)
-		{
-			return boost::shared_ptr< Network::BufferReader >(new BufferReader(*this));
-		}
+		CircularBuffer(size_t stSize);
+		virtual size_t stGetCount(void);
+		boost::shared_ptr< Network::BufferReader > GetReader(void);
+		boost::shared_ptr< Network::BufferWriter > GetWriter(void);
+		virtual void vWrite(const u_int8_t * pu8Memory, size_t stSize);
 	private:
 		u_int8_t * m_pu8StorageBegin;
 		u_int8_t * m_pu8StorageEnd;

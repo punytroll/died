@@ -1,7 +1,7 @@
 #include "Messages.h"
 
 DiED::NoMessage::NoMessage(void) :
-	Network::BasicMessage(false)
+	Network::BasicMessage(DiED::_NoMessage, false)
 {
 }
 
@@ -14,8 +14,12 @@ void DiED::NoMessage::vReadFrom(Network::Stream & Stream)
 {
 }
 
+void DiED::NoMessage::vWriteToInternal(Network::Stream & Stream) const
+{
+}
+
 DiED::HelloMessage::HelloMessage(void) :
-	Network::BasicMessage(true)
+	Network::BasicMessage(DiED::_HelloMessage, true)
 {
 }
 
@@ -25,5 +29,9 @@ bool DiED::HelloMessage::bIsReady(void)
 }
 
 void DiED::HelloMessage::vReadFrom(Network::Stream & Stream)
+{
+}
+
+void DiED::HelloMessage::vWriteToInternal(Network::Stream & Stream) const
 {
 }

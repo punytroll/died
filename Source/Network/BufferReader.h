@@ -19,7 +19,7 @@ namespace Network
 		virtual bool bRead(int32_t & s32Value);
 		virtual bool bRead(std::string & sValue);
 	private:
-		Network::BasicBuffer & m_BasicBuffer;
+		Network::BasicBuffer & m_Buffer;
 	};
 }
 

@@ -17,6 +17,7 @@ namespace DiED
 		NoMessage(void);
 		virtual bool bIsReady(void);
 		virtual void vReadFrom(Network::Stream & Stream);
+		virtual void vWriteToInternal(Network::Stream & Stream) const;
 	};
 	
 	class HelloMessage : public Network::BasicMessage
@@ -25,6 +26,7 @@ namespace DiED
 		HelloMessage(void);
 		virtual bool bIsReady(void);
 		virtual void vReadFrom(Network::Stream & Stream);
+		virtual void vWriteToInternal(Network::Stream & Stream) const;
 	};
 }
 

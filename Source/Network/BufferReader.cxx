@@ -1,7 +1,7 @@
 #include "BufferReader.h"
 
 Network::BufferReader::BufferReader(Network::BasicBuffer & Buffer) :
-	m_BasicBuffer(Buffer)
+	m_Buffer(Buffer)
 {
 }
 
