@@ -26,6 +26,8 @@ namespace DiED
 	typedef u_int32_t clientid_t;
 	typedef std::map< Glib::ustring, boost::any > ConfirmationParameters;
 	
+	const unsigned int g_uiDefaultReconnectTimeoutInterval = 4000;
+	
 	std::string sStatusToString(const DiED::clientstatus_t & iStatus);
 }
 
