@@ -13,8 +13,8 @@
 #include "Client.h"
 
 GdkColor Connecting = { 0x0000, 0xE0E0, 0xE0E0, 0x0000 };
-GdkColor Connected = { 0x0000, 0x0000, 0x8080, 0x0000 };
-GdkColor Disconnected = { 0x0000, 0x8080, 0x0000, 0x0000 };
+GdkColor Connected = { 0x0000, 0x0000, 0xC0C0, 0x0000 };
+GdkColor Disconnected = { 0x0000, 0xC0C0, 0x0000, 0x0000 };
 GdkColor Deleted = { 0x0000, 0x6060, 0x6060, 0x6060 };
 
 void GUI::vDeleteRange(GtkTextBuffer * pTextBuffer, GtkTextIter * pBeginIterator, GtkTextIter * pEndIterator, GUI::MainWindow * pMainWindow)
@@ -98,10 +98,11 @@ bool GUI::MainWindow::bKeyPressed(GdkEventKey * pEvent)
 
 void GUI::MainWindow::vMarkSet(const Gtk::TextIter & Iterator, const Glib::RefPtr< Gtk::TextMark > & Mark)
 {
-	Gtk::TextIter InsertIterator(m_TextBuffer->get_iter_at_mark(m_TextBuffer->get_insert()));
-	
-	LOG(Verbose, "GUI/MainWindow", "MarkSet signal: \"insert\" mark @ " << InsertIterator.get_line() << "; " << InsertIterator.get_line_offset());
-	m_System.vPosition(InsertIterator.get_line(), InsertIterator.get_line_offset());
+	if(Mark->get_name() == "insert")
+	{
+		LOG(Verbose, "GUI/MainWindow", "MarkSet signal: \"insert\" mark @ " << Mark->get_iter().get_line() << "; " << Mark->get_iter().get_line_offset());
+		m_System.vPosition(Mark->get_iter().get_line(), Mark->get_iter().get_line_offset());
+	}
 }
 
 void GUI::MainWindow::vChanged(void)
