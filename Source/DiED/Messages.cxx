@@ -168,53 +168,6 @@ Glib::ustring DiED::ClientsRegisteredMessage::sGetString(void)
 
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
-///                                         PingMessage                                         ///
-///////////////////////////////////////////////////////////////////////////////////////////////////
-
-DiED::PingMessage::PingMessage(void) :
-	DiED::BasicMessage(DiED::_PingMessage)
-{
-}
-
-void DiED::PingMessage::vExecute(DiED::MessageTarget & MessageTarget)
-{
-//~ 	MessageTarget << boost::shared_ptr< Network::BasicMessage >(new DiED::PongMessage());
-}
-
-Glib::ustring DiED::PingMessage::sGetString(void)
-{
-	std::stringstream ssString;
-	
-	ssString << "PingMessage []";
-	
-	return ssString.str();
-}
-
-
-///////////////////////////////////////////////////////////////////////////////////////////////////
-///                                         PongMessage                                         ///
-///////////////////////////////////////////////////////////////////////////////////////////////////
-
-DiED::PongMessage::PongMessage(void) :
-	DiED::BasicMessage(DiED::_PongMessage)
-{
-}
-
-void DiED::PongMessage::vExecute(DiED::MessageTarget & MessageTarget)
-{
-}
-
-Glib::ustring DiED::PongMessage::sGetString(void)
-{
-	std::stringstream ssString;
-	
-	ssString << "PongMessage []";
-	
-	return ssString.str();
-}
-
-
-///////////////////////////////////////////////////////////////////////////////////////////////////
 ///                                ConnectionEstablishedMessage                                 ///
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -286,26 +239,47 @@ Glib::ustring DiED::ConnectionLostMessage::sGetString(void)
 
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
-///                                         TestMessage                                         ///
+///                                         PingMessage                                         ///
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 
-DiED::TestMessage::TestMessage(void) :
-	DiED::BasicMessage(DiED::_TestMessage)
+DiED::PingMessage::PingMessage(void) :
+	DiED::BasicMessage(DiED::_PingMessage)
 {
-	vRegisterValue(m_Values);
 }
 
-void DiED::TestMessage::vExecute(DiED::MessageTarget & MessageTarget)
+void DiED::PingMessage::vExecute(DiED::MessageTarget & MessageTarget)
 {
-//~ 	std::cout << "Executing a Test message with " << m_Values.size() << " parameter(s):";
-//~ 	std::cout << std::endl;
+//~ 	MessageTarget << boost::shared_ptr< Network::BasicMessage >(new DiED::PongMessage());
 }
 
-Glib::ustring DiED::TestMessage::sGetString(void)
+Glib::ustring DiED::PingMessage::sGetString(void)
 {
 	std::stringstream ssString;
 	
-	ssString << "TestMessage []";
+	ssString << "PingMessage []";
+	
+	return ssString.str();
+}
+
+
+///////////////////////////////////////////////////////////////////////////////////////////////////
+///                                         PongMessage                                         ///
+///////////////////////////////////////////////////////////////////////////////////////////////////
+
+DiED::PongMessage::PongMessage(void) :
+	DiED::BasicMessage(DiED::_PongMessage)
+{
+}
+
+void DiED::PongMessage::vExecute(DiED::MessageTarget & MessageTarget)
+{
+}
+
+Glib::ustring DiED::PongMessage::sGetString(void)
+{
+	std::stringstream ssString;
+	
+	ssString << "PongMessage []";
 	
 	return ssString.str();
 }
@@ -339,6 +313,11 @@ bool DiED::EventMessage::bIsEventMessage(void)
 	return true;
 }
 
+void DiED::EventMessage::vExecute(DiED::MessageTarget & MessageTarget)
+{
+	vExecuteEvent(MessageTarget);
+}
+
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 ///                                        InputMessage                                         ///
@@ -357,7 +336,7 @@ DiED::InputMessage::InputMessage(const DiED::clientid_t & CreatorID, const DiED:
 	vRegisterValue(m_Text);
 }
 
-void DiED::InputMessage::vExecute(DiED::MessageTarget & MessageTarget)
+void DiED::InputMessage::vExecuteEvent(DiED::MessageTarget & MessageTarget)
 {
 	MessageTarget.vInsertText(m_Text);
 }

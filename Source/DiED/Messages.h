@@ -14,12 +14,11 @@ namespace DiED
 		_ConnectionAcceptMessage,
 		_KnownClientsMessage,
 		_ClientsRegisteredMessage,
-		_InputMessage,
-		_PingMessage,
-		_PongMessage,
 		_ConnectionEstablishedMessage,
 		_ConnectionLostMessage,
-		_TestMessage,
+		_PingMessage,
+		_PongMessage,
+		_InputMessage,
 	};
 	
 	class NoMessage : public DiED::BasicMessage
@@ -78,22 +77,6 @@ namespace DiED
 		Network::Value< DiED::messageid_t > m_MessageID;
 	};
 	
-	class PingMessage : public DiED::BasicMessage
-	{
-	public:
-		PingMessage(void);
-		virtual void vExecute(DiED::MessageTarget & MessageTarget);
-		virtual Glib::ustring sGetString(void);
-	};
-	
-	class PongMessage : public DiED::BasicMessage
-	{
-	public:
-		PongMessage(void);
-		virtual void vExecute(DiED::MessageTarget & MessageTarget);
-		virtual Glib::ustring sGetString(void);
-	};
-	
 	class ConnectionEstablishedMessage : public DiED::BasicMessage
 	{
 	public:
@@ -118,19 +101,20 @@ namespace DiED
 		Network::Value< DiED::clientid_t > m_ClientID;
 	};
 	
-	class TestMessage : public DiED::BasicMessage
+	class PingMessage : public DiED::BasicMessage
 	{
 	public:
-		TestMessage(void);
+		PingMessage(void);
 		virtual void vExecute(DiED::MessageTarget & MessageTarget);
 		virtual Glib::ustring sGetString(void);
-	private:
-		Network::VectorValue< DiED::clientid_t > m_Values;
+	};
+	
+	class PongMessage : public DiED::BasicMessage
+	{
 	public:
-		void vAdd(clientid_t ClientID)
-		{
-			m_Values.push_back(ClientID);
-		}
+		PongMessage(void);
+		virtual void vExecute(DiED::MessageTarget & MessageTarget);
+		virtual Glib::ustring sGetString(void);
 	};
 	
 	class EventMessage : public DiED::BasicMessage
@@ -138,7 +122,10 @@ namespace DiED
 	public:
 		EventMessage(const Network::BasicMessage::type_t & Type);
 		EventMessage(const Network::BasicMessage::type_t & Type, const DiED::clientid_t & CreatorID, const DiED::messageid_t & EventID, const DiED::clientid_t & LostClientID);
+		virtual void vExecute(DiED::MessageTarget & MessageTarget);
 		virtual bool bIsEventMessage(void);
+	protected:
+		virtual void vExecuteEvent(DiED::MessageTarget & MessageTarget) = 0;
 	private:
 		Network::Value< DiED::clientid_t > m_CreatorID;
 		Network::Value< DiED::messageid_t > m_EventID;
@@ -150,8 +137,9 @@ namespace DiED
 	public:
 		InputMessage(void);
 		InputMessage(const DiED::clientid_t & CreatorID, const DiED::messageid_t & EventID, const DiED::clientid_t & LostClientID, const Glib::ustring & sText);
-		virtual void vExecute(DiED::MessageTarget & MessageTarget);
 		virtual Glib::ustring sGetString(void);
+	protected:
+		virtual void vExecuteEvent(DiED::MessageTarget & MessageTarget);
 	private:
 		Network::Value< Glib::ustring > m_Text;
 	};
