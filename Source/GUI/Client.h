@@ -10,6 +10,7 @@ namespace GUI
 	public:
 		Client(boost::shared_ptr< Network::MessageFactory > MessageFactory, DiED::InternalEnvironment & InternalEnvironment);
 		Client(int iSocket, boost::shared_ptr< Network::MessageFactory > MessageFactory, DiED::InternalEnvironment & InternalEnvironment);
+		virtual ~Client(void);
 	protected:
 		virtual void vMessageReady(void);
 	private:

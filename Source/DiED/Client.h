@@ -12,6 +12,7 @@ namespace DiED
 	public:
 		Client(boost::shared_ptr< Network::MessageFactory > MessageFactory, DiED::InternalEnvironment & InternalEnvironment);
 		Client(int iSocket, boost::shared_ptr< Network::MessageFactory > MessageFactory, DiED::InternalEnvironment & InternalEnvironment);
+		virtual ~Client(void);
 		void vInsertText(const Glib::ustring & sString);
 	protected:
 		virtual void vMessageReady(void);

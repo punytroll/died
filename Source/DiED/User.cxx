@@ -8,7 +8,9 @@ DiED::User::User(void) :
 
 void DiED::User::vModifyCaretPosition(int iDeltaLine, int iDeltaCharacter)
 {
+	// if n lines where inserted before our position we have to go down n lines
 	m_iLine += iDeltaLine;
+	// 
 	if(iDeltaLine == 0)
 	{
 		m_iCharacter += iDeltaCharacter;

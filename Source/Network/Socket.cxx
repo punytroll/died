@@ -52,7 +52,7 @@ void Network::Socket::vRequestOnOut(void)
 {
 	if(m_OSource == false)
 	{
-		std::cout << "[Socket]: OnOut requested." << std::endl;
+//~ 		std::cout << "[Socket]: OnOut requested." << std::endl;
 		m_OSource = Glib::IOSource::create(m_iSocket, Glib::IO_OUT);
 		m_OSource->connect(sigc::mem_fun(*this, &Network::Socket::bNotify));
 		m_OSource->attach();
@@ -61,7 +61,7 @@ void Network::Socket::vRequestOnOut(void)
 
 void Network::Socket::vIgnoreOnOut(void)
 {
-	std::cout << "[Socket]: OnOut ignored." << std::endl;
+//~ 	std::cout << "[Socket]: OnOut ignored." << std::endl;
 	m_OSource->destroy();
 	m_OSource.clear();
 }
@@ -70,29 +70,29 @@ bool Network::Socket::bNotify(const Glib::IOCondition & Condition)
 {
 	if((Condition & Glib::IO_IN) != 0)
 	{
-		std::cout << "IO_IN" << std::endl;
+//~ 		std::cout << "IO_IN" << std::endl;
 		vOnIn();
 	}
 	if((Condition & Glib::IO_OUT) != 0)
 	{
-		std::cout << "IO_OUT" << std::endl;
+//~ 		std::cout << "IO_OUT" << std::endl;
 		vOnOut();
 	}
 	if((Condition & Glib::IO_PRI) != 0)
 	{
-		std::cout << "IO_PRI" << std::endl;
+//~ 		std::cout << "IO_PRI" << std::endl;
 	}
 	if((Condition & Glib::IO_ERR) != 0)
 	{
-		std::cout << "IO_ERR" << std::endl;
+//~ 		std::cout << "IO_ERR" << std::endl;
 	}
 	if((Condition & Glib::IO_HUP) != 0)
 	{
-		std::cout << "IO_HUP" << std::endl;
+//~ 		std::cout << "IO_HUP" << std::endl;
 	}
 	if((Condition & Glib::IO_NVAL) != 0)
 	{
-		std::cout << "IO_NVAL" << std::endl;
+//~ 		std::cout << "IO_NVAL" << std::endl;
 		
 		return false;
 	}

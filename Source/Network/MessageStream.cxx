@@ -36,7 +36,7 @@ Network::MessageStream & Network::MessageStream::operator<<(const Network::Basic
 	if(Message.bIsForSending() == true)
 	{
 		Message.vWriteTo(*this);
-		std::cout << "[MessageStream]: Requesting OnOut." << std::endl;
+//~ 		std::cout << "[MessageStream]: Requesting OnOut." << std::endl;
 		vRequestOnOut();
 	}
 	else

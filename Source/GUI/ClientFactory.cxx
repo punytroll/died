@@ -3,7 +3,7 @@
 #include "Client.h"
 
 GUI::ClientFactory::ClientFactory(DiED::InternalEnvironment & InternalEnvironment) :
-	DiED::ClientFactory(InternalEnvironment)
+	m_InternalEnvironment(InternalEnvironment)
 {
 }
 
