@@ -1,5 +1,5 @@
-#ifndef BASICVALUE_H
-#define BASICVALUE_H
+#ifndef NETWORK_BASICVALUE_H
+#define NETWORK_BASICVALUE_H
 
 #include <boost/shared_ptr.hpp>
 
@@ -13,28 +13,12 @@ namespace Network
 	class BasicValue
 	{
 	public:
-		BasicValue(void) :
-			m_bReady(false)
-		{
-		}
-		
-		virtual ~BasicValue(void)
-		{
-		}
-		
-		bool bIsReady(void) const
-		{
-			return m_bReady;
-		}
-		
-		virtual size_t stGetSize(void) const
-		{
-			return 0;
-		}
-		
+		BasicValue(void);
+		virtual ~BasicValue(void);
+		bool bIsReady(void) const;
+		virtual size_t stGetSize(void) const;
 		virtual void vReadFrom(boost::shared_ptr< Network::BasicReader > Reader) = 0;
 		virtual void vWriteTo(boost::shared_ptr< Network::BasicWriter > Writer) const = 0;
-		virtual std::ostream & operator<<(std::ostream & OStream);
 		
 		sigc::signal< void > Ready;
 	protected:

@@ -1,8 +1,22 @@
 #include "BasicValue.h"
 
-std::ostream & Network::BasicValue::operator<<(std::ostream & OStream)
+Network::BasicValue::BasicValue(void) :
+	m_bReady(false)
 {
-	return OStream << "<Unknown Type>";
+}
+
+Network::BasicValue::~BasicValue(void)
+{
+}
+
+bool Network::BasicValue::bIsReady(void) const
+{
+	return m_bReady;
+}
+
+size_t Network::BasicValue::stGetSize(void) const
+{
+	return 0;
 }
 
 void Network::BasicValue::vSetReady(bool bReady)

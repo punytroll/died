@@ -88,17 +88,6 @@ namespace Network
 				++iValue;
 			}
 		}
-		
-		virtual std::ostream & operator<<(std::ostream & OStream)
-		{
-			OStream << "{ ";
-			for(typename std::vector< Type >::size_type stI = 0; stI < size(); ++stI)
-			{
-				OStream << operator[](stI) << ", ";
-			}
-			
-			return OStream << '}';
-		}
 	private:
 		size_t m_stSize;
 	};

@@ -38,11 +38,6 @@ namespace Network
 		{
 			Writer->bWrite(m_Value);
 		}
-		
-		virtual std::ostream & operator<<(std::ostream & OStream)
-		{
-			return OStream << m_Value;
-		}
 	protected:
 		Type m_Value;
 	};

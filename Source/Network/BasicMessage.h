@@ -1,5 +1,5 @@
-#ifndef MESSAGE_H
-#define MESSAGE_H
+#ifndef NETWORK_MESSAGE_H
+#define NETWORK_MESSAGE_H
 
 #include "Stream.h"
 #include "Value.h"
