@@ -44,8 +44,6 @@ void DiED::System::vSetClientFactory(boost::shared_ptr< DiED::ClientFactory > Cl
 	if(m_Client.get() == 0)
 	{
 		m_Client = GetNewPreliminaryClient();
-		// dirty hack
-		m_Client->vSetLocal();
 		m_Client->vSetPort(m_ServicePort);
 		m_Client->StatusChanged.connect(sigc::mem_fun(*this, &DiED::System::vClientStatusChanged));
 	}

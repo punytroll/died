@@ -24,11 +24,6 @@ DiED::Client::~Client(void)
 //~ 	std::cout << "[DiED/Client]: Deleted Client." << std::endl;
 }
 
-void DiED::Client::vSetLocal(void)
-{
-	m_EventCounter = 0;
-}
-
 void DiED::Client::vSetMessageStream(boost::shared_ptr< Network::MessageStream > MessageStream)
 {
 	std::cout << "Setting the MessageStream for " << GetID() << " to " << MessageStream.get() << std::endl;
@@ -513,7 +508,7 @@ void DiED::Client::vInsertText(const Glib::ustring & sText, const DiED::messagei
 
 DiED::messageid_t DiED::Client::GetNextEventCounter(void)
 {
-	return ++m_EventCounter;
+	return m_EventCounter++;
 }
 
 void DiED::Client::vBytesSent(size_t stSize)

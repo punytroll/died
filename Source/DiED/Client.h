@@ -16,9 +16,6 @@ namespace DiED
 	class Client : public DiED::User, public DiED::MessageTarget, public DiED::ActionTarget
 	{
 	public:
-		// dirty hacks (temporary he says ;))
-		void vSetLocal(void);
-		
 		// constructor and destructor
 		Client(DiED::InternalEnvironment & InternalEnvironment);
 		virtual ~Client(void);
