@@ -34,4 +34,4 @@ EXTRA_DIST = \
 	Stream.h \
 	StringValue.h \
 	Value.h \
-	VectorValue.h \
+	VectorValue.h
