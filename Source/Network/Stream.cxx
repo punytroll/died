@@ -67,7 +67,7 @@ void Network::Stream::vOpen(const Network::address_t & ConnectAddress, const Net
 			return;
 		}
     }
-	LOG(Debug, "Network/Stream", "Beginning ::connect. This may block for some time.");
+	LOG(Info, "Network/Stream", "Beginning ::connect. This may block for some time.");
 	if(::connect(m_iSocket, &SocketAddress, sizeof(sockaddr_in)) == -1)
 	{
 		vGetError();
@@ -84,7 +84,7 @@ void Network::Stream::vOpen(const Network::address_t & ConnectAddress, const Net
 			vRequestOnOut();
 		}
 	}
-	LOG(Debug, "Network/Socket", "Ended ::connect.");
+	LOG(Info, "Network/Socket", "Ended ::connect.");
 	if(::fcntl(m_iSocket, F_SETFL, O_NONBLOCK) == -1)
 	{
 		vClose();
