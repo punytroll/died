@@ -102,7 +102,7 @@ void DiED::System::vInsertText(DiED::User & User, const Glib::ustring & sString,
 	int iLine(User.iGetLine());
 	int iCharacter(User.iGetCharacter());
 	
-	std::cout << "LineW = " << iLine << " ; CharacterW = " << iCharacter << std::endl;
+//~ 	std::cout << "LineW = " << iLine << " ; CharacterW = " << iCharacter << std::endl;
 	
 	if((m_pExternalEnvironment != 0) && (bWriteToEnvironment == true))
 	{
@@ -124,7 +124,7 @@ void DiED::System::vInsertText(DiED::User & User, const Glib::ustring & sString,
 			++iDeltaCharacter;
 		}
 	}
-	std::cout << "DeltaLine = " << iDeltaLine << " ; DeltaCharacter = " << iDeltaCharacter << std::endl;
+//~ 	std::cout << "DeltaLine = " << iDeltaLine << " ; DeltaCharacter = " << iDeltaCharacter << std::endl;
 	
 	std::map< DiED::clientid_t, boost::shared_ptr< DiED::Client > >::iterator iClient(m_Clients.begin());
 	
