@@ -62,7 +62,7 @@ namespace Network
 			{
 				Type Value;
 				
-				if(Reader->bRead(Value) == true)
+				if(Reader->bRead(&Value, sizeof(Type)) == true)
 				{
 					push_back(Value);
 				}
@@ -84,7 +84,7 @@ namespace Network
 			while(iValue != end())
 			{
 				// Write returns false if nothing is written -> abort and wait for reentrance
-				Writer->bWrite(*iValue);
+				Writer->bWrite(&*iValue, sizeof(Type));
 				++iValue;
 			}
 		}

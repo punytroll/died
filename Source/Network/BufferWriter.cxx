@@ -81,3 +81,10 @@ bool Network::BufferWriter::bWrite(const Glib::ustring & sValue)
 	
 	return true;
 }
+
+bool Network::BufferWriter::bWrite(const void * pvMemory, std::size_t stSize)
+{
+	m_Buffer.vWrite(reinterpret_cast< const u_int8_t * >(pvMemory), stSize);
+	
+	return true;
+}

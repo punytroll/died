@@ -18,6 +18,7 @@ namespace Network
 		virtual bool bWrite(const u_int32_t & u32Value) = 0;
 		virtual bool bWrite(const int32_t & s32Value) = 0;
 		virtual bool bWrite(const Glib::ustring & sValue) = 0;
+		virtual bool bWrite(const void * pvMemory, std::size_t stSize) = 0;
 	};
 }
 
