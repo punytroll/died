@@ -71,9 +71,15 @@ namespace Network
 			}
 		}
 		
-		virtual Glib::ustring sGetString(void) const
+		virtual std::ostream & operator<<(std::ostream & OStream)
 		{
-			return Glib::ustring("Vector of ") + typeid(Type).name();
+			OStream << "{ ";
+			for(typename std::vector< Type >::size_type stI = 0; stI < size(); ++stI)
+			{
+				OStream << operator[](stI) << ", ";
+			}
+			
+			return OStream << '}';
 		}
 	private:
 		size_t m_stSize;
