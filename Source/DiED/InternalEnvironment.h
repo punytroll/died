@@ -4,6 +4,7 @@
 #include <Network/MessageFactory.h>
 #include <Common.h>
 
+#include "Messages.h"
 #include "User.h"
 
 namespace DiED
@@ -27,8 +28,8 @@ namespace DiED
 		virtual void vSetStatus(const DiED::clientid_t & ClientID1, const DiED::clientid_t & ClientID2, const DiED::User::Status & Status) = 0;
 		virtual DiED::User * pGetClient(const DiED::clientid_t & ClientID) = 0;
 		
-		virtual void vSendConnectionLost(const DiED::clientid_t & ClientID) = 0;
-		virtual void vSendToConnected(boost::shared_ptr< Network::BasicMessage > Message) = 0;
+		virtual void vAnnounceConnectionLost(const DiED::clientid_t & ClientID) = 0;
+		virtual void vAnnounceMessage(boost::shared_ptr< DiED::BasicMessage > Message) = 0;
 	};
 }
 
