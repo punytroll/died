@@ -36,6 +36,7 @@ namespace DiED
 		DiED::Server m_Server;
 		std::vector< boost::shared_ptr< Network::Socket > > m_Clients;
 		DiED::ExternalEnvironment * m_pExternalEnvironment;
+		Network::port_t m_ServicePort;
 	};
 }
 

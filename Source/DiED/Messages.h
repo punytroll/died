@@ -8,11 +8,12 @@ namespace DiED
 	enum
 	{
 		_NoMessage,
-		_HelloMessage,
+		_ConnectMessage,
 		_InputMessage,
 		_PingMessage,
 		_PongMessage,
-		_ConnectionEstablishedMessage
+		_ConnectionEstablishedMessage,
+		_ConnectionLostMessage
 	};
 	
 	class NoMessage : public DiED::BasicMessage
@@ -26,15 +27,19 @@ namespace DiED
 		virtual void vWriteToInternal(Network::Stream & Stream) const;
 	};
 	
-	class HelloMessage : public DiED::BasicMessage
+	class ConnectMessage : public DiED::BasicMessage
 	{
 	public:
-		HelloMessage(void);
+		ConnectMessage(void);
+		ConnectMessage(const DiED::clientid_t & ClientID, const Network::port_t & Port);
 		virtual bool bIsReady(void) const;
 		virtual void vReadFrom(Network::Stream & Stream);
 		virtual void vExecute(DiED::Client & Client);
 	protected:
 		virtual void vWriteToInternal(Network::Stream & Stream) const;
+	private:
+		Network::Value< DiED::clientid_t > m_ClientID;
+		Network::Value< Network::port_t > m_Port;
 	};
 	
 	class InputMessage : public DiED::BasicMessage
@@ -87,6 +92,20 @@ namespace DiED
 		Network::Value< DiED::clientid_t > m_ClientID;
 		Network::Value< Network::address_t > m_ClientAddress;
 		Network::Value< Network::port_t > m_ClientPort;
+	};
+	
+	class ConnectionLostMessage : public DiED::BasicMessage
+	{
+	public:
+		ConnectionLostMessage(void);
+		ConnectionLostMessage(const DiED::clientid_t & ClientID);
+		virtual bool bIsReady(void) const;
+		virtual void vReadFrom(Network::Stream & Stream);
+		virtual void vExecute(DiED::Client & Client);
+	protected:
+		virtual void vWriteToInternal(Network::Stream & Stream) const;
+	private:
+		Network::Value< DiED::clientid_t > m_ClientID;
 	};
 }
 

@@ -22,26 +22,36 @@ void DiED::NoMessage::vWriteToInternal(Network::Stream & Stream) const
 {
 }
 
-DiED::HelloMessage::HelloMessage(void) :
-	DiED::BasicMessage(DiED::_HelloMessage, true)
+DiED::ConnectMessage::ConnectMessage(void) :
+	DiED::BasicMessage(DiED::_ConnectMessage, false)
 {
 }
 
-bool DiED::HelloMessage::bIsReady(void) const
-{
-	return true;
-}
-
-void DiED::HelloMessage::vReadFrom(Network::Stream & Stream)
+DiED::ConnectMessage::ConnectMessage(const DiED::clientid_t & ClientID, const Network::port_t & Port) :
+	DiED::BasicMessage(DiED::_ConnectMessage, true),
+	m_ClientID(ClientID),
+	m_Port(Port)
 {
 }
 
-void DiED::HelloMessage::vWriteToInternal(Network::Stream & Stream) const
+bool DiED::ConnectMessage::bIsReady(void) const
 {
+	return (m_ClientID.bIsReady() == true) && (m_Port.bIsReady() == true);
 }
 
-void DiED::HelloMessage::vExecute(DiED::Client & Client)
+void DiED::ConnectMessage::vReadFrom(Network::Stream & Stream)
 {
+	Stream >> m_ClientID >> m_Port;
+}
+
+void DiED::ConnectMessage::vExecute(DiED::Client & Client)
+{
+	std::cout << "Executing a Connect message with parameters:\n\tClientID = " << m_ClientID << "\n\tPort = " << m_Port << std::endl;
+}
+
+void DiED::ConnectMessage::vWriteToInternal(Network::Stream & Stream) const
+{
+	Stream << m_ClientID << m_Port;
 }
 
 DiED::InputMessage::InputMessage(void) :
@@ -121,7 +131,7 @@ void DiED::PongMessage::vExecute(DiED::Client & Client)
 }
 
 DiED::ConnectionEstablishedMessage::ConnectionEstablishedMessage(void) :
-	DiED::BasicMessage(DiED::_ConnectionEstablishedMessage, true)
+	DiED::BasicMessage(DiED::_ConnectionEstablishedMessage, false)
 {
 }
 
@@ -151,4 +161,35 @@ void DiED::ConnectionEstablishedMessage::vExecute(DiED::Client & Client)
 void DiED::ConnectionEstablishedMessage::vWriteToInternal(Network::Stream & Stream) const
 {
 	Stream << m_ClientID << m_ClientAddress << m_ClientPort;
+}
+
+DiED::ConnectionLostMessage::ConnectionLostMessage(void) :
+	DiED::BasicMessage(DiED::_ConnectionLostMessage, false)
+{
+}
+
+DiED::ConnectionLostMessage::ConnectionLostMessage(const DiED::clientid_t & ClientID) :
+	DiED::BasicMessage(DiED::_ConnectionLostMessage, true),
+	m_ClientID(ClientID)
+{
+}
+
+bool DiED::ConnectionLostMessage::bIsReady(void) const
+{
+	return m_ClientID.bIsReady() == true;
+}
+
+void DiED::ConnectionLostMessage::vReadFrom(Network::Stream & Stream)
+{
+	Stream >> m_ClientID;
+}
+
+void DiED::ConnectionLostMessage::vExecute(DiED::Client & Client)
+{
+	std::cout << "Executing a ConnectionLost message with parameters:\n\tClientID = " << m_ClientID << std::endl;
+}
+
+void DiED::ConnectionLostMessage::vWriteToInternal(Network::Stream & Stream) const
+{
+	Stream << m_ClientID;
 }
