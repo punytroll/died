@@ -6,16 +6,16 @@
 
 DiED::Client::Client(DiED::InternalEnvironment & InternalEnvironment) :
 	Network::MessageStream(InternalEnvironment.GetMessageFactory()),
-	m_Status(Disconnected),
-	m_InternalEnvironment(InternalEnvironment)
+	m_InternalEnvironment(InternalEnvironment),
+	m_u32KnownClientsMessageID(0)
 {
 	std::cout << "[DiED/Client]: Created new Client." << std::endl;
 }
 
 DiED::Client::Client(int iSocket, DiED::InternalEnvironment & InternalEnvironment) :
 	Network::MessageStream(iSocket, InternalEnvironment.GetMessageFactory()),
-	m_Status(Disconnected),
-	m_InternalEnvironment(InternalEnvironment)
+	m_InternalEnvironment(InternalEnvironment),
+	m_u32KnownClientsMessageID(0)
 {
 	std::cout << "[DiED/Client]: Created new Client from socket." << std::endl;
 }
@@ -39,16 +39,6 @@ void DiED::Client::vConnectionRequest(const DiED::clientid_t & ClientID, const N
 void DiED::Client::vConnectionAccept(const DiED::clientid_t & LocalClientID, const DiED::clientid_t & RemoteClientID)
 {
 	m_InternalEnvironment.vConnectionAccept(*this, LocalClientID, RemoteClientID);
-}
-
-void DiED::Client::vOnConnect(void)
-{
-	m_Status = Connected;
-}
-
-void DiED::Client::vOnDisconnect(void)
-{
-	m_Status = Disconnected;
 }
 
 void DiED::Client::vOnMessageReady(void)

@@ -114,6 +114,52 @@ void DiED::ConnectionAcceptMessage::vWriteToInternal(Network::Stream & Stream) c
 	Stream << m_RemoteClientID << m_LocalClientID;
 }
 
+///////////////////////////////////////////////////////////////////////////////////////////////////
+
+DiED::KnownClientsMessage::KnownClientsMessage(void) :
+	DiED::BasicMessage(DiED::_KnownClientsMessage, false)
+{
+}
+
+DiED::KnownClientsMessage::KnownClientsMessage(u_int32_t u32MessageID, std::vector< DiED::clientid_t > ConnectedClientIDs, std::vector< DiED::clientid_t > DisconnectedClientIDs) :
+	DiED::BasicMessage(DiED::_KnownClientsMessage, true),
+	m_MessageID(u32MessageID),
+	m_ConnectedClientIDs(ConnectedClientIDs),
+	m_DisconnectedClientIDs(DisconnectedClientIDs)
+{
+}
+
+bool DiED::KnownClientsMessage::bIsReady(void) const
+{
+	return (m_MessageID.bIsReady() == true) && (m_ConnectedClientIDs.bIsReady() == true) && (m_DisconnectedClientIDs.bIsReady() == true);
+}
+
+void DiED::KnownClientsMessage::vReadFrom(Network::Stream & Stream)
+{
+	Stream >> m_MessageID >> m_ConnectedClientIDs >> m_DisconnectedClientIDs;
+}
+
+void DiED::KnownClientsMessage::vExecute(DiED::Client & Client)
+{
+	std::cout << "KnownClientsMessage [MessageID = " << m_MessageID << " ; #Connected = " << m_ConnectedClientIDs.size() << " ; #Disconnected = " << m_DisconnectedClientIDs.size() << "]" << std::endl;
+}
+
+Glib::ustring DiED::KnownClientsMessage::sGetString(void)
+{
+	std::stringstream ssString;
+	
+	ssString << "KnownClientsMessage [MessageID = " << m_MessageID << " ; #Connected = " << m_ConnectedClientIDs.size() << " ; #Disconnected = " << m_DisconnectedClientIDs.size() << "]";
+	
+	return ssString.str();
+}
+
+void DiED::KnownClientsMessage::vWriteToInternal(Network::Stream & Stream) const
+{
+	Stream << m_MessageID << m_ConnectedClientIDs << m_DisconnectedClientIDs;
+}
+
+///////////////////////////////////////////////////////////////////////////////////////////////////
+
 DiED::InputMessage::InputMessage(void) :
 	DiED::BasicMessage(DiED::_InputMessage, false)
 {

@@ -16,6 +16,12 @@ namespace Network
 		{
 		}
 		
+		VectorValue(std::vector< Type > Vector) :
+			std::vector< Type >(Vector),
+			m_stSize(0)
+		{
+		}
+		
 		virtual void vReadFrom(boost::shared_ptr< Network::BasicReader > Reader)
 		{
 			if(m_stSize == 0)

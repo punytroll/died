@@ -8,7 +8,7 @@ namespace DiED
 	class ExternalEnvironment
 	{
 	public:
-		virtual void vClientConnected(DiED::Client & DiEDClient) = 0;
+		virtual void vNewClient(DiED::Client & DiEDClient) = 0;
 		virtual void vInsertText(const Glib::ustring & sString, int iLine, int iCharacter) = 0;
 	};
 }
