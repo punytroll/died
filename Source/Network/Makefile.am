@@ -12,7 +12,8 @@ libnetwork_a_SOURCES = \
 	CircularBuffer.cxx \
 	MessageStream.cxx \
 	Socket.cxx \
-	Stream.cxx
+	Stream.cxx \
+	StringValue.cxx
 
 EXTRA_DIST = \
 	BasicBuffer.h \
@@ -30,4 +31,6 @@ EXTRA_DIST = \
 	Socket.h \
 	SocketFactory.h \
 	Stream.h \
-	Value.h
+	StringValue.h \
+	Value.h \
+	VectorValue.h \
