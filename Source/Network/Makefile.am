@@ -15,6 +15,11 @@ libnetwork_a_SOURCES = \
 	Socket.cxx \
 	Stream.cxx \
 	StringValue.cxx
+	
+libnetwork_a_CXXFLAGS = \
+	-Wall \
+	-O0 \
+	-g
 
 EXTRA_DIST = \
 	BasicBuffer.h \
@@ -30,7 +35,6 @@ EXTRA_DIST = \
 	NotifyValue.h \
 	Server.h \
 	Socket.h \
-	SocketFactory.h \
 	Stream.h \
 	StringValue.h \
 	Value.h \

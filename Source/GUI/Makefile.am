@@ -10,6 +10,11 @@ libgui_a_SOURCES = \
 	ClientFactory.cxx \
 	MainWindow.cxx \
 	MessageListStore.cxx
+	
+libgui_a_CXXFLAGS = \
+	-Wall \
+	-O0 \
+	-g
 
 EXTRA_DIST = \
 	Client.h \
