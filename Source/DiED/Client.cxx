@@ -80,6 +80,21 @@ void DiED::Client::vConnectionEstablished(const DiED::clientid_t & ClientID, con
 	m_InternalEnvironment.vConnectionEstablished(*this, ClientID, ClientAddress, ClientPort);
 }
 
+void DiED::Client::vConnectionLost(const DiED::clientid_t & ClientID)
+{
+	std::cout << "TODO: vConnectionLost in " << __FILE__ << ':' << __LINE__ << std::endl;
+}
+
+void DiED::Client::vPing(const DiED::messageid_t & PingID)
+{
+	std::cout << "TODO: vPing in " << __FILE__ << ':' << __LINE__ << std::endl;
+}
+
+void DiED::Client::vPong(const DiED::messageid_t & PingID)
+{
+	std::cout << "TODO: vPong in " << __FILE__ << ':' << __LINE__ << std::endl;
+}
+
 void DiED::Client::vOnMessageReady(void)
 {
 	vExecuteTopMessage();
