@@ -62,6 +62,5 @@ int main(int argc, char ** argv)
 	{
 		DiEDSystem.bConnectTo(ConnectAddress, ConnectPort);
 	}
-	
 	Main.run(MainWindow);
 }

@@ -6,15 +6,19 @@
 #include <Network/MessageStream.h>
 #include <Common.h>
 
-#include "Messages.h"
+#include "ActionTarget.h"
 #include "InternalEnvironment.h"
+#include "Messages.h"
 #include "MessageTarget.h"
 
 namespace DiED
 {
-	class Client : public DiED::User, public DiED::MessageTarget
+	class Client : public DiED::User, public DiED::MessageTarget, public DiED::ActionTarget
 	{
 	public:
+		// dirty hacks (temporary he says ;))
+		void vSetLocal(void);
+		
 		// constructor and destructor
 		Client(DiED::InternalEnvironment & InternalEnvironment);
 		virtual ~Client(void);
@@ -43,7 +47,10 @@ namespace DiED
 		void vPing(void);
 		
 		// sending events
-		void vInsertText(const Glib::ustring & sText);
+		void vInsertText(const Glib::ustring & sText, const DiED::messageid_t & EventID);
+		
+		// eventcounter
+		DiED::messageid_t GetNextEventCounter(void);
 		
 		// message handling
 		virtual void vExecuteTopMessage(void);
@@ -70,7 +77,7 @@ namespace DiED
 		virtual void vHandleStatusConfirm(const DiED::messageid_t & MessageID);
 		virtual void vHandlePing(const DiED::messageid_t & PingID);
 		virtual void vHandlePong(const DiED::messageid_t & PingID);
-		virtual void vHandleEvent(const DiED::clientid_t & CreatorID, const DiED::messageid_t & EventID, const DiED::clientid_t & LostClientID);
+		virtual void vHandleEvent(const DiED::clientid_t & CreatorID, const DiED::messageid_t & EventID, const DiED::clientid_t & LostClientID, boost::shared_ptr< DiED::EventAction > EventAction);
 		virtual void vHandleEventReceived(const DiED::clientid_t & CreatorID, const DiED::messageid_t & EventID);
 		
 		// timeout callbacks
@@ -82,6 +89,7 @@ namespace DiED
 		boost::shared_ptr< Network::MessageStream > m_MessageStream;
 	private:
 		void vHandleAnswer(void);
+		void vAddEventAction(const DiED::messageid_t & EventID, boost::shared_ptr< DiED::EventAction > EventAction);
 		
 		Network::address_t m_Address;
 		Network::port_t m_Port;
@@ -105,6 +113,7 @@ namespace DiED
 		std::deque< WaitingMessage > m_AwaitingConfirmationQueue;
 		std::deque< boost::shared_ptr< DiED::EventMessage > > m_EventQueue;
 		std::deque< boost::shared_ptr< DiED::BasicMessage > > m_QueuedQueue;
+		std::map< DiED::messageid_t, boost::shared_ptr< DiED::EventAction > > m_ActionBuffer;
 	};
 }
 

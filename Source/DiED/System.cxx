@@ -44,6 +44,8 @@ void DiED::System::vSetClientFactory(boost::shared_ptr< DiED::ClientFactory > Cl
 	if(m_Client.get() == 0)
 	{
 		m_Client = GetNewPreliminaryClient();
+		// dirty hack
+		m_Client->vSetLocal();
 		m_Client->vSetPort(m_ServicePort);
 		m_Client->StatusChanged.connect(sigc::mem_fun(*this, &DiED::System::vClientStatusChanged));
 	}
@@ -109,12 +111,13 @@ DiED::clientid_t DiED::System::GetLocalClientID(void)
 void DiED::System::vInput(const Glib::ustring & sString)
 {
 	std::map< DiED::clientid_t, boost::shared_ptr< DiED::Client > >::iterator iClient(m_Clients.begin());
+	DiED::messageid_t EventCounter(m_Client->GetNextEventCounter());
 	
 	while(iClient != m_Clients.end())
 	{
 		if(iClient->first != m_Client->GetID())
 		{
-			iClient->second->vInsertText(sString);
+			iClient->second->vInsertText(sString, EventCounter);
 		}
 		++iClient;
 	}
@@ -203,7 +206,7 @@ void DiED::System::vInsertText(DiED::User & User, const Glib::ustring & sString,
 	}
 }
 
-void DiED::System::vConnectionRequest(DiED::User & User, const DiED::clientid_t & ClientID)
+void DiED::System::vConnectionRequest(DiED::User & User, const DiED::clientid_t & ClientID, const Network::port_t & Port)
 {
 	std::cout << "Processing ConnectionRequest message from " << User.GetID() << std::endl;
 	
@@ -245,6 +248,7 @@ void DiED::System::vConnectionRequest(DiED::User & User, const DiED::clientid_t 
 	{
 		// => the local client is unknown in the network it is connecting to
 		RegisterClient(Client);
+		Client->vSetPort(Port);
 		// now we can answer the message with ConnectionAccept according to specification
 		Client->vConnectionAccept(m_Client->GetID(), Client->GetID());
 		// send KnownClients to this client
@@ -252,15 +256,16 @@ void DiED::System::vConnectionRequest(DiED::User & User, const DiED::clientid_t 
 	}
 	else
 	{
+		// => the local client is known in the network it is connecting to
 		if(GetStatus(0, Client->GetID()) == DiED::User::Connected)
 		{
 			std::cout << "TODO: test connection with ping." << std::endl;
-			// => the local client is known in the network it is connecting to
-			iClient->second->vSetMessageStream(Client->GetMessageStream());
-			iClient->second->vConnectionAccept(m_Client->GetID(), ClientID);
-			Client->vSetMessageStream(boost::shared_ptr< Network::MessageStream >());
-			// TODO: what to do with the iPreliminaryClient ... it is invalid and emtpy (no socket) but MUST NOT be deleted from here
 		}
+		iClient->second->vSetMessageStream(Client->GetMessageStream());
+		iClient->second->vConnectionAccept(m_Client->GetID(), ClientID);
+		Client->vSetMessageStream(boost::shared_ptr< Network::MessageStream >());
+		Client->vSetPort(Port);
+		// TODO: what to do with the iPreliminaryClient ... it is invalid and emtpy (no socket) but MUST NOT be deleted from here
 	}
 	std::cout << "           ConnectionRequest message from " << User.GetID() << '\n' << std::endl;
 }
@@ -616,12 +621,12 @@ void DiED::System::vPongTimeoutOnConnectionEstablished(boost::shared_ptr< DiED::
 	}
 }
 
-std::vector< DiED::clientid_t > DiED::System::GetConnectedClientIDs(void)
+std::set< DiED::clientid_t > DiED::System::GetConnectedClientIDs(void)
 {
 	return m_Client->GetConnectedClientIDs();
 }
 
-std::vector< DiED::clientid_t > DiED::System::GetDisconnectedClientIDs(void)
+std::set< DiED::clientid_t > DiED::System::GetDisconnectedClientIDs(void)
 {
 	return m_Client->GetDisconnectedClientIDs();
 }
@@ -727,16 +732,7 @@ bool DiED::System::bTryReconnect(const DiED::clientid_t & ClientID)
 	MessageStream->vOpen(Client->GetAddress(), Client->GetPort());
 	if(MessageStream->bIsOpen() == false)
 	{
-		std::map< DiED::clientid_t, boost::shared_ptr< DiED::Client > >::iterator iClient(m_Clients.begin());
-		
-		while(iClient != m_Clients.end())
-		{
-			if((iClient->second != m_Client) && (m_Client->GetStatus(iClient->first) == DiED::User::Connected))
-			{
-				iClient->second->vConnectionLost(Client->GetID(), Client->GetAddress(), Client->GetPort());
-			}
-			++iClient;
-		}
+		vAnnounceConnectionLost(Client->GetID());
 	}
 	else
 	{
@@ -762,14 +758,17 @@ bool DiED::System::bTryReconnect(const DiED::clientid_t & ClientID)
  *
  * Since the Status relation is defined to be not reflexive, passing two identical client IDs or, in any case, two client IDs which represent the same client object, will result in no setting action. However keep in mind that the function needs time ( O(log(n)) ) to compute the client objects from the client IDs.
  **/
-void DiED::System::vSetStatus(const DiED::clientid_t & ClientID1, const DiED::clientid_t & ClientID2, const DiED::User::Status & Status)
+void DiED::System::vSetStatus(const DiED::clientid_t & _ClientID1, const DiED::clientid_t & _ClientID2, const DiED::User::Status & Status)
 {
 	boost::shared_ptr< DiED::Client > Client1;
 	boost::shared_ptr< DiED::Client > Client2;
+	DiED::clientid_t ClientID1(_ClientID1);
+	DiED::clientid_t ClientID2(_ClientID2);
 	
 	if(ClientID1 == 0)
 	{
 		Client1 = m_Client;
+		ClientID1 = m_Client->GetID();
 	}
 	else
 	{
@@ -784,6 +783,7 @@ void DiED::System::vSetStatus(const DiED::clientid_t & ClientID1, const DiED::cl
 	if(ClientID2 == 0)
 	{
 		Client2 = m_Client;
+		ClientID2 = m_Client->GetID();
 	}
 	else
 	{

@@ -28,7 +28,7 @@ namespace DiED
 		void vInput(const Glib::ustring & sString);
 		
 		// implementation of the InternalEnvironment interface
-		virtual void vConnectionRequest(DiED::User & User, const DiED::clientid_t & ClientID);
+		virtual void vConnectionRequest(DiED::User & User, const DiED::clientid_t & ClientID, const Network::port_t & Port);
 		virtual void vConnectionAccept(DiED::User & User, const DiED::clientid_t & AccepterClientID, const DiED::clientid_t & RequesterClientID);
 		virtual void vKnownClients(DiED::User & User, const DiED::messageid_t & MessageID, const std::vector< DiED::clientid_t > & ConnectedClientIDs, const std::vector< DiED::clientid_t > & DisconnectedClientIDs);
 		virtual void vClientsRegistered(DiED::User & User, const DiED::messageid_t & MessageID);
@@ -37,8 +37,8 @@ namespace DiED
 		virtual void vInsertText(DiED::User & User, const Glib::ustring & sString);
 		
 		// helper functions
-		virtual std::vector< DiED::clientid_t > GetConnectedClientIDs(void);
-		virtual std::vector< DiED::clientid_t > GetDisconnectedClientIDs(void);
+		virtual std::set< DiED::clientid_t > GetConnectedClientIDs(void);
+		virtual std::set< DiED::clientid_t > GetDisconnectedClientIDs(void);
 		virtual DiED::User::Status GetStatus(const DiED::clientid_t & ClientID1, const DiED::clientid_t & ClientID2);
 		virtual DiED::Client * pGetClient(const DiED::clientid_t & ClientID);
 		

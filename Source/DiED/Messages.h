@@ -5,6 +5,7 @@
 #include <Network/VectorValue.h>
 
 #include "BasicMessage.h"
+#include "EventAction.h"
 
 namespace DiED
 {
@@ -64,6 +65,7 @@ namespace DiED
 	public:
 		KnownClientsMessage(void);
 		KnownClientsMessage(u_int32_t u32MessageID, std::vector< DiED::clientid_t > ConnectedClientIDs, std::vector< DiED::clientid_t > DisconnectedClientIDs);
+		KnownClientsMessage(u_int32_t u32MessageID, std::set< DiED::clientid_t > ConnectedClientIDs, std::set< DiED::clientid_t > DisconnectedClientIDs);
 		virtual void vExecute(DiED::MessageTarget & MessageTarget);
 		virtual bool bRequiresConfirmation(void);
 		virtual bool bIsConfirmedBy(boost::shared_ptr< DiED::ConfirmationParameters > ConfirmationParameters);
@@ -183,7 +185,7 @@ namespace DiED
 		virtual Glib::ustring sGetString(void);
 		virtual bool bOnTimeout(DiED::MessageTarget * pMessageTarget);
 	protected:
-		virtual void vExecuteEvent(DiED::MessageTarget & MessageTarget) = 0;
+		virtual boost::shared_ptr< DiED::EventAction > GetAction(void) = 0;
 		Network::Value< DiED::clientid_t > m_CreatorID;
 		Network::Value< DiED::messageid_t > m_EventID;
 		Network::Value< DiED::clientid_t > m_LostClientID;
@@ -197,7 +199,7 @@ namespace DiED
 		virtual Glib::ustring sGetString(void);
 		virtual boost::shared_ptr< DiED::BasicMessage > Clone(void);
 	protected:
-		virtual void vExecuteEvent(DiED::MessageTarget & MessageTarget);
+		virtual boost::shared_ptr< DiED::EventAction > GetAction(void);
 	private:
 		Network::StringValue m_Text;
 	};

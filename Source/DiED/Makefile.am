@@ -9,6 +9,7 @@ libdied_a_SOURCES = \
 	BasicMessage.cxx \
 	Client.cxx \
 	ClientFactory.cxx \
+	EventAction.cxx \
 	MessageFactory.cxx \
 	Messages.cxx \
 	Server.cxx \
