@@ -102,6 +102,8 @@ void DiED::System::vInsertText(DiED::User & User, const Glib::ustring & sString,
 	int iLine(User.iGetLine());
 	int iCharacter(User.iGetCharacter());
 	
+	std::cout << "LineW = " << iLine << " ; CharacterW = " << iCharacter << std::endl;
+	
 	if((m_pExternalEnvironment != 0) && (bWriteToEnvironment == true))
 	{
 		m_pExternalEnvironment->vInsertText(sString, iLine, iCharacter);
@@ -122,6 +124,7 @@ void DiED::System::vInsertText(DiED::User & User, const Glib::ustring & sString,
 			++iDeltaCharacter;
 		}
 	}
+	std::cout << "DeltaLine = " << iDeltaLine << " ; DeltaCharacter = " << iDeltaCharacter << std::endl;
 	
 	std::map< DiED::clientid_t, boost::shared_ptr< DiED::Client > >::iterator iClient(m_Clients.begin());
 	
@@ -129,15 +132,42 @@ void DiED::System::vInsertText(DiED::User & User, const Glib::ustring & sString,
 	{
 		DiED::User & OtherUser = *(iClient->second);
 		
-		if((&User == &OtherUser) || (iLine < OtherUser.iGetLine()) || ((iLine == OtherUser.iGetLine()) && (iCharacter < OtherUser.iGetCharacter())))
+		if(OtherUser.iGetLine() >= iLine)
 		{
-			if(iDeltaLine == 0)
+			if(OtherUser.iGetLine() > iLine)
 			{
-				OtherUser.vModifyCaretPosition(iDeltaLine, iDeltaCharacter);
+				OtherUser.vModifyCaretPosition(iDeltaLine, 0);
 			}
 			else
 			{
-				OtherUser.vModifyCaretPosition(iDeltaLine, OtherUser.iGetCharacter() - iCharacter + iDeltaCharacter);
+				if(OtherUser.iGetCharacter() >= iCharacter)
+				{
+					if(OtherUser.iGetCharacter() == iCharacter)
+					{
+						if(&OtherUser == &User)
+						{
+							if(iDeltaLine == 0)
+							{
+								OtherUser.vModifyCaretPosition(iDeltaLine, iDeltaCharacter);
+							}
+							else
+							{
+								OtherUser.vModifyCaretPosition(iDeltaLine, iDeltaCharacter - iCharacter);
+							}
+						}
+					}
+					else
+					{
+						if(iDeltaLine == 0)
+						{
+							OtherUser.vModifyCaretPosition(iDeltaLine, iDeltaCharacter);
+						}
+						else
+						{
+							OtherUser.vModifyCaretPosition(iDeltaLine, iDeltaCharacter - iCharacter);
+						}
+					}
+				}
 			}
 		}
 		++iClient;
