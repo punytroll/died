@@ -17,7 +17,7 @@ DiED::User::~User(void)
 
 void DiED::User::vModifyCaretPosition(int iDeltaLine, int iDeltaCharacter)
 {
-	// avoid all the fuss if we can
+	// avoid signal if we can
 	if((iDeltaLine == 0) && (iDeltaCharacter == 0))
 	{
 		return;
@@ -39,12 +39,22 @@ int DiED::User::iGetCharacter(void) const
 
 void DiED::User::vSetLine(int iLine)
 {
+	if(iLine != m_iLine)
+	{
+		return;
+	}
 	m_iLine = iLine;
+	CaretPositionChanged();
 }
 
 void DiED::User::vSetCharacter(int iCharacter)
 {
+	if(iCharacter != m_iCharacter)
+	{
+		return;
+	}
 	m_iCharacter = iCharacter;
+	CaretPositionChanged();
 }
 
 void DiED::User::vSetID(const DiED::clientid_t & ID)
