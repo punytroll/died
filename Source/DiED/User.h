@@ -3,6 +3,8 @@
 
 #include <sys/types.h>
 
+#include <sigc++/sigc++.h>
+
 namespace DiED
 {
 	typedef u_int32_t clientid_t;
@@ -11,11 +13,15 @@ namespace DiED
 	{
 	public:
 		User(void);
+		virtual ~User(void);
 		void vModifyCaretPosition(int iDeltaLine, int iDeltaCharacter);
 		int iGetLine(void) const;
 		int iGetCharacter(void) const;
+		
+		// ClientID stuff
 		void vSetClientID(DiED::clientid_t ClientID);
 		DiED::clientid_t GetClientID(void);
+		sigc::signal< void > ClientIDChanged;
 	private:
 		int m_iLine;
 		int m_iCharacter;
