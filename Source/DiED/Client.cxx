@@ -381,7 +381,7 @@ void DiED::Client::vBytesSent(size_t stSize)
 		MessageSent(*iMessage);
 		if((*iMessage)->bRequiresConfirmation() == true)
 		{
-			Glib::signal_timeout().connect(sigc::bind(sigc::mem_fun(**iMessage, &DiED::BasicMessage::bOnTimeout), this), g_u16TimeOutMilliSeconds);
+			(*iMessage)->vTriggerTimeout(this, g_u16TimeOutMilliSeconds);
 		}
 		m_QueuedQueue.erase(iMessage);
 		iMessage = m_QueuedQueue.begin();
