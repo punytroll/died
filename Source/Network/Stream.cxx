@@ -100,7 +100,7 @@ void Network::Stream::vOnIn(void)
 {
 //~ 	std::cout << m_Values.size() << " Values in queue for reading." << std::endl;
 	
-	size_t stSize = recv(m_iSocket, m_pu8Buffer, 2048, 0);
+	ssize_t stSize = recv(m_iSocket, m_pu8Buffer, 2048, 0);
 	
 	if(stSize == -1)
 	{
