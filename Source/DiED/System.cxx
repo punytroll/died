@@ -8,7 +8,7 @@
 
 DiED::System::System(void) :
 	m_MessageFactory(new DiED::MessageFactory()),
-	m_Client(new DiED::Client(m_MessageFactory, *this)),
+	m_Client(new DiED::Client(*this)),
 	m_ServicePort(0)
 {
 	m_Client->vSetClientID(rand());

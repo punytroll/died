@@ -4,15 +4,15 @@
 
 #include "BasicMessage.h"
 
-DiED::Client::Client(boost::shared_ptr< Network::MessageFactory > MessageFactory, DiED::InternalEnvironment & InternalEnvironment) :
-	Network::MessageStream(MessageFactory),
+DiED::Client::Client(DiED::InternalEnvironment & InternalEnvironment) :
+	Network::MessageStream(InternalEnvironment.GetMessageFactory()),
 	m_InternalEnvironment(InternalEnvironment)
 {
 	std::cout << "[DiED/Client]: Created new Client." << std::endl;
 }
 
-DiED::Client::Client(int iSocket, boost::shared_ptr< Network::MessageFactory > MessageFactory, DiED::InternalEnvironment & InternalEnvironment) :
-	Network::MessageStream(iSocket, MessageFactory),
+DiED::Client::Client(int iSocket, DiED::InternalEnvironment & InternalEnvironment) :
+	Network::MessageStream(iSocket, InternalEnvironment.GetMessageFactory()),
 	m_InternalEnvironment(InternalEnvironment)
 {
 	std::cout << "[DiED/Client]: Created new Client from socket." << std::endl;
