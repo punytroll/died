@@ -16,17 +16,17 @@ namespace Network
 		virtual ~BasicMessage(void);
 		
 		// query functions
-		virtual bool bIsReady(void) const = 0;
 		Network::BasicMessage::type_t GetType(void) const;
+		bool bIsReady(void) const;
 		
 		// stream operations
-		virtual void vReadFrom(Network::Stream & Stream) = 0;
+		void vReadFrom(Network::Stream & Stream);
 		void vWriteTo(Network::Stream & Stream) const;
 	protected:
-		// overwrite this function instead of vWriteTo
-		virtual void vWriteToInternal(Network::Stream & Stream) const = 0;
+		void vRegisterValue(Network::BasicValue & BasicValue);
 	private:
 		Network::Value< Network::BasicMessage::type_t > m_Type;
+		std::vector< boost::reference_wrapper< Network::BasicValue > > m_Values;
 	};
 }
 

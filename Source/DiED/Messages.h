@@ -26,12 +26,8 @@ namespace DiED
 	{
 	public:
 		NoMessage(void);
-		virtual bool bIsReady(void) const;
-		virtual void vReadFrom(Network::Stream & Stream);
 		virtual void vExecute(DiED::MessageTarget & MessageTarget);
 		virtual Glib::ustring sGetString(void);
-	protected:
-		virtual void vWriteToInternal(Network::Stream & Stream) const;
 	};
 	
 	class ConnectionRequestMessage : public DiED::BasicMessage
@@ -39,12 +35,8 @@ namespace DiED
 	public:
 		ConnectionRequestMessage(void);
 		ConnectionRequestMessage(const DiED::clientid_t & ClientID, const Network::port_t & Port);
-		virtual bool bIsReady(void) const;
-		virtual void vReadFrom(Network::Stream & Stream);
 		virtual void vExecute(DiED::MessageTarget & MessageTarget);
 		virtual Glib::ustring sGetString(void);
-	protected:
-		virtual void vWriteToInternal(Network::Stream & Stream) const;
 	private:
 		Network::Value< DiED::clientid_t > m_ClientID;
 		Network::Value< Network::port_t > m_Port;
@@ -55,12 +47,8 @@ namespace DiED
 	public:
 		ConnectionAcceptMessage(void);
 		ConnectionAcceptMessage(const DiED::clientid_t & RemoteClientID, const DiED::clientid_t & LocalClientID);
-		virtual bool bIsReady(void) const;
-		virtual void vReadFrom(Network::Stream & Stream);
 		virtual void vExecute(DiED::MessageTarget & MessageTarget);
 		virtual Glib::ustring sGetString(void);
-	protected:
-		virtual void vWriteToInternal(Network::Stream & Stream) const;
 	private:
 		Network::Value< DiED::clientid_t > m_RemoteClientID;
 		Network::Value< DiED::clientid_t > m_LocalClientID;
@@ -71,12 +59,8 @@ namespace DiED
 	public:
 		KnownClientsMessage(void);
 		KnownClientsMessage(u_int32_t u32MessageID, std::vector< DiED::clientid_t > ConnectedClientIDs, std::vector< DiED::clientid_t > DisconnectedClientIDs);
-		virtual bool bIsReady(void) const;
-		virtual void vReadFrom(Network::Stream & Stream);
 		virtual void vExecute(DiED::MessageTarget & MessageTarget);
 		virtual Glib::ustring sGetString(void);
-	protected:
-		virtual void vWriteToInternal(Network::Stream & Stream) const;
 	private:
 		Network::Value< u_int32_t > m_MessageID;
 		Network::VectorValue< DiED::clientid_t > m_ConnectedClientIDs;
@@ -88,12 +72,8 @@ namespace DiED
 	public:
 		ClientsRegisteredMessage(void);
 		ClientsRegisteredMessage(DiED::messageid_t MessageID);
-		virtual bool bIsReady(void) const;
-		virtual void vReadFrom(Network::Stream & Stream);
 		virtual void vExecute(DiED::MessageTarget & MessageTarget);
 		virtual Glib::ustring sGetString(void);
-	protected:
-		virtual void vWriteToInternal(Network::Stream & Stream) const;
 	private:
 		Network::Value< DiED::messageid_t > m_MessageID;
 	};
@@ -102,24 +82,16 @@ namespace DiED
 	{
 	public:
 		PingMessage(void);
-		virtual bool bIsReady(void) const;
-		virtual void vReadFrom(Network::Stream & Stream);
 		virtual void vExecute(DiED::MessageTarget & MessageTarget);
 		virtual Glib::ustring sGetString(void);
-	protected:
-		virtual void vWriteToInternal(Network::Stream & Stream) const;
 	};
 	
 	class PongMessage : public DiED::BasicMessage
 	{
 	public:
 		PongMessage(void);
-		virtual bool bIsReady(void) const;
-		virtual void vReadFrom(Network::Stream & Stream);
 		virtual void vExecute(DiED::MessageTarget & MessageTarget);
 		virtual Glib::ustring sGetString(void);
-	protected:
-		virtual void vWriteToInternal(Network::Stream & Stream) const;
 	};
 	
 	class ConnectionEstablishedMessage : public DiED::BasicMessage
@@ -127,12 +99,8 @@ namespace DiED
 	public:
 		ConnectionEstablishedMessage(void);
 		ConnectionEstablishedMessage(const DiED::clientid_t & ClientID, const Network::address_t & ClientAddress, const Network::port_t & ClientPort);
-		virtual bool bIsReady(void) const;
-		virtual void vReadFrom(Network::Stream & Stream);
 		virtual void vExecute(DiED::MessageTarget & MessageTarget);
 		virtual Glib::ustring sGetString(void);
-	protected:
-		virtual void vWriteToInternal(Network::Stream & Stream) const;
 	private:
 		Network::Value< DiED::clientid_t > m_ClientID;
 		Network::Value< Network::address_t > m_ClientAddress;
@@ -144,12 +112,8 @@ namespace DiED
 	public:
 		ConnectionLostMessage(void);
 		ConnectionLostMessage(const DiED::clientid_t & ClientID);
-		virtual bool bIsReady(void) const;
-		virtual void vReadFrom(Network::Stream & Stream);
 		virtual void vExecute(DiED::MessageTarget & MessageTarget);
 		virtual Glib::ustring sGetString(void);
-	protected:
-		virtual void vWriteToInternal(Network::Stream & Stream) const;
 	private:
 		Network::Value< DiED::clientid_t > m_ClientID;
 	};
@@ -158,12 +122,8 @@ namespace DiED
 	{
 	public:
 		TestMessage(void);
-		virtual bool bIsReady(void) const;
-		virtual void vReadFrom(Network::Stream & Stream);
 		virtual void vExecute(DiED::MessageTarget & MessageTarget);
 		virtual Glib::ustring sGetString(void);
-	protected:
-		virtual void vWriteToInternal(Network::Stream & Stream) const;
 	private:
 		Network::VectorValue< DiED::clientid_t > m_Values;
 	public:
@@ -189,15 +149,11 @@ namespace DiED
 	{
 	public:
 		InputMessage(void);
-		InputMessage(const DiED::clientid_t & CreatorID, const DiED::messageid_t & EventID, const DiED::clientid_t & LostClientID, const Glib::ustring & sString);
-		virtual bool bIsReady(void) const;
-		virtual void vReadFrom(Network::Stream & Stream);
+		InputMessage(const DiED::clientid_t & CreatorID, const DiED::messageid_t & EventID, const DiED::clientid_t & LostClientID, const Glib::ustring & sText);
 		virtual void vExecute(DiED::MessageTarget & MessageTarget);
 		virtual Glib::ustring sGetString(void);
-	protected:
-		virtual void vWriteToInternal(Network::Stream & Stream) const;
 	private:
-		Network::Value< Glib::ustring > m_String;
+		Network::Value< Glib::ustring > m_Text;
 	};
 }
 
