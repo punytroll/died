@@ -26,8 +26,10 @@ namespace DiED
 		// connection stuff
 		Network::port_t GetPort(void);
 		Network::address_t GetAddress(void);
+		void vSetPort(const Network::port_t & Port);
 		
 		// messages
+		void vPing(sigc::slot< void > PongSlot);
 		DiED::Client & operator<<(boost::shared_ptr< DiED::BasicMessage > Message);
 		virtual void vExecuteTopMessage(void);
 		
@@ -68,6 +70,7 @@ namespace DiED
 		// message queues
 		std::deque< boost::shared_ptr< DiED::BasicMessage > > m_AwaitingConfirmationQueue;
 		std::deque< boost::shared_ptr< DiED::EventMessage > > m_EventQueue;
+		std::map< DiED::messageid_t, boost::shared_ptr< sigc::signal< void > > > m_PongSignals;
 	};
 }
 

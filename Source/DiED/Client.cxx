@@ -54,6 +54,11 @@ Network::address_t DiED::Client::GetAddress(void)
 	return m_Address;
 }
 
+void DiED::Client::vSetPort(const Network::port_t & Port)
+{
+	m_Port = Port;
+}
+
 void DiED::Client::vInsertText(const Glib::ustring & sString)
 {
 	m_InternalEnvironment.vInsertText(*this, sString);
@@ -97,7 +102,14 @@ void DiED::Client::vPing(const DiED::messageid_t & PingID)
 
 void DiED::Client::vPong(const DiED::messageid_t & PingID)
 {
-	std::cout << "TODO: vPong in " << __FILE__ << ':' << __LINE__ << std::endl;
+	std::map< DiED::messageid_t, boost::shared_ptr< sigc::signal< void > > >::iterator iPongSignal(m_PongSignals.find(PingID));
+	
+	std::cout << "Pong message with ID " << PingID << " dropped in. Calling the signals." << std::endl;
+	if(iPongSignal != m_PongSignals.end())
+	{
+		iPongSignal->second->emit();
+		m_PongSignals.erase(iPongSignal);
+	}
 }
 
 void DiED::Client::vOnMessageReady(void)
@@ -188,6 +200,18 @@ DiED::Client & DiED::Client::operator<<(boost::shared_ptr< DiED::BasicMessage > 
 	}
 	
 	return *this;
+}
+
+void DiED::Client::vPing(sigc::slot< void > PongSlot)
+{
+	DiED::messageid_t PingID;
+	
+	do
+	{
+		PingID = rand();
+	} while(m_PongSignals.find(PingID) != m_PongSignals.end());
+	m_PongSignals[PingID] = boost::shared_ptr< sigc::signal< void > >(new sigc::signal< void >());
+	m_PongSignals[PingID]->connect(PongSlot);
 }
 
 void DiED::Client::vBytesSent(size_t stSize)
