@@ -52,7 +52,7 @@ bool DiED::BasicMessage::bOnTimeout(DiED::MessageTarget * pMessageTarget)
 
 boost::shared_ptr< DiED::BasicMessage > DiED::BasicMessage::Clone(void)
 {
-	std::cout << "VERY BAD: " << __FILE__ << ':' << __LINE__ << " no Clone function for MessageType " << GetType() << std::endl;
+	LOG(Error, "DiED/BasicMessage", "VERY BAD: " << __FILE__ << ':' << __LINE__ << " no Clone function for MessageType " << GetType());
 	
 	return boost::shared_ptr< DiED::BasicMessage >();
 }

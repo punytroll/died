@@ -67,14 +67,14 @@ void Network::Stream::vOpen(const Network::address_t & ConnectAddress, const Net
 			return;
 		}
     }
-	std::cout << "Beginning ::connect. This may block for some time." << std::endl;
+	LOG(Debug, "Network/Stream", "Beginning ::connect. This may block for some time.");
 	if(::connect(m_iSocket, &SocketAddress, sizeof(sockaddr_in)) == -1)
 	{
 		vGetError();
 		if(m_iError != EINPROGRESS)
 		{
 			vClose();
-			std::cout << "Ended ::connect." << std::endl;
+			LOG(Debug, "Network/Socket", "Ended ::connect.");
 			
 			return;
 		}
@@ -84,7 +84,7 @@ void Network::Stream::vOpen(const Network::address_t & ConnectAddress, const Net
 			vRequestOnOut();
 		}
 	}
-	std::cout << "Ended ::connect." << std::endl;
+	LOG(Debug, "Network/Socket", "Ended ::connect.");
 	if(::fcntl(m_iSocket, F_SETFL, O_NONBLOCK) == -1)
 	{
 		vClose();
@@ -120,13 +120,13 @@ void Network::Stream::vOnIn(void)
 	if(stSize == -1)
 	{
 		vGetError();
-		std::cout << "[Network/Stream]: recv failed. " << sErrorCodeToString(m_iError) << std::endl;
+		LOG(Error, "Network/Stream", "'recv' failed with " << sErrorCodeToString(m_iError));
 		
 		return;
 	}
 	if(stSize == 0)
 	{
-		std::cout << "[Network/Stream] Remote disconnected. Address = " << GetAddress() << ':' << GetPort() << std::endl;
+		LOG(Info, "Network/Stream", "Remote disconnected. Address = " << GetAddress() << ':' << GetPort());
 		vClose();
 		
 		return;
@@ -172,14 +172,14 @@ void Network::Stream::vOnOut(void)
 		{
 			vClose();
 			vGetError();
-			std::cout << "VERY BAD: " << __FILE__ << ':' << __LINE__ << "  " << sErrorCodeToString(m_iError) << std::endl;
+			LOG(Error, "Network/Stream", "VERY BAD: " << __FILE__ << ':' << __LINE__ << "  " << sErrorCodeToString(m_iError));
 			
 			throw;
 		}
 		if(iError != 0)
 		{
 			vClose();
-			std::cout << "VERY BAD: " << __FILE__ << ':' << __LINE__ << "  " << sErrorCodeToString(iError) << std::endl;
+			LOG(Error, "Network/Stream", "VERY BAD: " << __FILE__ << ':' << __LINE__ << "  " << sErrorCodeToString(iError));
 			
 			throw;
 		}
@@ -205,16 +205,16 @@ void Network::Stream::vOnOut(void)
 		{
 			vClose();
 		}
-		std::cout << "[Network/Stream]: " << __FILE__ << ':' << __LINE__ << ": " << sErrorCodeToString(m_iError) << std::endl;
+		LOG(Error, "Network/Stream", __FILE__ << ':' << __LINE__ << ": " << sErrorCodeToString(m_iError));
 		
 		return;
 	}
 	if(stSize != stSentSize)
 	{
-		std::cout << "VERY BAD: " << __FILE__ << ':' << __LINE__ << ": Sent only " << stSentSize << " from " << stSize << " bytes." << std::endl;
+		LOG(Error, "Network/Stream", "VERY BAD: " << __FILE__ << ':' << __LINE__ << ": Sent only " << stSentSize << " from " << stSize << " bytes.");
+		LOG(TODO, "Network/Stream", __FILE__ << ':' << __LINE__ << ": Write overhang back.");
 		
 		throw;
-		// TODO: write overhang back to m_OBuffer
 	}
 	else
 	{

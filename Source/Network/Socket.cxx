@@ -15,14 +15,14 @@ Network::Socket::Socket(void) :
 	m_iError(0),
 	m_bOnDisconnected(true)
 {
-//~ 	std::cout << "[Network/Socket]: Created socket." << std::endl;
+	LOG(Object, "Network/Socket", "Created.");
 }
 
 Network::Socket::Socket(int iSocket) :
 	m_iSocket(iSocket),
 	m_iError(0)
 {
-//~ 	std::cout << "[Network/Socket]: Created socket from iSocket." << std::endl;
+	LOG(Object, "Network/Socket", "Created from socket descriptor.");
 	vMonitor();
 }
 
@@ -32,7 +32,7 @@ Network::Socket::~Socket(void)
 	{
 		vClose();
 	}
-	std::cout << "[Network/Socket]: Deleted socket." << std::endl;
+	LOG(Object, "Network/Socket", "Deleted");
 }
 
 bool Network::Socket::bIsOpen(void) const

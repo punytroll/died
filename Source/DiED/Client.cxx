@@ -16,17 +16,17 @@ DiED::Client::Client(DiED::InternalEnvironment & InternalEnvironment) :
 	m_EventCounter(1),
 	m_stBytesSent(0)
 {
-//~ 	std::cout << "[DiED/Client]: Created new Client." << std::endl;
+	LOG(Object, "DiED/Client", "Client created.");
 }
 
 DiED::Client::~Client(void)
 {
-//~ 	std::cout << "[DiED/Client]: Deleted Client." << std::endl;
+	LOG(Object, "DiED/Client", "Client deleted.");
 }
 
 void DiED::Client::vSetMessageStream(boost::shared_ptr< Network::MessageStream > MessageStream)
 {
-	std::cout << "Setting the MessageStream for " << GetID() << " to " << MessageStream.get() << std::endl;
+	LOG(Debug, "DiED/Client", "Setting the MessageStream for " << GetID() << " to " << MessageStream.get());
 	// disconnect old relations to the current MessageStream
 	m_BytesSentConnection.disconnect();
 	m_MessageBeginConnection.disconnect();
@@ -99,31 +99,31 @@ DiED::ClientInfo DiED::Client::GetClientInfo(void) const
 
 void DiED::Client::vHandleInsertText(const Glib::ustring & sString)
 {
-	m_InternalEnvironment.vInsertText(*this, sString);
+	m_InternalEnvironment.vHandleInsertText(*this, sString);
 }
 
 void DiED::Client::vHandleConnectionRequest(const DiED::clientid_t & ClientID, const Network::port_t & Port)
 {
 	vHandleAnswer();
-	m_InternalEnvironment.vConnectionRequest(*this, ClientID, Port);
+	m_InternalEnvironment.vHandleConnectionRequest(*this, ClientID, Port);
 }
 
 void DiED::Client::vHandleConnectionAccept(const DiED::clientid_t & AccepterClientID, const DiED::clientid_t & RequesterClientID)
 {
 	vHandleAnswer();
-	m_InternalEnvironment.vConnectionAccept(*this, AccepterClientID, RequesterClientID);
+	m_InternalEnvironment.vHandleConnectionAccept(*this, AccepterClientID, RequesterClientID);
 }
 
 void DiED::Client::vHandleKnownClients(const DiED::messageid_t & MessageID, const std::vector< DiED::ClientInfo > & ClientInfos)
 {
 	vHandleAnswer();
-	m_InternalEnvironment.vKnownClients(*this, MessageID, ClientInfos);
+	m_InternalEnvironment.vHandleKnownClients(*this, MessageID, ClientInfos);
 }
 
 void DiED::Client::vHandleClientsRegistered(const DiED::messageid_t & MessageID)
 {
 	vHandleAnswer();
-	m_InternalEnvironment.vClientsRegistered(*this, MessageID);
+	m_InternalEnvironment.vHandleClientsRegistered(*this, MessageID);
 }
 
 void DiED::Client::vHandleConnectionEstablished(const DiED::messageid_t & MessageID, const DiED::clientid_t & ClientID, const Network::address_t & _ClientAddress, const Network::port_t & ClientPort)
@@ -133,19 +133,19 @@ void DiED::Client::vHandleConnectionEstablished(const DiED::messageid_t & Messag
 	Network::address_t ClientAddress(_ClientAddress);
 	Network::address_t ThisClientAddress(GetAddress());
 	
-	std::cout << "ConnectionEstablished: ClientAddress = " << ClientAddress << " ; ThisClientAddress = " << ThisClientAddress << std::endl;
+	LOG(Debug, "DiED/Client", "ConnectionEstablished: ClientAddress = " << ClientAddress << " ; ThisClientAddress = " << ThisClientAddress);
 	if(((ClientAddress == "127.0.0.1") || (ClientAddress == "localhost")) && (ThisClientAddress != "127.0.0.1") && (ThisClientAddress != "localhost"))
 	{
 		ClientAddress = ThisClientAddress;
 	}
-	m_InternalEnvironment.vConnectionEstablished(*this, ClientID, ClientAddress, ClientPort);
+	m_InternalEnvironment.vHandleConnectionEstablished(*this, ClientID, ClientAddress, ClientPort);
 	vSend(boost::shared_ptr< DiED::BasicMessage >(new DiED::StatusConfirmMessage(MessageID)));
 }
 
 void DiED::Client::vHandleConnectionLost(const DiED::messageid_t & MessageID, const DiED::clientid_t & ClientID, const Network::address_t & ClientAddress, const Network::port_t & ClientPort)
 {
 	vHandleAnswer();
-	m_InternalEnvironment.vConnectionLost(*this, ClientID, ClientAddress, ClientPort);
+	m_InternalEnvironment.vHandleConnectionLost(*this, ClientID, ClientAddress, ClientPort);
 	vSend(boost::shared_ptr< DiED::BasicMessage >(new DiED::StatusConfirmMessage(MessageID)));
 }
 
@@ -174,7 +174,7 @@ void DiED::Client::vHandleEvent(const DiED::clientid_t & CreatorID, const DiED::
 	
 	if(pCreator == 0)
 	{
-		std::cout << "VERY BAD: " << __FILE__ << ':' << __LINE__ << std::endl;
+		LOG(Error, "DiED/Client", "VERY BAD: " << __FILE__ << ':' << __LINE__);
 		
 		return;
 	}
@@ -210,7 +210,7 @@ void DiED::Client::vHandleEvent(const DiED::clientid_t & CreatorID, const DiED::
 						
 						if(pClient == 0)
 						{
-							std::cout << "VERY BAD: " << __FILE__ << ':' << __LINE__ << std::endl;
+							LOG(Error, "DiED::Client", "VERY BAD: " << __FILE__ << ':' << __LINE__);
 						}
 						else
 						{
@@ -262,7 +262,7 @@ void DiED::Client::vHandleEvent(const DiED::clientid_t & CreatorID, const DiED::
 				
 				if(pClient == 0)
 				{
-					std::cout << "VERY BAD: " << __FILE__ << ':' << __LINE__ << std::endl;
+					LOG(Error, "DiED/Client", "VERY BAD: " << __FILE__ << ':' << __LINE__);
 				}
 				else
 				{
@@ -318,19 +318,18 @@ void DiED::Client::vHandleAnswer(void)
 		return;
 	}
 	
-//~ 	std::cout << "ClientID = " << m_InternalEnvironment.pGetClient(0)->GetID() << std::endl;
-	std::cout << "HandleAnswers: " << m_AwaitingConfirmationQueue.size() << " elements waiting for confirmation from " << GetID() << "." << std::endl;
+	LOG(Info, "DiED/Client", "HandleAnswers: " << m_AwaitingConfirmationQueue.size() << " elements waiting for confirmation from " << GetID() << ".");
 	std::deque< DiED::Client::WaitingMessage >::iterator iDebugMessage(m_AwaitingConfirmationQueue.begin());
 	
 	while(iDebugMessage != m_AwaitingConfirmationQueue.end())
 	{
-		std::cout << "                   " << iDebugMessage->m_Message->sGetString() << std::endl;
+		LOG(Info, "DiED/Client", "                   " << iDebugMessage->m_Message->sGetString());
 		++iDebugMessage;
 	}
 	
 	// TODO: this front() does not look good
 	RemoveWaitingMessage(boost::dynamic_pointer_cast< DiED::BasicMessage >(m_MessageStream->front())->GetConfirmationParameters());
-	std::cout << "             : " << m_AwaitingConfirmationQueue.size() << " elements." << std::endl;
+	LOG(Info, "DiED/Client", "             : " << m_AwaitingConfirmationQueue.size() << " elements.");
 }
 
 DiED::Client::WaitingMessage DiED::Client::RemoveWaitingMessage(boost::shared_ptr< DiED::ConfirmationParameters > ConfirmationParameters)
@@ -418,7 +417,7 @@ void DiED::Client::vSend(boost::shared_ptr< DiED::BasicMessage > Message)
 		}
 		else
 		{
-			std::cout << "BAD: " << __FILE__ << ':' << __LINE__ << std::endl;
+			LOG(Warning, "DiED/Client", "BAD: " << __FILE__ << ':' << __LINE__);
 		}
 	}
 	if(m_InternalEnvironment.GetStatus(GetID()) == DiED::Connected)
@@ -445,7 +444,7 @@ void DiED::Client::vSend(boost::shared_ptr< DiED::BasicMessage > Message)
 		}
 		else
 		{
-			std::cout << "BAD: " << __FILE__ << ':' << __LINE__ << std::endl;
+			LOG(Warning, "DiED/Client", "BAD: " << __FILE__ << ':' << __LINE__);
 		}
 	}
 }
@@ -527,7 +526,7 @@ DiED::messageid_t DiED::Client::GetNextEventCounter(void)
 void DiED::Client::vBytesSent(size_t stSize)
 {
 	m_stBytesSent += stSize;
-//~ 	std::cout << "[DiED/Client]: Client " << GetID() << " has sent " << stSize << " bytes over the socket:" << std::endl;
+	LOG(Verbose, "DiED/Client", "Client " << GetID() << " has sent " << stSize << " bytes over the socket:");
 	
 	std::deque< boost::shared_ptr< DiED::BasicMessage > >::iterator iMessage(m_QueuedQueue.begin());
 	
@@ -535,15 +534,15 @@ void DiED::Client::vBytesSent(size_t stSize)
 	{
 		size_t stMessageSize((*iMessage)->stGetSize());
 		
-//~ 		std::cout << "\tMessage " << (*iMessage)->sGetString() << " has size " << stMessageSize;
+		LOG_NO_NL(Verbose, "DiED/Client", "\tMessage " << (*iMessage)->sGetString() << " has size " << stMessageSize);
 		if(m_stBytesSent < stMessageSize)
 		{
-//~ 			std::cout << " ... Aborting." << std::endl;
+			LOG_PURE(Verbose, "DiED/Client", " ... Aborting." << std::endl);
 			
 			return;
 		}
 		m_stBytesSent -= stMessageSize;
-//~ 		std::cout << " ... " << m_stBytesSent << " bytes remaining." << std::endl;
+		LOG_PURE(Verbose, "DiED/Client", " ... " << m_stBytesSent << " bytes remaining." << std::endl);
 		MessageSent(*iMessage);
 		if((*iMessage)->bRequiresConfirmation() == true)
 		{
@@ -594,7 +593,7 @@ void DiED::Client::vHandleKnownClientsConfirmationTimeout(boost::shared_ptr< DiE
 	
 	if(WaitingMessage.m_Message.get() == 0)
 	{
-		std::cout << "VERY BAD: " << __FILE__ << ':' << __LINE__ << std::endl;
+		LOG(Error, "DiED/Client", "VERY BAD: " << __FILE__ << ':' << __LINE__);
 		
 		return;
 	}
@@ -614,7 +613,7 @@ void DiED::Client::vHandleConnectionEstablishedConfirmationTimeout(boost::shared
 	
 	if(WaitingMessage.m_Message.get() == 0)
 	{
-		std::cout << "VERY BAD: " << __FILE__ << ':' << __LINE__ << std::endl;
+		LOG(Error, "DiED/Client", "VERY BAD: " << __FILE__ << ':' << __LINE__);
 		
 		return;
 	}
@@ -635,7 +634,7 @@ void DiED::Client::vHandleConnectionLostConfirmationTimeout(boost::shared_ptr< D
 	
 	if(WaitingMessage.m_Message.get() == 0)
 	{
-		std::cout << "VERY BAD: " << __FILE__ << ':' << __LINE__ << std::endl;
+		LOG(Error, "DiED/Client", "VERY BAD: " << __FILE__ << ':' << __LINE__);
 		
 		return;
 	}
@@ -656,7 +655,7 @@ void DiED::Client::vHandlePingConfirmationTimeout(boost::shared_ptr< DiED::Confi
 	
 	if(WaitingMessage.m_Message.get() == 0)
 	{
-		std::cout << "VERY BAD: " << __FILE__ << ':' << __LINE__ << std::endl;
+		LOG(Error, "DiED/Client", "VERY BAD: " << __FILE__ << ':' << __LINE__);
 		
 		return;
 	}
@@ -676,7 +675,7 @@ void DiED::Client::vHandleEventConfirmationTimeout(boost::shared_ptr< DiED::Conf
 	
 	if(WaitingMessage.m_Message.get() == 0)
 	{
-		std::cout << "VERY BAD: " << __FILE__ << ':' << __LINE__ << " - ClientID = " << GetID() << std::endl;
+		LOG(Error, "DiED/Client", "VERY BAD: " << __FILE__ << ':' << __LINE__ << " - ClientID = " << GetID());
 		
 		return;
 	}

@@ -261,7 +261,7 @@ DiED::ClientsRegisteredMessage::ClientsRegisteredMessage(DiED::messageid_t Messa
 
 void DiED::ClientsRegisteredMessage::vExecute(DiED::MessageTarget & MessageTarget)
 {
-//~ 	std::cout << "ClientsRegisteredMessage [MessageID = " << m_MessageID << "]" << std::endl;
+	LOG(Verbose, "DiED/Messages", "ClientsRegisteredMessage [MessageID = " << m_MessageID << "]");
 	MessageTarget.vHandleClientsRegistered(m_MessageID);
 }
 
@@ -313,7 +313,7 @@ DiED::ConnectionEstablishedMessage::ConnectionEstablishedMessage(const DiED::mes
 
 void DiED::ConnectionEstablishedMessage::vExecute(DiED::MessageTarget & MessageTarget)
 {
-//~ 	std::cout << "Executing a ConnectionEstablished message with parameters:\n\tClientID = " << m_ClientID << "\n\tClientAddress = " << m_ClientAddress << "\n\tClientPort = " << m_ClientPort << std::endl;
+//~ 	LOG(Verbose, "DiED/Messages", "Executing a ConnectionEstablished message with parameters:\n\tClientID = " << m_ClientID << "\n\tClientAddress = " << m_ClientAddress << "\n\tClientPort = " << m_ClientPort);
 	MessageTarget.vHandleConnectionEstablished(m_MessageID, m_ClientID, m_ClientAddress, m_ClientPort);
 }
 
