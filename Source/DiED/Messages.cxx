@@ -1,5 +1,6 @@
 #include "Messages.h"
 
+#include <iostream>
 #include <sstream>
 
 DiED::NoMessage::NoMessage(void) :
@@ -425,7 +426,9 @@ bool DiED::InputMessage::bIsReady(void) const
 
 void DiED::InputMessage::vReadFrom(Network::Stream & Stream)
 {
+//~ 	std::cout << "Doing the reading" << std::endl;
 	Stream >> m_String;
+//~ 	std::cout << "Done the reading" << std::endl;
 }
 
 void DiED::InputMessage::vWriteToInternal(Network::Stream & Stream) const
