@@ -190,6 +190,34 @@ void GUI::MainWindow::vNewClient(DiED::Client & DiEDClient)
 void GUI::MainWindow::vInsert(const Glib::ustring & sString, int iLine, int iCharacter)
 {
 	LOG(DebugGUI, "GUI/MainWindow", "Inserting " << sString << " @ Line = " << iLine << " ; Character = " << iCharacter);
+	
+	// HACK!!!
+	if(iLine < 0)
+	{
+		iLine = 0;
+	}
+	if(iCharacter < 0)
+	{
+		iCharacter = 0;
+	}
+	if(iLine > m_TextBuffer->get_line_count())
+	{
+		iLine = m_TextBuffer->get_line_count();
+	}
+	
+	Gtk::TextIter Iterator(m_TextBuffer->get_iter_at_line(iLine));
+	
+	if((Iterator.forward_to_line_end() == true) || (Iterator.is_end() == true))
+	{
+		if(iCharacter > Iterator.get_line_offset())
+		{
+			iCharacter = Iterator.get_line_offset();
+		}
+	}
+	else
+	{
+		throw;
+	}
 //~ 	m_InsertConnection.block();
 	g_signal_handler_block(m_TextBuffer->gobj(), m_ulInsertTextHandlerID);
 	
@@ -343,7 +371,7 @@ void GUI::MainWindow::vNextButtonClicked(boost::reference_wrapper< GUI::Client >
 
 void GUI::MainWindow::vConnectButtonClicked(boost::reference_wrapper< GUI::Client > Client)
 {
-	LOG(TODO, "GUI/MainWindow", "Try Reconnect.");
+	m_System.vTryReconnect(Client.get().GetID());
 }
 
 void GUI::MainWindow::vPingButtonClicked(boost::reference_wrapper< GUI::Client > Client)
