@@ -95,7 +95,7 @@ void DiED::Client::vHandleConnectionLost(const DiED::clientid_t & ClientID, cons
 
 void DiED::Client::vHandlePing(const DiED::messageid_t & PingID)
 {
-	std::cout << "TODO: vPing in " << __FILE__ << ':' << __LINE__ << std::endl;
+	vSend(boost::shared_ptr< DiED::BasicMessage >(new DiED::PongMessage(PingID)));
 }
 
 void DiED::Client::vHandlePong(const DiED::messageid_t & PingID)
