@@ -414,6 +414,7 @@ void DiED::System::vConnectionEstablished(DiED::User & User, const DiED::clienti
 				else
 				{
 					Client->vSetMessageStream(MessageStream);
+					Client->vSetPort(ClientPort);
 					Client->vConnectionRequest(m_Client->GetID(), m_ServicePort);
 				}
 			}
@@ -449,6 +450,7 @@ void DiED::System::vConnectionLost(DiED::User & User, const DiED::clientid_t & C
 				else
 				{
 					Client->vSetMessageStream(MessageStream);
+					Client->vSetPort(ClientPort);
 					Client->vConnectionRequest(m_Client->GetID(), m_ServicePort);
 				}
 			}
