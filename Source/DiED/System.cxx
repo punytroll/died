@@ -204,6 +204,9 @@ void DiED::System::vConnectionRequest(DiED::User & User, const DiED::clientid_t 
 		// no preliminary client => ignore the message
 		return;
 	}
+	// NOTE: although after a succeeded ConnectionRequest handling we should erase the iPreliminaryClient from the map
+	//       in this case this is not a good idea because the "second" property contains the only boost::shared_ptr to
+	//       the Client we called this message from. It would delete the caller!
 	
 	boost::shared_ptr< DiED::Client > Client(iPreliminaryClient->second);
 	
@@ -215,7 +218,7 @@ void DiED::System::vConnectionRequest(DiED::User & User, const DiED::clientid_t 
 	
 	if(iClient == m_Clients.end())
 	{
-		// => client unknown
+		// => the local client is unknown in the network it is connecting to
 		RegisterClient(Client);
 		// now we can answer the message with ConnectionAccept according to specification
 		Client->vConnectionAccept(m_Client->GetID(), Client->GetID());
@@ -224,10 +227,11 @@ void DiED::System::vConnectionRequest(DiED::User & User, const DiED::clientid_t 
 	}
 	else
 	{
-		// => client known
+		// => the local client is known in the network it is connecting to
 		Client->vConnectionAccept(m_Client->GetID(), ClientID);
 		iClient->second->vSetMessageStream(Client->GetMessageStream());
 		Client->vSetMessageStream(boost::shared_ptr< Network::MessageStream >());
+		// TODO: what to do with the iPreliminaryClient ... it is invalid and emtpy (no socket) but MUST NOT be deleted from here
 	}
 }
 
