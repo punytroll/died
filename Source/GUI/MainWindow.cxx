@@ -10,6 +10,7 @@
 
 #include "Client.h"
 
+GdkColor Connecting = { 0x0000, 0xE0E0, 0xE0E0, 0x0000 };
 GdkColor Connected = { 0x0000, 0x0000, 0x8080, 0x0000 };
 GdkColor Disconnected = { 0x0000, 0x8080, 0x0000, 0x0000 };
 GdkColor Deleted = { 0x0000, 0x6060, 0x6060, 0x6060 };
@@ -35,6 +36,11 @@ GUI::MainWindow::MainWindow(DiED::System & System) :
 	show_all();
 }
 
+GUI::MainWindow::~MainWindow(void)
+{
+	m_StatusChangedConnection.disconnect();
+}
+
 void GUI::MainWindow::vInserted(const Gtk::TextBuffer::iterator & Iterator, const Glib::ustring & sString, int)
 {
 //~ 	std::cout << "Inserted text: \"" << sString << "\" [" << sString.length() << ']' << std::endl;
@@ -55,7 +61,7 @@ void GUI::MainWindow::vNewClient(DiED::Client & DiEDClient)
 		
 		ssName << DiEDClient.GetID();
 		set_title(ssName.str());
-		DiEDClient.StatusChanged.connect(sigc::bind(sigc::mem_fun(*this, &GUI::MainWindow::vClientStatusChanged), boost::ref(DiEDClient)));
+		m_StatusChangedConnection = DiEDClient.StatusChanged.connect(sigc::bind(sigc::mem_fun(*this, &GUI::MainWindow::vClientStatusChanged), boost::ref(DiEDClient)));
 		
 		return;
 	}
@@ -163,6 +169,13 @@ void GUI::MainWindow::vClientStatusChanged(const DiED::clientid_t & ClientID, co
 		{
 			pLabel->modify_fg(Gtk::STATE_NORMAL, Gdk::Color(&Deleted));
 			pLabel->modify_fg(Gtk::STATE_ACTIVE, Gdk::Color(&Deleted));
+			
+			break;
+		}
+	case DiED::User::Connecting:
+		{
+			pLabel->modify_fg(Gtk::STATE_NORMAL, Gdk::Color(&Connecting));
+			pLabel->modify_fg(Gtk::STATE_ACTIVE, Gdk::Color(&Connecting));
 			
 			break;
 		}
