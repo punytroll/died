@@ -18,21 +18,6 @@ void Network::BasicMessage::vRegisterValue(Network::BasicValue & Value)
 	m_Values.push_back(boost::ref(Value));
 }
 
-bool Network::BasicMessage::bIsReady(void) const
-{
-	std::vector< boost::reference_wrapper< Network::BasicValue > >::const_iterator iValue(m_Values.begin());
-	
-	while(iValue != m_Values.end())
-	{
-		if(iValue->get().bIsReady() == false)
-		{
-			return false;
-		}
-	}
-	
-	return true;
-}
-
 void Network::BasicMessage::vReadFrom(Network::Stream & Stream)
 {
 	std::vector< boost::reference_wrapper< Network::BasicValue > >::iterator iValue(m_Values.begin());
@@ -55,6 +40,20 @@ void Network::BasicMessage::vWriteTo(Network::Stream & Stream) const
 		Stream << *iValue;
 		++iValue;
 	}
+}
+
+size_t Network::BasicMessage::stGetSize(void) const
+{
+	std::vector< boost::reference_wrapper< Network::BasicValue > >::const_iterator iValue(m_Values.begin());
+	size_t stSize = 0;
+	
+	while(iValue != m_Values.end())
+	{
+		stSize += iValue->get().stGetSize();
+		++iValue;
+	}
+	
+	return stSize;
 }
 
 Network::BasicMessage::type_t Network::BasicMessage::GetType(void) const

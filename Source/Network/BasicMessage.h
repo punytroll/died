@@ -17,7 +17,7 @@ namespace Network
 		
 		// query functions
 		Network::BasicMessage::type_t GetType(void) const;
-		bool bIsReady(void) const;
+		size_t stGetSize(void) const;
 		
 		// stream operations
 		void vReadFrom(Network::Stream & Stream);
