@@ -8,9 +8,11 @@ noinst_LIBRARIES = \
 libgui_a_SOURCES = \
 	Client.cxx \
 	ClientFactory.cxx \
-	MainWindow.cxx
+	MainWindow.cxx \
+	MessageListStore.cxx
 
 EXTRA_DIST = \
 	Client.h \
 	ClientFactory.h \
-	MainWindow.h
+	MainWindow.h \
+	MessageListStore.h
