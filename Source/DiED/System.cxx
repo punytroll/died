@@ -122,11 +122,6 @@ void DiED::System::vInput(const Glib::ustring & sString)
 	vInsertText(*m_Client, sString, false);
 }
 
-void DiED::System::vInsertText(DiED::User & User, const Glib::ustring & sString)
-{
-	vInsertText(User, sString, true);
-}
-
 void DiED::System::vInsertText(DiED::User & User, const Glib::ustring & sString, bool bWriteToEnvironment)
 {
 	int iLine(User.iGetLine());
@@ -204,7 +199,7 @@ void DiED::System::vInsertText(DiED::User & User, const Glib::ustring & sString,
 	}
 }
 
-void DiED::System::vConnectionRequest(DiED::User & User, const DiED::clientid_t & ClientID, const Network::port_t & Port)
+void DiED::System::vHandleConnectionRequest(DiED::User & User, const DiED::clientid_t & ClientID, const Network::port_t & Port)
 {
 	std::cout << "Processing ConnectionRequest message from " << User.GetID() << std::endl;
 	
@@ -268,7 +263,7 @@ void DiED::System::vConnectionRequest(DiED::User & User, const DiED::clientid_t 
 	std::cout << "           ConnectionRequest message from " << User.GetID() << '\n' << std::endl;
 }
 
-void DiED::System::vConnectionAccept(DiED::User & User, const DiED::clientid_t & AccepterClientID, const DiED::clientid_t & RequesterClientID)
+void DiED::System::vHandleConnectionAccept(DiED::User & User, const DiED::clientid_t & AccepterClientID, const DiED::clientid_t & RequesterClientID)
 {
 	std::cout << "Processing ConnectionAccept message from " << User.GetID() << std::endl;
 	
@@ -328,7 +323,7 @@ void DiED::System::vConnectionAccept(DiED::User & User, const DiED::clientid_t &
 	std::cout << "           ConnectionAccept message from " << User.GetID() << '\n' << std::endl;
 }
 
-void DiED::System::vKnownClients(DiED::User & User, const DiED::messageid_t & MessageID, const std::vector< ClientInfo > & ClientInfos)
+void DiED::System::vHandleKnownClients(DiED::User & User, const DiED::messageid_t & MessageID, const std::vector< ClientInfo > & ClientInfos)
 {
 	std::cout << "Processing KnownClients message from " << User.GetID() << std::endl;
 	
@@ -412,7 +407,7 @@ void DiED::System::vKnownClients(DiED::User & User, const DiED::messageid_t & Me
 	std::cout << "           KnownClients message from " << User.GetID() << '\n' << std::endl;
 }
 
-void DiED::System::vClientsRegistered(DiED::User & User, const DiED::messageid_t & MessageID)
+void DiED::System::vHandleClientsRegistered(DiED::User & User, const DiED::messageid_t & MessageID)
 {
 	std::cout << "Processing ClientsRegistered message from " << User.GetID() << std::endl;
 	
@@ -436,7 +431,7 @@ void DiED::System::vClientsRegistered(DiED::User & User, const DiED::messageid_t
 	std::cout << "           ClientsRegistered message from " << User.GetID() << '\n' << std::endl;
 }
 
-void DiED::System::vConnectionEstablished(DiED::User & User, const DiED::clientid_t & ClientID, const Network::address_t & ClientAddress, const Network::port_t & ClientPort)
+void DiED::System::vHandleConnectionEstablished(DiED::User & User, const DiED::clientid_t & ClientID, const Network::address_t & ClientAddress, const Network::port_t & ClientPort)
 {
 	std::cout << "Processing ConnectionEstablished message from " << User.GetID() << std::endl;
 	
@@ -526,7 +521,7 @@ void DiED::System::vConnectionEstablished(DiED::User & User, const DiED::clienti
 	std::cout << "           ConnectionEstablished message from " << User.GetID() << '\n' << std::endl;
 }
 
-void DiED::System::vConnectionLost(DiED::User & User, const DiED::clientid_t & ClientID, const Network::address_t & ClientAddress, const Network::port_t & ClientPort)
+void DiED::System::vHandleConnectionLost(DiED::User & User, const DiED::clientid_t & ClientID, const Network::address_t & ClientAddress, const Network::port_t & ClientPort)
 {
 	std::cout << "Processing ConnectionLost message from " << User.GetID() << std::endl;
 	
@@ -594,6 +589,11 @@ void DiED::System::vConnectionLost(DiED::User & User, const DiED::clientid_t & C
 		}
 	}
 	std::cout << "           ConnectionLost message from " << User.GetID() << '\n' << std::endl;
+}
+
+void DiED::System::vHandleInsertText(DiED::User & User, const Glib::ustring & sString)
+{
+	vInsertText(User, sString, true);
 }
 
 void DiED::System::vPongTimeout(boost::shared_ptr< DiED::Client > Client)
