@@ -16,15 +16,29 @@ namespace DiED
 		virtual boost::shared_ptr< DiED::BasicMessage > GetMessage(const DiED::clientid_t & CreatorID, const DiED::messageid_t & EventID, const DiED::clientid_t & LostClientID) = 0;
 	};
 	
-	class InsertTextAction : public DiED::EventAction
+	class InsertAction : public DiED::EventAction
 	{
 	public:
-		InsertTextAction(const Glib::ustring & sText);
-		virtual ~InsertTextAction(void);
+		InsertAction(const Glib::ustring & sText);
+		virtual ~InsertAction(void);
 		virtual void vExecute(DiED::ActionTarget & ActionTarget);
 		virtual boost::shared_ptr< DiED::BasicMessage > GetMessage(const DiED::clientid_t & CreatorID, const DiED::messageid_t & EventID, const DiED::clientid_t & LostClientID);
 	private:
 		Glib::ustring m_sText;
+	};
+	
+	class DeleteAction : public DiED::EventAction
+	{
+	public:
+		DeleteAction(int iLineRelative, int iCharacterRelative, int iLineAbsolute, int iCharacterAbsolute);
+		virtual ~DeleteAction(void);
+		virtual void vExecute(DiED::ActionTarget & ActionTarget);
+		virtual boost::shared_ptr< DiED::BasicMessage > GetMessage(const DiED::clientid_t & CreatorID, const DiED::messageid_t & EventID, const DiED::clientid_t & LostClientID);
+	private:
+		int m_iLineRelative;
+		int m_iCharacterRelative;
+		int m_iLineAbsolute;
+		int m_iCharacterAbsolute;
 	};
 	
 	class PositionAction : public DiED::EventAction

@@ -23,7 +23,8 @@ namespace DiED
 		virtual void vHandleClientsRegistered(DiED::User & User, const DiED::messageid_t & MessageID) = 0;
 		virtual void vHandleConnectionEstablished(DiED::User & User, const DiED::clientid_t & ClientID, const Network::address_t & ClientAddress, const Network::port_t & ClientPort) = 0;
 		virtual void vHandleConnectionLost(DiED::User & User, const DiED::clientid_t & ClientID, const Network::address_t & ClientAddress, const Network::port_t & ClientPort) = 0;
-		virtual void vHandleInsertText(DiED::User & User, const Glib::ustring & sString) = 0;
+		virtual void vHandleInsert(DiED::User & User, const Glib::ustring & sString) = 0;
+		virtual void vHandleDelete(DiED::User & User, int iLineRelative, int iCharacterRelative, int iLineAbsolute, int iCharacterAbsolute) = 0;
 		virtual void vHandlePosition(DiED::User & User, int iLineRelative, int iCharacterRelative, int iLineAbsolute, int iCharacterAbsolute) = 0;
 		
 		// helper functions

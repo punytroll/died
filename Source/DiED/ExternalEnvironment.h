@@ -9,7 +9,8 @@ namespace DiED
 	{
 	public:
 		virtual void vNewClient(DiED::Client & DiEDClient) = 0;
-		virtual void vInsertText(const Glib::ustring & sString, int iLine, int iCharacter) = 0;
+		virtual void vInsert(const Glib::ustring & sString, int iLine, int iCharacter) = 0;
+		virtual void vDelete(int iFromLine, int iFromCharacter, int iToLine, int iToCharacter) = 0;
 		virtual int iGetNumberOfLines(void) = 0;
 		virtual int iGetLengthOfLine(int iLine) = 0;
 	};
