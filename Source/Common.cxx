@@ -44,6 +44,8 @@ std::string sErrorCodeToString(int iError)
 		return "ENOLCK";
 	case ENOMEM:
 		return "ENOMEM";
+	case ENOTCONN:
+		return "ENOTCONN";
 	case ENOTSOCK:
 		return "ENOTSOCK";
 	case EPERM:
