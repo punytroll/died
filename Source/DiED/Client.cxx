@@ -46,7 +46,12 @@ Network::port_t DiED::Client::GetPort(void)
 
 Network::address_t DiED::Client::GetAddress(void)
 {
-	return m_MessageStream->GetAddress();
+	if(m_MessageStream.get() != 0)
+	{
+		m_Address = m_MessageStream->GetAddress();
+	}
+	
+	return m_Address;
 }
 
 void DiED::Client::vInsertText(const Glib::ustring & sString)

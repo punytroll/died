@@ -60,6 +60,7 @@ namespace DiED
 		boost::shared_ptr< Network::MessageStream > m_MessageStream;
 	private:
 		Network::port_t m_Port;
+		Network::address_t m_Address;
 		sigc::connection m_BytesSentConnection;
 		sigc::connection m_MessageBeginConnection;
 		sigc::connection m_MessageReadyConnection;
