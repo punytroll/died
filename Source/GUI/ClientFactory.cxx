@@ -9,5 +9,5 @@ GUI::ClientFactory::ClientFactory(DiED::InternalEnvironment & InternalEnvironmen
 
 boost::shared_ptr< Network::Socket > GUI::ClientFactory::GetSocket(int iSocket)
 {
-	return boost::shared_ptr< Network::Socket >(new GUI::Client(iSocket, m_MessageFactory, m_InternalEnvironment));
+	return boost::shared_ptr< Network::Socket >(new GUI::Client(iSocket, m_InternalEnvironment.GetMessageFactory(), m_InternalEnvironment));
 }

@@ -12,7 +12,8 @@ libdied_a_SOURCES = \
 	MessageFactory.cxx \
 	Messages.cxx \
 	Server.cxx \
-	System.cxx
+	System.cxx \
+	User.cxx
 
 EXTRA_DIST = \
 	BasicMessage.h \
@@ -23,4 +24,5 @@ EXTRA_DIST = \
 	MessageFactory.h \
 	Messages.h \
 	Server.h \
-	System.h
+	System.h \
+	User.h

@@ -1,16 +1,17 @@
 #ifndef DIED_INTERNALENVIRONMENT_H
 #define DIED_INTERNALENVIRONMENT_H
 
-#include "Client.h"
+#include <Network/MessageFactory.h>
+
+#include "User.h"
 
 namespace DiED
 {
-	class Client;
-	
 	class InternalEnvironment
 	{
 	public:
-		virtual void vInsertText(DiED::Client & Client, const Glib::ustring & sString) = 0;
+		virtual boost::shared_ptr< Network::MessageFactory > GetMessageFactory(void) = 0;
+		virtual void vInsertText(DiED::User & User, const Glib::ustring & sString) = 0;
 	};
 }
 
