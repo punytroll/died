@@ -1,1 +1,10 @@
 Why is <ALT-GR>+<m> giving a UTF8 error???
+
+I have a five client scenario that crashes almost always immediately:
+$> ./Source/died
+$> ./Source/died --connect localhost --serve 5690
+$> ./Source/died --connect localhost:5690 --serve 0
+$> ./Source/died --connect localhost --serve 0
+$> ./Source/died --connect localhost --serve 5691
+WHY??
+
