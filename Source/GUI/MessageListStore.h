@@ -16,12 +16,14 @@ namespace GUI
 			Gtk::TreeModelColumn< DiED::clientid_t > ClientID;
 			Gtk::TreeModelColumn< Glib::ustring > Name;
 			Gtk::TreeModelColumn< Glib::ustring > Status;
+			Gtk::TreeModelColumn< Gdk::Color > Color;
 		
 			MessageListColumns(void)
 			{
 				add(ClientID);
 				add(Name);
 				add(Status);
+				add(Color)
 			}
 		};
 	public:
