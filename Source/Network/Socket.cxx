@@ -6,6 +6,8 @@
 
 #include <iostream>
 
+#include <Common.h>
+
 const int Network::g_iInvalidSocket = -1;
 
 Network::Socket::Socket(void) :
@@ -48,7 +50,7 @@ void Network::Socket::vClose(void)
 	vIgnoreOnOut();
 	close(m_iSocket);
 	m_iSocket = g_iInvalidSocket;
-	if(m_bOnDisconnected != true)
+	if(m_bOnDisconnected == true)
 	{
 		OnDisconnected();
 	}
@@ -155,6 +157,11 @@ Network::address_t Network::Socket::GetAddress(void)
 	{
 		return inet_ntoa(SocketInformation.sin_addr);
 	}
+	else
+	{
+		vGetError();
+		std::cout << "Error with getpeername() " << sErrorCodeToString(m_iError) << std::endl;
+	}
 	
 	return "";
 }
@@ -168,6 +175,11 @@ Network::port_t Network::Socket::GetPort(void)
 	if(::getpeername(m_iSocket, &SocketAddress, &Length) == 0)
 	{
 		return SocketInformation.sin_port;
+	}
+	else
+	{
+		vGetError();
+		std::cout << "Error with getpeername() " << sErrorCodeToString(m_iError) << std::endl;
 	}
 	
 	return 0;
