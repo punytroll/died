@@ -112,16 +112,10 @@ void DiED::Client::vExecuteTopMessage(void)
 
 DiED::Client & DiED::Client::operator<<(boost::shared_ptr< Network::BasicMessage > Message)
 {
+	m_MessageQueue.push_back(Message);
 	if(m_MessageStream.get() != 0)
 	{
-		m_MessageQueue.push_back(Message);
 		m_MessageStream->operator<<(*Message);
-	}
-	else
-	{
-		std::cout << "VERY BAD: " << __FILE__ << ':' << __LINE__ << std::endl;
-		
-		throw;
 	}
 	
 	return *this;
