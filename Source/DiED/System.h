@@ -41,6 +41,8 @@ namespace DiED
 		virtual std::vector< DiED::clientid_t > GetDisconnectedClientIDs(void);
 		virtual DiED::User::Status GetStatus(const DiED::clientid_t & ClientID1, const DiED::clientid_t & ClientID2);
 		virtual DiED::Client * pGetClient(const DiED::clientid_t & ClientID);
+		virtual void vSendConnectionLost(const DiED::clientid_t & ClientID);
+		virtual void vSendToConnected(boost::shared_ptr< Network::BasicMessage > Message);
 		
 		// signals
 		sigc::signal< void, DiED::Client & > ClientConnected;
@@ -58,6 +60,7 @@ namespace DiED
 		
 		// private callbacks
 		void vPongTimeout(boost::shared_ptr< DiED::Client > Client);
+		void vPongTimeoutOnConnectionEstablished(boost::shared_ptr< DiED::Client > Client, const Network::address_t & ClientAddress, const Network::port_t & ClientPort);
 		
 		boost::shared_ptr< DiED::MessageFactory > m_MessageFactory;
 		boost::shared_ptr< DiED::ClientFactory > m_ClientFactory;

@@ -31,7 +31,7 @@ namespace DiED
 		// status
 		virtual void vSetStatus(const DiED::clientid_t & ClientID, DiED::User::Status Status);
 		
-		// messages
+		// sending messages
 		void vSend(boost::shared_ptr< DiED::BasicMessage > Message);
 		void vConnectionRequest(const DiED::clientid_t & ClientID, const Network::port_t & Port);
 		void vConnectionAccept(const DiED::clientid_t & AccepterClientID, const DiED::clientid_t & RequesterClientID);
@@ -41,6 +41,11 @@ namespace DiED
 		void vConnectionLost(const DiED::clientid_t & ClientID, const Network::address_t & ClientAddress, const Network::port_t & ClientPort);
 		void vPing(sigc::slot< void > PongTimeoutSlot);
 		void vPing(void);
+		
+		// sending events
+		void vInsertText(const Glib::ustring & sText);
+		
+		// message handling
 		virtual void vExecuteTopMessage(void);
 		
 		//signals
@@ -67,7 +72,10 @@ namespace DiED
 		virtual void vHandlePong(const DiED::messageid_t & PingID);
 		virtual void vHandleEvent(const DiED::clientid_t & CreatorID, const DiED::messageid_t & EventID, const DiED::clientid_t & LostClientID);
 		virtual void vHandleEventReceived(const DiED::clientid_t & CreatorID, const DiED::messageid_t & EventID);
+		
+		// timeout callbacks
 		virtual void vHandlePingConfirmationTimeout(boost::shared_ptr< DiED::ConfirmationParameters > ConfirmationParameters);
+		virtual void vHandleEventConfirmationTimeout(boost::shared_ptr< DiED::ConfirmationParameters > ConfirmationParameters);
 	private:
 		DiED::InternalEnvironment & m_InternalEnvironment;
 	protected:
@@ -82,6 +90,7 @@ namespace DiED
 		sigc::connection m_MessageReadyConnection;
 		sigc::connection m_OnDisconnectedConnection;
 		DiED::messageid_t m_StatusMessageCounter;
+		DiED::messageid_t m_EventCounter;
 		size_t m_stBytesSent;
 		
 		struct WaitingMessage

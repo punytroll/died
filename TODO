@@ -8,3 +8,6 @@ $> ./Source/died --connect localhost --serve 0
 $> ./Source/died --connect localhost --serve 5691
 WHY??
 
+Add Server.vClose
+
+SessionKeys

@@ -48,9 +48,9 @@ boost::shared_ptr< Network::BasicMessage > DiED::MessageFactory::GetMessage(u_in
 		{
 			return boost::shared_ptr< Network::BasicMessage >(new DiED::EventReceivedMessage());
 		}
-	case DiED::_InputMessage:
+	case DiED::_InsertTextEvent:
 		{
-			return boost::shared_ptr< Network::BasicMessage >(new DiED::InputMessage());
+			return boost::shared_ptr< Network::BasicMessage >(new DiED::InsertTextEvent());
 		}
 	case DiED::_NoMessage:
 	default:

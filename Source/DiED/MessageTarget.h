@@ -24,6 +24,7 @@ namespace DiED
 		virtual void vHandleEventReceived(const DiED::clientid_t & CreatorID, const DiED::messageid_t & EventID) = 0;
 		
 		virtual void vHandlePingConfirmationTimeout(boost::shared_ptr< DiED::ConfirmationParameters > ConfirmationParameters) = 0;
+		virtual void vHandleEventConfirmationTimeout(boost::shared_ptr< DiED::ConfirmationParameters > ConfirmationParameters) = 0;
 	};
 }
 
