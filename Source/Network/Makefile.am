@@ -6,6 +6,7 @@ noinst_LIBRARIES = \
 
 libnetwork_a_SOURCES = \
 	BasicMessage.cxx \
+	BasicValue.cxx \
 	BufferReader.cxx \
 	BufferWriter.cxx \
 	CircularBuffer.cxx \

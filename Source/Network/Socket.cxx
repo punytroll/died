@@ -48,6 +48,21 @@ void Network::Socket::vMonitor(void)
 	IOSource->attach();
 }
 
+void Network::Socket::vRequestOnOut(void)
+{
+	if(m_OSource == false)
+	{
+		m_OSource = Glib::IOSource::create(m_iSocket, Glib::IO_OUT);
+		m_OSource->connect(sigc::mem_fun(*this, &Network::Socket::bNotify));
+		m_OSource->attach();
+	}
+}
+
+void Network::Socket::vIgnoreOnOut(void)
+{
+	m_OSource->destroy();
+}
+
 bool Network::Socket::bNotify(const Glib::IOCondition & Condition)
 {
 	if((Condition & Glib::IO_IN) != 0)
@@ -58,6 +73,7 @@ bool Network::Socket::bNotify(const Glib::IOCondition & Condition)
 	if((Condition & Glib::IO_OUT) != 0)
 	{
 		std::cout << "IO_OUT" << std::endl;
+		vOnOut();
 	}
 	if((Condition & Glib::IO_PRI) != 0)
 	{
@@ -82,6 +98,10 @@ bool Network::Socket::bNotify(const Glib::IOCondition & Condition)
 }
 
 void Network::Socket::vOnIn(void)
+{
+}
+
+void Network::Socket::vOnOut(void)
 {
 }
 

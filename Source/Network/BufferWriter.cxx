@@ -11,9 +11,7 @@ bool Network::BufferWriter::bWrite(const bool & bValue)
 {
 	std::cerr << "Writing bool to the circular buffer. [" << bValue << ']' << std::endl;
 	
-	u_int8_t u8Value(static_cast< u_int8_t >(bValue));
-	
-	m_Buffer.vWrite(&u8Value, 1);
+	m_Buffer.vWrite(reinterpret_cast< const u_int8_t * >(&bValue), sizeof(bool));
 }
 
 bool Network::BufferWriter::bWrite(const u_int8_t & u8Value)
@@ -60,4 +58,5 @@ bool Network::BufferWriter::bWrite(const int32_t & s32Value)
 
 bool Network::BufferWriter::bWrite(const std::string & sValue)
 {
+	throw;
 }

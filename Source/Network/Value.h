@@ -26,7 +26,7 @@ namespace Network
 		
 		virtual void vReadFrom(boost::shared_ptr< Network::BasicReader > Reader)
 		{
-			m_bReady = Reader->bRead(m_Value);
+			vSetReady(Reader->bRead(m_Value));
 		}
 		
 		virtual void vWriteTo(boost::shared_ptr< Network::BasicWriter > Writer) const
