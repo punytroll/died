@@ -3,8 +3,13 @@
 #include <iostream>
 #include <sstream>
 
+
+///////////////////////////////////////////////////////////////////////////////////////////////////
+///                                          NoMessage                                          ///
+///////////////////////////////////////////////////////////////////////////////////////////////////
+
 DiED::NoMessage::NoMessage(void) :
-	DiED::BasicMessage(DiED::_NoMessage, false)
+	DiED::BasicMessage(DiED::_NoMessage)
 {
 }
 
@@ -30,13 +35,18 @@ void DiED::NoMessage::vWriteToInternal(Network::Stream & Stream) const
 {
 }
 
+
+///////////////////////////////////////////////////////////////////////////////////////////////////
+///                                  ConnectionRequestMessage                                   ///
+///////////////////////////////////////////////////////////////////////////////////////////////////
+
 DiED::ConnectionRequestMessage::ConnectionRequestMessage(void) :
-	DiED::BasicMessage(DiED::_ConnectionRequestMessage, false)
+	DiED::BasicMessage(DiED::_ConnectionRequestMessage)
 {
 }
 
 DiED::ConnectionRequestMessage::ConnectionRequestMessage(const DiED::clientid_t & ClientID, const Network::port_t & Port) :
-	DiED::BasicMessage(DiED::_ConnectionRequestMessage, true),
+	DiED::BasicMessage(DiED::_ConnectionRequestMessage),
 	m_ClientID(ClientID),
 	m_Port(Port)
 {
@@ -72,13 +82,18 @@ void DiED::ConnectionRequestMessage::vWriteToInternal(Network::Stream & Stream) 
 	Stream << m_ClientID << m_Port;
 }
 
+
+///////////////////////////////////////////////////////////////////////////////////////////////////
+///                                   ConnectionAcceptMessage                                   ///
+///////////////////////////////////////////////////////////////////////////////////////////////////
+
 DiED::ConnectionAcceptMessage::ConnectionAcceptMessage(void) :
-	DiED::BasicMessage(DiED::_ConnectionAcceptMessage, false)
+	DiED::BasicMessage(DiED::_ConnectionAcceptMessage)
 {
 }
 
 DiED::ConnectionAcceptMessage::ConnectionAcceptMessage(const DiED::clientid_t & RemoteClientID, const DiED::clientid_t & LocalClientID) :
-	DiED::BasicMessage(DiED::_ConnectionAcceptMessage, true),
+	DiED::BasicMessage(DiED::_ConnectionAcceptMessage),
 	m_RemoteClientID(RemoteClientID),
 	m_LocalClientID(LocalClientID)
 {
@@ -115,15 +130,18 @@ void DiED::ConnectionAcceptMessage::vWriteToInternal(Network::Stream & Stream) c
 	Stream << m_RemoteClientID << m_LocalClientID;
 }
 
+
+///////////////////////////////////////////////////////////////////////////////////////////////////
+///                                     KnownClientsMessage                                     ///
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 
 DiED::KnownClientsMessage::KnownClientsMessage(void) :
-	DiED::BasicMessage(DiED::_KnownClientsMessage, false)
+	DiED::BasicMessage(DiED::_KnownClientsMessage)
 {
 }
 
 DiED::KnownClientsMessage::KnownClientsMessage(u_int32_t u32MessageID, std::vector< DiED::clientid_t > ConnectedClientIDs, std::vector< DiED::clientid_t > DisconnectedClientIDs) :
-	DiED::BasicMessage(DiED::_KnownClientsMessage, true),
+	DiED::BasicMessage(DiED::_KnownClientsMessage),
 	m_MessageID(u32MessageID),
 	m_ConnectedClientIDs(ConnectedClientIDs),
 	m_DisconnectedClientIDs(DisconnectedClientIDs)
@@ -160,15 +178,18 @@ void DiED::KnownClientsMessage::vWriteToInternal(Network::Stream & Stream) const
 	Stream << m_MessageID << m_ConnectedClientIDs << m_DisconnectedClientIDs;
 }
 
+
+///////////////////////////////////////////////////////////////////////////////////////////////////
+///                                  ClientsRegisteredMessage                                   ///
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 
 DiED::ClientsRegisteredMessage::ClientsRegisteredMessage(void) :
-	DiED::BasicMessage(DiED::_ClientsRegisteredMessage, false)
+	DiED::BasicMessage(DiED::_ClientsRegisteredMessage)
 {
 }
 
 DiED::ClientsRegisteredMessage::ClientsRegisteredMessage(DiED::messageid_t MessageID) :
-	DiED::BasicMessage(DiED::_ClientsRegisteredMessage, true),
+	DiED::BasicMessage(DiED::_ClientsRegisteredMessage),
 	m_MessageID(MessageID)
 {
 }
@@ -203,8 +224,13 @@ void DiED::ClientsRegisteredMessage::vWriteToInternal(Network::Stream & Stream) 
 	Stream << m_MessageID;
 }
 
+
+///////////////////////////////////////////////////////////////////////////////////////////////////
+///                                         PingMessage                                         ///
+///////////////////////////////////////////////////////////////////////////////////////////////////
+
 DiED::PingMessage::PingMessage(void) :
-	DiED::BasicMessage(DiED::_PingMessage, true)
+	DiED::BasicMessage(DiED::_PingMessage)
 {
 }
 
@@ -235,8 +261,13 @@ Glib::ustring DiED::PingMessage::sGetString(void)
 	return ssString.str();
 }
 
+
+///////////////////////////////////////////////////////////////////////////////////////////////////
+///                                         PongMessage                                         ///
+///////////////////////////////////////////////////////////////////////////////////////////////////
+
 DiED::PongMessage::PongMessage(void) :
-	DiED::BasicMessage(DiED::_PongMessage, true)
+	DiED::BasicMessage(DiED::_PongMessage)
 {
 }
 
@@ -266,13 +297,18 @@ Glib::ustring DiED::PongMessage::sGetString(void)
 	return ssString.str();
 }
 
+
+///////////////////////////////////////////////////////////////////////////////////////////////////
+///                                ConnectionEstablishedMessage                                 ///
+///////////////////////////////////////////////////////////////////////////////////////////////////
+
 DiED::ConnectionEstablishedMessage::ConnectionEstablishedMessage(void) :
-	DiED::BasicMessage(DiED::_ConnectionEstablishedMessage, false)
+	DiED::BasicMessage(DiED::_ConnectionEstablishedMessage)
 {
 }
 
 DiED::ConnectionEstablishedMessage::ConnectionEstablishedMessage(const DiED::clientid_t & ClientID, const Network::address_t & ClientAddress, const Network::port_t & ClientPort) :
-	DiED::BasicMessage(DiED::_ConnectionEstablishedMessage, true),
+	DiED::BasicMessage(DiED::_ConnectionEstablishedMessage),
 	m_ClientID(ClientID),
 	m_ClientAddress(ClientAddress),
 	m_ClientPort(ClientPort)
@@ -309,13 +345,18 @@ void DiED::ConnectionEstablishedMessage::vWriteToInternal(Network::Stream & Stre
 	Stream << m_ClientID << m_ClientAddress << m_ClientPort;
 }
 
+
+///////////////////////////////////////////////////////////////////////////////////////////////////
+///                                    ConnectionLostMessage                                    ///
+///////////////////////////////////////////////////////////////////////////////////////////////////
+
 DiED::ConnectionLostMessage::ConnectionLostMessage(void) :
-	DiED::BasicMessage(DiED::_ConnectionLostMessage, false)
+	DiED::BasicMessage(DiED::_ConnectionLostMessage)
 {
 }
 
 DiED::ConnectionLostMessage::ConnectionLostMessage(const DiED::clientid_t & ClientID) :
-	DiED::BasicMessage(DiED::_ConnectionLostMessage, true),
+	DiED::BasicMessage(DiED::_ConnectionLostMessage),
 	m_ClientID(ClientID)
 {
 }
@@ -349,8 +390,13 @@ void DiED::ConnectionLostMessage::vWriteToInternal(Network::Stream & Stream) con
 	Stream << m_ClientID;
 }
 
+
+///////////////////////////////////////////////////////////////////////////////////////////////////
+///                                         TestMessage                                         ///
+///////////////////////////////////////////////////////////////////////////////////////////////////
+
 DiED::TestMessage::TestMessage(void) :
-	DiED::BasicMessage(DiED::_TestMessage, true)
+	DiED::BasicMessage(DiED::_TestMessage)
 {
 }
 
@@ -384,15 +430,18 @@ void DiED::TestMessage::vWriteToInternal(Network::Stream & Stream) const
 	Stream << m_Values;
 }
 
+
+///////////////////////////////////////////////////////////////////////////////////////////////////
+///                                        EventMessage                                         ///
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 
-DiED::EventMessage::EventMessage(const Network::BasicMessage::type_t & Type, bool bForSending) :
-	DiED::BasicMessage(Type, bForSending)
+DiED::EventMessage::EventMessage(const Network::BasicMessage::type_t & Type) :
+	DiED::BasicMessage(Type)
 {
 }
 
-DiED::EventMessage::EventMessage(const DiED::clientid_t & CreatorID, const DiED::messageid_t & EventID, const DiED::clientid_t & LostClientID, const Network::BasicMessage::type_t & Type, bool bForSending) :
-	DiED::BasicMessage(Type, bForSending),
+DiED::EventMessage::EventMessage(const Network::BasicMessage::type_t & Type, const DiED::clientid_t & CreatorID, const DiED::messageid_t & EventID, const DiED::clientid_t & LostClientID) :
+	DiED::BasicMessage(Type),
 	m_CreatorID(CreatorID),
 	m_EventID(EventID),
 	m_LostClientID(LostClientID)
@@ -405,15 +454,18 @@ bool DiED::EventMessage::bIsEventMessage(void)
 	return true;
 }
 
+
+///////////////////////////////////////////////////////////////////////////////////////////////////
+///                                        InputMessage                                         ///
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 
 DiED::InputMessage::InputMessage(void) :
-	DiED::EventMessage(DiED::_InputMessage, false)
+	DiED::EventMessage(DiED::_InputMessage)
 {
 }
 
 DiED::InputMessage::InputMessage(const DiED::clientid_t & CreatorID, const DiED::messageid_t & EventID, const DiED::clientid_t & LostClientID, const Glib::ustring & sString) :
-	DiED::EventMessage(CreatorID, EventID, LostClientID, DiED::_InputMessage, true),
+	DiED::EventMessage(DiED::_InputMessage, CreatorID, EventID, LostClientID),
 	m_String(sString)
 {
 //~ 	vRegisterVariable(m_String, "Text");

@@ -10,19 +10,11 @@ namespace DiED
 	class BasicMessage : public Network::BasicMessage
 	{
 	public:
-		BasicMessage(const Network::BasicMessage::type_t & Type, bool bForSending);
+		BasicMessage(const Network::BasicMessage::type_t & Type);
 		virtual void vExecute(DiED::MessageTarget & MessageTarget) = 0;
 		virtual Glib::ustring sGetString(void) = 0;
-		
-		virtual bool bIsEventMessage(void)
-		{
-			return false;
-		}
-		
-		virtual bool bRequiresConfirmation(void)
-		{
-			return false;
-		}
+		virtual bool bIsEventMessage(void);
+		virtual bool bRequiresConfirmation(void);
 	};
 }
 
