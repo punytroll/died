@@ -97,11 +97,6 @@ DiED::ClientInfo DiED::Client::GetClientInfo(void) const
 	return ClientInfo;
 }
 
-void DiED::Client::vHandleInsertText(const Glib::ustring & sString)
-{
-	m_InternalEnvironment.vHandleInsertText(*this, sString);
-}
-
 void DiED::Client::vHandleConnectionRequest(const DiED::clientid_t & ClientID, const Network::port_t & Port)
 {
 	vHandleAnswer();
@@ -307,8 +302,17 @@ void DiED::Client::vAddEventAction(const DiED::messageid_t & EventID, boost::sha
 
 void DiED::Client::vHandleEventReceived(const DiED::clientid_t & CreatorID, const DiED::messageid_t & EventID)
 {
-	// TODO: not specified yet, but I'm taking an educated guess
 	vHandleAnswer();
+}
+
+void DiED::Client::vHandleInsertText(const Glib::ustring & sString)
+{
+	m_InternalEnvironment.vHandleInsertText(*this, sString);
+}
+
+void DiED::Client::vHandlePosition(int iLineRelative, int iCharacterRelative, int iLineAbsolute, int iCharacterAbsolute)
+{
+	m_InternalEnvironment.vHandlePosition(*this, iLineRelative, iCharacterRelative, iLineAbsolute, iCharacterAbsolute);
 }
 
 void DiED::Client::vHandleAnswer(void)

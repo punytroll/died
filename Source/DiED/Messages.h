@@ -23,6 +23,7 @@ namespace DiED
 		_PongMessage,
 		_EventReceivedMessage,
 		_InsertTextEvent,
+		_PositionEvent,
 	};
 	
 	class NoMessage : public DiED::BasicMessage
@@ -204,6 +205,22 @@ namespace DiED
 		virtual boost::shared_ptr< DiED::EventAction > GetAction(void);
 	private:
 		Network::StringValue m_Text;
+	};
+	
+	class PositionEvent : public DiED::EventMessage
+	{
+	public:
+		PositionEvent(void);
+		PositionEvent(const DiED::clientid_t & CreatorID, const DiED::messageid_t & EventID, const DiED::clientid_t & LostClientID, int iLineRelative, int iCharacterRelative, int iLineAbsolute, int iCharacterAbsolute);
+		virtual Glib::ustring sGetString(void);
+		virtual boost::shared_ptr< DiED::BasicMessage > Clone(void);
+	protected:
+		virtual boost::shared_ptr< DiED::EventAction > GetAction(void);
+	private:
+		Network::Value< int > m_LineRelative;
+		Network::Value< int > m_CharacterRelative;
+		Network::Value< int > m_LineAbsolute;
+		Network::Value< int > m_CharacterAbsolute;
 	};
 }
 

@@ -8,7 +8,7 @@
 
 #include <glibmm/ustring.h>
 
-#define NODEBUG
+//~ #define NODEBUG
 
 #ifndef NODEBUG
 

@@ -25,6 +25,8 @@ namespace GUI
 		// implementation of DiED::ExternalEnvironment
 		virtual void vNewClient(DiED::Client & Client);
 		virtual void vInsertText(const Glib::ustring & sString, int iLine, int iCharacter);
+		virtual int iGetNumberOfLines(void);
+		virtual int iGetLengthOfLine(int iLine);
 		
 		// callbacks
 		void vClientStatusChanged(const DiED::clientid_t & ClientID, const DiED::clientstatus_t & Status, boost::reference_wrapper< DiED::Client > Client);

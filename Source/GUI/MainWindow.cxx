@@ -122,6 +122,18 @@ void GUI::MainWindow::vInsertText(const Glib::ustring & sString, int iLine, int 
 	m_InsertConnection.unblock();
 }
 
+int GUI::MainWindow::iGetNumberOfLines(void)
+{
+	return m_TextBuffer->get_line_count();
+}
+
+int GUI::MainWindow::iGetLengthOfLine(int iLine)
+{
+	Gtk::TextIter Iterator(m_TextBuffer->get_iter_at_line(iLine));
+	
+	return Iterator.get_chars_in_line();
+}
+
 void GUI::MainWindow::vClientStatusChanged(const DiED::clientid_t & ClientID, const DiED::clientstatus_t & Status, boost::reference_wrapper< DiED::Client > Client)
 {
 	DiED::Client * pDiEDClient(m_System.pGetClient(ClientID));

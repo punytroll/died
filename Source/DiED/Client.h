@@ -69,7 +69,6 @@ namespace DiED
 		void vBytesSent(size_t stSize);
 		
 		// message handler
-		virtual void vHandleInsertText(const Glib::ustring & sString);
 		virtual void vHandleConnectionRequest(const DiED::clientid_t & ClientID, const Network::port_t & Port);
 		virtual void vHandleConnectionAccept(const DiED::clientid_t & AccepterClientID, const DiED::clientid_t & RequesterClientID);
 		virtual void vHandleKnownClients(const DiED::messageid_t & MessageID, const std::vector< DiED::ClientInfo > & ClientInfos);
@@ -81,6 +80,8 @@ namespace DiED
 		virtual void vHandlePong(const DiED::messageid_t & PingID);
 		virtual void vHandleEvent(const DiED::clientid_t & CreatorID, const DiED::messageid_t & EventID, const DiED::clientid_t & LostClientID, boost::shared_ptr< DiED::EventAction > EventAction);
 		virtual void vHandleEventReceived(const DiED::clientid_t & CreatorID, const DiED::messageid_t & EventID);
+		virtual void vHandleInsertText(const Glib::ustring & sString);
+		virtual void vHandlePosition(int iLineRelative, int iCharacterRelative, int iLineAbsolute, int iCharacterAbsolute);
 		
 		// timeout callbacks
 		virtual void vHandleConnectionRequestConfirmationTimeout(boost::shared_ptr< DiED::ConfirmationParameters > ConfirmationParameters);

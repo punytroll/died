@@ -24,6 +24,7 @@ namespace DiED
 		virtual void vHandleConnectionEstablished(DiED::User & User, const DiED::clientid_t & ClientID, const Network::address_t & ClientAddress, const Network::port_t & ClientPort) = 0;
 		virtual void vHandleConnectionLost(DiED::User & User, const DiED::clientid_t & ClientID, const Network::address_t & ClientAddress, const Network::port_t & ClientPort) = 0;
 		virtual void vHandleInsertText(DiED::User & User, const Glib::ustring & sString) = 0;
+		virtual void vHandlePosition(DiED::User & User, int iLineRelative, int iCharacterRelative, int iLineAbsolute, int iCharacterAbsolute) = 0;
 		
 		// helper functions
 		virtual std::set< DiED::clientid_t > GetConnectedClientIDs(void) = 0;

@@ -744,11 +744,6 @@ DiED::InsertTextEvent::InsertTextEvent(const DiED::clientid_t & CreatorID, const
 	vRegisterValue(m_Text);
 }
 
-boost::shared_ptr< DiED::EventAction > DiED::InsertTextEvent::GetAction(void)
-{
-	return boost::shared_ptr< DiED::EventAction >(new DiED::InsertTextAction(m_Text));
-}
-
 Glib::ustring DiED::InsertTextEvent::sGetString(void)
 {
 	std::stringstream ssString;
@@ -758,7 +753,50 @@ Glib::ustring DiED::InsertTextEvent::sGetString(void)
 	return ssString.str();
 }
 
+boost::shared_ptr< DiED::EventAction > DiED::InsertTextEvent::GetAction(void)
+{
+	return boost::shared_ptr< DiED::EventAction >(new DiED::InsertTextAction(m_Text));
+}
+
 boost::shared_ptr< DiED::BasicMessage > DiED::InsertTextEvent::Clone(void)
 {
 	return boost::shared_ptr< DiED::BasicMessage >(new DiED::InsertTextEvent(m_CreatorID, m_EventID, m_LostClientID, m_Text));
+}
+
+
+///////////////////////////////////////////////////////////////////////////////////////////////////
+///                                        PositionEvent                                        ///
+///////////////////////////////////////////////////////////////////////////////////////////////////
+
+DiED::PositionEvent::PositionEvent(void) :
+	DiED::EventMessage(DiED::_PositionEvent)
+{
+}
+
+DiED::PositionEvent::PositionEvent(const DiED::clientid_t & CreatorID, const DiED::messageid_t & EventID, const DiED::clientid_t & LostClientID, int iLineRelative, int iCharacterRelative, int iLineAbsolute, int iCharacterAbsolute) :
+	DiED::EventMessage(DiED::_PositionEvent, CreatorID, EventID, LostClientID),
+	m_LineRelative(iLineRelative),
+	m_CharacterRelative(iCharacterRelative),
+	m_LineAbsolute(iLineAbsolute),
+	m_CharacterAbsolute(iCharacterAbsolute)
+{
+}
+
+Glib::ustring DiED::PositionEvent::sGetString(void)
+{
+	std::stringstream ssString;
+	
+	ssString << "Position [ " << DiED::EventMessage::sGetString() << " ; LineRelative = " << m_LineRelative << " ; CharacterRelative = " << m_CharacterRelative << " ; LineAbsolute = " << m_LineAbsolute << " ; CharacterAbsolute = " << m_CharacterAbsolute << " ]";
+	
+	return ssString.str();
+}
+
+boost::shared_ptr< DiED::BasicMessage > DiED::PositionEvent::Clone(void)
+{
+	return boost::shared_ptr< DiED::BasicMessage >(new DiED::PositionEvent(m_CreatorID, m_EventID, m_LostClientID, m_LineRelative, m_CharacterRelative, m_LineAbsolute, m_CharacterAbsolute));
+}
+
+boost::shared_ptr< DiED::EventAction > DiED::PositionEvent::GetAction(void)
+{
+	return boost::shared_ptr< DiED::EventAction >(new DiED::PositionAction(m_LineRelative, m_CharacterRelative, m_LineAbsolute, m_CharacterAbsolute));
 }
