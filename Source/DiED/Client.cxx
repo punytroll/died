@@ -8,7 +8,6 @@
 
 DiED::Client::Client(DiED::InternalEnvironment & InternalEnvironment) :
 	m_InternalEnvironment(InternalEnvironment),
-	m_bRequestingConnection(0),
 	m_Address("localhost"),
 	m_Port(0)
 {
@@ -281,11 +280,6 @@ void DiED::Client::vSend(boost::shared_ptr< DiED::BasicMessage > Message)
 
 void DiED::Client::vConnectionRequest(const DiED::clientid_t & ClientID, const Network::port_t & ListenPort)
 {
-	if(m_bRequestingConnection == true)
-	{
-		return;
-	}
-	m_bRequestingConnection = true;
 	vSend(boost::shared_ptr< DiED::BasicMessage >(new DiED::ConnectionRequestMessage(ClientID, ListenPort)));
 }
 
@@ -380,8 +374,4 @@ void DiED::Client::vOnDisconnected(void)
 void DiED::Client::vSetStatus(const DiED::clientid_t & ClientID, DiED::User::Status Status)
 {
 	DiED::User::vSetStatus(ClientID, Status);
-	if((m_InternalEnvironment.pGetClient(0)->GetID() == ClientID) && (Status == DiED::User::Connected))
-	{
-		m_bRequestingConnection = false;
-	}
 }

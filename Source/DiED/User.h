@@ -17,6 +17,7 @@ namespace DiED
 	public:
 		enum Status
 		{
+			Connecting,
 			Connected,
 			Disconnected,
 			Deleted

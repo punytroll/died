@@ -72,7 +72,6 @@ namespace DiED
 	private:
 		void vHandleAnswer(void);
 		
-		bool m_bRequestingConnection;
 		Network::address_t m_Address;
 		Network::port_t m_Port;
 		sigc::connection m_BytesSentConnection;
