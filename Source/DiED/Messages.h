@@ -176,8 +176,8 @@ namespace DiED
 	class EventMessage : public DiED::BasicMessage
 	{
 	public:
-		EventMessage(const Network::BasicMessage::type_t & Type, bool bForSending);
-		EventMessage(const DiED::clientid_t & CreatorID, const DiED::messageid_t & EventID, const DiED::clientid_t & LostClientID, const Network::BasicMessage::type_t & Type, bool bForSending);
+		EventMessage(const Network::BasicMessage::type_t & Type);
+		EventMessage(const Network::BasicMessage::type_t & Type, const DiED::clientid_t & CreatorID, const DiED::messageid_t & EventID, const DiED::clientid_t & LostClientID);
 		virtual bool bIsEventMessage(void);
 	private:
 		Network::Value< DiED::clientid_t > m_CreatorID;

@@ -36,16 +36,16 @@ Network::MessageStream & Network::MessageStream::operator>>(boost::shared_ptr< N
 
 Network::MessageStream & Network::MessageStream::operator<<(const Network::BasicMessage & Message)
 {
-	if(Message.bIsForSending() == true)
-	{
+//~ 	if(Message.bIsForSending() == true)
+//~ 	{
 		Message.vWriteTo(*this);
 //~ 		std::cout << "[Network/MessageStream]: Requesting OnOut." << std::endl;
 		vRequestOnOut();
-	}
-	else
-	{
-		std::cout << "[Network/MessageStream]: Trying to send Message [" << Message.GetType() << "] which is not for sending." << std::endl;
-	}
+//~ 	}
+//~ 	else
+//~ 	{
+//~ 		std::cout << "[Network/MessageStream]: Trying to send Message [" << Message.GetType() << "] which is not for sending." << std::endl;
+//~ 	}
 	
 	return *this;
 }

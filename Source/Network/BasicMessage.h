@@ -12,11 +12,10 @@ namespace Network
 		typedef u_int32_t type_t;
 		
 		// constructor and destructor
-		BasicMessage(Network::BasicMessage::type_t Type, bool bForSending);
+		BasicMessage(Network::BasicMessage::type_t Type);
 		virtual ~BasicMessage(void);
 		
 		// query functions
-		bool bIsForSending(void) const;
 		virtual bool bIsReady(void) const = 0;
 		Network::BasicMessage::type_t GetType(void) const;
 		
@@ -28,7 +27,6 @@ namespace Network
 		virtual void vWriteToInternal(Network::Stream & Stream) const = 0;
 	private:
 		Network::Value< Network::BasicMessage::type_t > m_Type;
-		bool m_bForSending;
 	};
 }
 
