@@ -1,23 +1,55 @@
 #include "MainWindow.h"
 
 #include <iostream>
+#include <sstream>
+
+#include <gtkmm/scrolledwindow.h>
+#include <gtkmm/treeview.h>
+
+#include "Client.h"
 
 GUI::MainWindow::MainWindow(DiED::System & System) :
 	m_System(System),
 	m_TextBuffer(m_TextView.get_buffer()),
+	m_KeyPressedConnection(m_TextView.signal_key_press_event().connect(sigc::mem_fun(*this, &GUI::MainWindow::bKeyPressed), false)),
 	m_InsertConnection(m_TextBuffer->signal_insert().connect(sigc::mem_fun(*this, &GUI::MainWindow::vInserted)))
 {
 	m_System.vSetExternalEnvironment(this);
 	m_TextView.show();
-	add(m_TextView);
+	m_Notebook.show();
+	m_Pane.show();
+	m_Pane.pack1(m_TextView, true, true);
+	m_Pane.pack2(m_Notebook, true, true);
+	add(m_Pane);
 	set_default_size(400, 300);
+	show_all();
 }
 
 void GUI::MainWindow::vInserted(const Gtk::TextBuffer::iterator & Iterator, const Glib::ustring & sString, int)
 {
-	std::cout << "Inserted text: \"" << sString << "\" [" << sString.length() << ']' << std::endl;
+//~ 	std::cout << "Inserted text: \"" << sString << "\" [" << sString.length() << ']' << std::endl;
 	// TODO: handle input at positions other than "insert" mark
 	m_System.vInput(sString);
+}
+
+bool GUI::MainWindow::bKeyPressed(GdkEventKey * pEvent)
+{
+	return false;
+}
+
+void GUI::MainWindow::vClientConnected(DiED::Client & DiEDClient)
+{
+	GUI::Client & Client(dynamic_cast< GUI::Client & >(DiEDClient));
+	Gtk::ScrolledWindow * pScrolledWindow(manage(new Gtk::ScrolledWindow()));
+	Gtk::TreeView * pClientView(manage(new Gtk::TreeView(Client.GetMessageListStore())));
+	std::stringstream ssName;
+	
+	ssName << Client.GetClientID();
+	pClientView->append_column("Name", Client.GetMessageListStore()->Columns.Name);
+	pClientView->show();
+	pScrolledWindow->add(*pClientView);
+	pScrolledWindow->show();
+	m_Notebook.append_page(*pScrolledWindow, ssName.str());
 }
 
 void GUI::MainWindow::vInsertText(const Glib::ustring & sString, int iLine, int iCharacter)
