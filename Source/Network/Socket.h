@@ -22,7 +22,12 @@ namespace Network
 		int iGetError(void) const;
 		void vClose(void);
 		void vSetSocket(int iSocket);
-		Glib::ustring GetAddress(void);
+		Network::address_t GetAddress(void);
+		Network::port_t GetPort(void);
+		
+		// signals emitted after successfull connection establishing or disconnecting
+		sigc::signal< void > OnConnected;
+		sigc::signal< void > OnDisconnected;
 	protected:
 		void vMonitor(void);
 		void vRequestOnOut(void);
@@ -33,12 +38,9 @@ namespace Network
 		virtual void vOnIn(void);
 		virtual void vOnOut(void);
 		
-		// virtual functions to signal connec and disconnect to inherited classes
-		virtual void vOnConnect(void);
-		virtual void vOnDisconnect(void);
-		
 		int m_iSocket;
 		int m_iError;
+		bool m_bOnDisconnected;
 	private:
 		bool bNotify(const Glib::IOCondition & Condition);
 		Glib::RefPtr< Glib::IOSource > m_OSource;
