@@ -93,7 +93,7 @@ bool Network::Socket::bNotify(const Glib::IOCondition & Condition)
 	}
 	if((Condition & Glib::IO_NVAL) != 0)
 	{
-//~ 		std::cout << "IO_NVAL" << std::endl;
+		std::cout << "IO_NVAL" << std::endl;
 		
 		return false;
 	}
@@ -120,4 +120,14 @@ void Network::Socket::vOnOut(void)
 void Network::Socket::vGetError(void)
 {
 	m_iError = errno;
+}
+
+void Network::Socket::vSetSocket(int iSocket)
+{
+	if(bIsOpen() == true)
+	{
+		return;
+	}
+	m_iSocket = iSocket;
+	vMonitor();
 }
