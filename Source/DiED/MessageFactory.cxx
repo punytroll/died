@@ -4,8 +4,11 @@
 
 #include "Messages.h"
 
+u_int32_t g_u32Counter = 0;
+
 boost::shared_ptr< Network::BasicMessage > DiED::MessageFactory::GetMessage(u_int32_t u32Type)
 {
+	std::cout << "Creating Message " << ++g_u32Counter << " from type " << u32Type << "." << std::endl;
 	switch(u32Type)
 	{
 	case DiED::_ConnectionRequestMessage:
@@ -51,8 +54,11 @@ boost::shared_ptr< Network::BasicMessage > DiED::MessageFactory::GetMessage(u_in
 	case DiED::_NoMessage:
 	default:
 		{
-			std::cerr << "Encountered undefined message '" << u32Type << "'." << std::endl;
-			std::cerr << "  Trying to ignore." << std::endl;
+			std::cout << "Encountered undefined message '" << std::hex << u32Type << std::dec << "'." << std::endl;
+			std::cout << "  Trying to ignore." << std::endl;
+			std::cout << "Counter = " << g_u32Counter << std::endl;
+			
+			throw;
 			
 			return boost::shared_ptr< Network::BasicMessage >(new DiED::NoMessage());
 		}

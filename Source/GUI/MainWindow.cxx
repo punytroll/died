@@ -18,10 +18,14 @@ GUI::MainWindow::MainWindow(DiED::System & System) :
 	m_InsertConnection(m_TextBuffer->signal_insert().connect(sigc::mem_fun(*this, &GUI::MainWindow::vInserted)))
 {
 	m_System.vSetExternalEnvironment(this);
+	
+	Gtk::ScrolledWindow * pScrolledWindow(manage(new Gtk::ScrolledWindow()));
+	
 	m_TextView.show();
+	pScrolledWindow->add(m_TextView);
 	m_Notebook.show();
 	m_Pane.show();
-	m_Pane.pack1(m_TextView, true, true);
+	m_Pane.pack1(*pScrolledWindow, true, true);
 	m_Pane.pack2(m_Notebook, true, true);
 	add(m_Pane);
 	set_default_size(500, 300);
@@ -46,9 +50,9 @@ void GUI::MainWindow::vNewClient(DiED::Client & DiEDClient)
 	Gtk::VBox * pBox(manage(new Gtk::VBox()));
 	Gtk::ScrolledWindow * pScrolledWindow(manage(new Gtk::ScrolledWindow()));
 	Gtk::TreeView * pClientView(manage(new Gtk::TreeView(Client.GetMessageListStore())));
-	Gtk::HButtonBox * pButtonBox(manage(new Gtk::HButtonBox()));
-	Gtk::Button * pHoldFlowButton(manage(new Gtk::Button(Gtk::Stock::STOP)));
-	Gtk::Button * pNextButton(manage(new Gtk::Button(Gtk::Stock::EXECUTE)));
+//~ 	Gtk::HButtonBox * pButtonBox(manage(new Gtk::HButtonBox()));
+	Gtk::Button * pHoldFlowButton(manage(new Gtk::Button("Hold/Flow")));
+	Gtk::Button * pNextButton(manage(new Gtk::Button("Next")));
 	std::stringstream ssName;
 	
 	ssName << Client.GetClientID();
@@ -57,17 +61,19 @@ void GUI::MainWindow::vNewClient(DiED::Client & DiEDClient)
 	pClientView->show();
 	pScrolledWindow->add(*pClientView);
 	pScrolledWindow->show();
-	pHoldFlowButton->set_label(((Client.bIsHoldingMessagesBack() == true) ? ("Flow") : ("Hold")));
-	pHoldFlowButton->signal_clicked().connect(sigc::bind(sigc::bind(sigc::mem_fun(*this, &GUI::MainWindow::vHoldFlowButtonClicked), boost::ref(Client)), pHoldFlowButton, pNextButton));
+//~ 	pHoldFlowButton->set_label(((Client.bIsHoldingMessagesBack() == true) ? ("Flow") : ("Hold")));
+//~ 	pHoldFlowButton->signal_clicked().connect(sigc::bind(sigc::bind(sigc::mem_fun(*this, &GUI::MainWindow::vHoldFlowButtonClicked), boost::ref(Client)), pHoldFlowButton, pNextButton));
 	pHoldFlowButton->show();
 	pNextButton->set_sensitive(Client.bIsHoldingMessagesBack());
-	pNextButton->signal_clicked().connect(sigc::bind(sigc::mem_fun(*this, &GUI::MainWindow::vNextButtonClicked), boost::ref(Client)));
+//~ 	pNextButton->signal_clicked().connect(sigc::bind(sigc::mem_fun(*this, &GUI::MainWindow::vNextButtonClicked), boost::ref(Client)));
 	pNextButton->show();
-	pButtonBox->pack_start(*pHoldFlowButton);
-	pButtonBox->pack_start(*pNextButton);
-	pButtonBox->show();
+//~ 	pButtonBox->pack_start(*pHoldFlowButton);
+//~ 	pButtonBox->pack_start(*pNextButton);
+//~ 	pButtonBox->show();
 	pBox->pack_start(*pScrolledWindow, true, true);
-	pBox->pack_start(*pButtonBox, false, false);
+//~ 	pBox->pack_start(*pButtonBox, false, false);
+	pBox->pack_start(*pHoldFlowButton, false, false);
+	pBox->pack_start(*pNextButton, false, false);
 	pBox->show();
 	m_Notebook.append_page(*pBox, ssName.str());
 	DiEDClient.ClientIDChanged.connect(sigc::bind(sigc::mem_fun(*this, &GUI::MainWindow::vClientIDChanged), boost::ref(DiEDClient), pBox));

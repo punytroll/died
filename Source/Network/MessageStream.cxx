@@ -27,7 +27,9 @@ Network::MessageStream & Network::MessageStream::operator>>(boost::shared_ptr< N
 {
 	push_back(Message);
 	MessageBegin();
+	std::cout << "-> ReadFrom" << std::endl;
 	Message->vReadFrom(*this);
+	std::cout << "<- ReadFrom" << std::endl;
 	
 	return *this;
 }
@@ -50,6 +52,7 @@ Network::MessageStream & Network::MessageStream::operator<<(const Network::Basic
 
 void Network::MessageStream::vMessageTypeReady(void)
 {
+//~ 	std::cout << "MessageType " << m_MessageType << " read." << std::endl;
 	*this >> m_MessageFactory->GetMessage(m_MessageType);
 	Stream::operator>>(m_NotifyValue);
 	Stream::operator>>(m_MessageType);

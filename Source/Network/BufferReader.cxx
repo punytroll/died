@@ -129,7 +129,7 @@ bool Network::BufferReader::bRead(Glib::ustring & sValue)
 	{
 		if(m_Buffer.stRead(&u8Char, sizeof(u_int8_t)) == sizeof(u_int8_t))
 		{
-//~ 			std::cout << "\tRead '" << std::hex << static_cast< u_int32_t >(u8Char) << "'" << std::endl;
+//~ 			std::cout << "\tRead '" << std::hex << static_cast< u_int32_t >(u8Char) << std::dec << "'" << std::endl;
 			if(u8Char == 0)
 			{
 				break;

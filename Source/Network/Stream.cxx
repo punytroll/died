@@ -10,7 +10,20 @@
 
 #include "../Common.h"
 
-const size_t g_stInitialBufferSize = 2048;
+void vEchoValueQueue(std::deque< boost::reference_wrapper< Network::BasicValue > > & Values)
+{
+	std::deque< boost::reference_wrapper< Network::BasicValue > >::iterator iValue(Values.begin());
+	int iI = 1;
+	
+	while(iValue != Values.end())
+	{
+		std::cout << "\t\t\t" << iI << ". ValueType = " << (*iValue).get().sGetString() << std::endl;
+		iI++;
+		++iValue;
+	}
+}
+
+const size_t g_stInitialBufferSize = 1024;
 
 Network::Stream::Stream(void) :
 	m_pu8Buffer(new u_int8_t[2048]),
@@ -84,7 +97,11 @@ void Network::Stream::vOpen(const Network::address_t & ConnectAddress, const Net
 
 Network::Stream & Network::Stream::operator>>(Network::BasicValue & Value)
 {
+	std::cout << "Push back the value. size before: " << m_Values.size() << std::endl;
+	vEchoValueQueue(m_Values);
 	m_Values.push_back(boost::ref(Value));
+	std::cout << "Pushed back the value. size after: " << m_Values.size() << std::endl;
+	vEchoValueQueue(m_Values);
 	
 	return *this;
 }
@@ -117,14 +134,27 @@ void Network::Stream::vOnIn(void)
 		return;
 	}
 //~ 	std::cout << "Read " << stSize << " bytes from the socket." << std::endl;
+	
+//~ 	std::cout << std::hex;
+//~ 	for(ssize_t stI = 0; stI < stSize; ++stI)
+//~ 	{
+//~ 		std::cout << static_cast< u_int32_t >(m_pu8Buffer[stI]) << ' ';
+//~ 	}
+//~ 	std::cout << std::dec << std::endl;
+	
 //~ 	std::cout << "Buffer size is " << m_IBuffer.stGetSize() << "." << std::endl;
 	m_IBuffer.vWrite(m_pu8Buffer, stSize);
 //~ 	std::cout << "Buffer size is " << m_IBuffer.stGetSize() << "." << std::endl;
 	
+	
 	std::deque< boost::reference_wrapper< Network::BasicValue > >::iterator iValue(m_Values.begin());
 	
+	std::cout << "while" << std::endl;
 	while(iValue != m_Values.end())
 	{
+		std::cout << "\twhile Iteration" << std::endl;
+		vEchoValueQueue(m_Values);
+		
 		Network::BasicValue & Value(*iValue);
 		
 		vRead(Value);
@@ -132,7 +162,11 @@ void Network::Stream::vOnIn(void)
 		{
 			break;
 		}
+		std::cout << "\tafter Message execution" << std::endl;
+		vEchoValueQueue(m_Values);
 		m_Values.erase(iValue);
+		std::cout << "\tafter iterator erase" << std::endl;
+		vEchoValueQueue(m_Values);
 		iValue = m_Values.begin();
 	}
 }
