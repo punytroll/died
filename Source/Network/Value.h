@@ -24,6 +24,11 @@ namespace Network
 			return m_Value;
 		}
 		
+		virtual Glib::ustring sGetString(void) const
+		{
+			return typeid(Type).name();
+		}
+		
 		virtual void vReadFrom(boost::shared_ptr< Network::BasicReader > Reader)
 		{
 			vSetReady(Reader->bRead(m_Value));
