@@ -64,6 +64,8 @@ namespace DiED
 	protected:
 		boost::shared_ptr< Network::MessageStream > m_MessageStream;
 	private:
+		void vHandleAnswer(void);
+		
 		Network::port_t m_Port;
 		Network::address_t m_Address;
 		sigc::connection m_BytesSentConnection;
