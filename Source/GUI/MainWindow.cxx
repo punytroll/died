@@ -62,12 +62,13 @@ void GUI::vInsertText(GtkTextBuffer * pTextBuffer, GtkTextIter * pIterator, char
 	}
 }
 
-GUI::MainWindow::MainWindow(DiED::System & System) :
+GUI::MainWindow::MainWindow(DiED::System & System, bool bDebugWindow) :
 	m_System(System),
 	m_TextBuffer(m_TextView.get_buffer()),
 	m_KeyPressedConnection(m_TextView.signal_key_press_event().connect(sigc::mem_fun(*this, &GUI::MainWindow::bKeyPressed), false)),
 	m_ulInsertTextHandlerID(g_signal_connect(m_TextBuffer->gobj(), "insert-text", GCallback(GUI::vInsertText), this)),
-	m_ulDeleteRangeHandlerID(g_signal_connect(m_TextBuffer->gobj(), "delete-range", GCallback(GUI::vDeleteRange), this))
+	m_ulDeleteRangeHandlerID(g_signal_connect(m_TextBuffer->gobj(), "delete-range", GCallback(GUI::vDeleteRange), this)),
+	m_bDebugWindow(bDebugWindow)
 {
 	m_System.vSetExternalEnvironment(this);
 	
@@ -76,11 +77,18 @@ GUI::MainWindow::MainWindow(DiED::System & System) :
 	m_TextView.show();
 	pScrolledWindow->add(m_TextView);
 #ifndef NODEBUG
-	m_Notebook.show();
-	m_Pane.show();
-	m_Pane.pack1(*pScrolledWindow, true, true);
-	m_Pane.pack2(m_Notebook, true, true);
-	add(m_Pane);
+	if(m_bDebugWindow == true)
+	{
+		m_Notebook.show();
+		m_Pane.show();
+		m_Pane.pack1(*pScrolledWindow, true, true);
+		m_Pane.pack2(m_Notebook, true, true);
+		add(m_Pane);
+	}
+	else
+	{
+		add(*pScrolledWindow);
+	}
 #else
 	add(*pScrolledWindow);
 #endif
@@ -127,6 +135,11 @@ void GUI::MainWindow::vNewClient(DiED::Client & DiEDClient)
 	}
 
 #ifndef NODEBUG
+	if(m_bDebugWindow == false)
+	{
+		return;
+	}
+	
 	GUI::Client & Client(dynamic_cast< GUI::Client & >(DiEDClient));
 	Gtk::VBox * pBox(manage(new Gtk::VBox()));
 	Gtk::ScrolledWindow * pScrolledWindow(manage(new Gtk::ScrolledWindow()));
@@ -168,8 +181,8 @@ void GUI::MainWindow::vNewClient(DiED::Client & DiEDClient)
 	pBox->show();
 	m_Notebook.append_page(*pBox, ssName.str());
 	Client.vSetWidget(pBox);
-#endif
 	vClientStatusChanged(DiEDClient.GetID(), DiEDClient.GetStatus(m_System.GetLocalClientID()), boost::ref(DiEDClient));
+#endif
 }
 
 void GUI::MainWindow::vInsert(const Glib::ustring & sString, int iLine, int iCharacter)
@@ -242,6 +255,7 @@ int GUI::MainWindow::iGetCharacter(void) const
 
 void GUI::MainWindow::vClientStatusChanged(const DiED::clientid_t & ClientID, const DiED::clientstatus_t & Status, boost::reference_wrapper< DiED::Client > Client)
 {
+#ifndef NODEBUG
 	DiED::Client * pDiEDClient(m_System.pGetClient(ClientID));
 	
 	if(pDiEDClient == 0)
@@ -250,7 +264,11 @@ void GUI::MainWindow::vClientStatusChanged(const DiED::clientid_t & ClientID, co
 		//  => The local client is set to Disconnected to the new client during registration but the client is not yet in the list.
 		return;
 	}
-#ifndef NODEBUG
+	if(m_bDebugWindow == false)
+	{
+		return;
+	}
+	
 	GUI::Client * pClient(dynamic_cast< GUI::Client * >(pDiEDClient));
 	
 	if(pClient == 0)
