@@ -2,19 +2,9 @@
 #include <sstream>
 
 #include "Common.h"
-#include "DiED/Client.h"
-#include "DiED/ClientFactory.h"
-#include "DiED/MessageFactory.h"
-#include "DiED/Messages.h"
-#include "DiED/Server.h"
+#include "DiED/System.h"
 
 bool g_bDone = false;
-std::vector< boost::shared_ptr< Network::Socket > > g_Clients;
-
-void vAccepted(boost::shared_ptr< Network::Socket > Client)
-{
-	g_Clients.push_back(Client);
-}
 
 int main(int argc, char ** argv)
 {
@@ -51,33 +41,12 @@ int main(int argc, char ** argv)
 		++iI;
 	}
 	
-	DiED::MessageFactory MessageFactory;
-	DiED::ClientFactory ClientFactory(MessageFactory);
-	DiED::Server Server(ClientFactory);
-	DiED::Client Client(MessageFactory);
+	DiED::System DiEDSystem;
 	
-	Server.vOpen(u16ServerPort);
-	if(Server.bIsOpen() == false)
-	{
-		std::cerr << "[Server]: Error setting up the server. [" << sErrorCodeToString(Server.iGetError()) << "]." << std::endl;
-	}
-	else
-	{
-		Server.Accepted.connect(sigc::ptr_fun(vAccepted));
-	}
+	DiEDSystem.bListen(u16ServerPort);
 	if(sConnectAddress != "")
 	{
-		Client.vOpen(sConnectAddress, u16ConnectPort);
-		if(Client.bIsOpen() == false)
-		{
-			std::cout << "[Client]: Connection failed." << std::endl;
-		}
-		else
-		{
-			std::cout << "[Client]: Connected to " << sConnectAddress << ':' << u16ConnectPort << std::endl;
-			
-			Client << DiED::HelloMessage();
-		}
+		DiEDSystem.bConnectTo(sConnectAddress, u16ConnectPort);
 	}
 	while(g_bDone == false)
 	{

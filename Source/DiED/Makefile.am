@@ -10,11 +10,13 @@ libdied_a_SOURCES = \
 	ClientFactory.cxx \
 	MessageFactory.cxx \
 	Messages.cxx \
-	Server.cxx
+	Server.cxx \
+	System.cxx
 
 EXTRA_DIST = \
 	Client.h \
 	ClientFactory.h \
 	MessageFactory.h \
 	Messages.h \
-	Server.h
+	Server.h \
+	System.h
