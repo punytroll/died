@@ -2,6 +2,8 @@
 
 #include <iostream>
 
+#include <Common.h>
+
 Network::CircularBuffer::CircularBuffer(size_t stSize) :
 	m_pu8StorageBegin(new u_int8_t[stSize]),
 	m_pu8StorageEnd(m_pu8StorageBegin + stSize),
@@ -93,8 +95,7 @@ void Network::CircularBuffer::vWrite(const u_int8_t * pu8Memory, size_t stSize)
 	// we need a buffer size + 1 because Begin may only be equal End if the buffer is empty.
 	if(stSize >= stGetFree())
 	{
-//~ 		std::cout << "[Write]: TODO: Enlarge buffer." << std::endl;
-		// TODO: enlarge buffer
+		LOG(TODO, "Network/CircularBuffer", "Enlarge buffer.");
 	}
 	if(m_pu8DataBegin <= m_pu8DataEnd)
 	{
