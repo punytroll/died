@@ -8,12 +8,7 @@ Network::Server::Server(void)
 {
 }
 
-void Network::Server::vSetSocketFactory(boost::shared_ptr< Network::SocketFactory > SocketFactory)
-{
-	m_SocketFactory = SocketFactory;
-}
-
-void Network::Server::vOpen(u_int16_t u16ServicePort)
+void Network::Server::vOpen(const Network::port_t & ServicePort)
 {
 	if(bIsOpen() == true)
 	{
@@ -32,7 +27,7 @@ void Network::Server::vOpen(u_int16_t u16ServicePort)
 	sockaddr_in & SocketInformation = reinterpret_cast< sockaddr_in & >(SocketAddress);
 	
 	SocketInformation.sin_family = PF_INET;
-	SocketInformation.sin_port = htons(u16ServicePort);
+	SocketInformation.sin_port = htons(ServicePort);
 	SocketInformation.sin_addr.s_addr = INADDR_ANY;
 	if(::bind(m_iSocket, &SocketAddress, sizeof(sockaddr_in)) == -1)
 	{
@@ -59,6 +54,11 @@ void Network::Server::vOpen(u_int16_t u16ServicePort)
 		return;
 	}
 	vMonitor();
+}
+
+void Network::Server::vSetSocketFactory(boost::shared_ptr< Network::SocketFactory > SocketFactory)
+{
+	m_SocketFactory = SocketFactory;
 }
 
 void Network::Server::vOnIn(void)

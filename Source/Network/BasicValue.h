@@ -22,7 +22,7 @@ namespace Network
 		{
 		}
 		
-		bool bIsReady(void)
+		bool bIsReady(void) const
 		{
 			return m_bReady;
 		}

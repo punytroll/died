@@ -32,9 +32,9 @@ DiED::Server & DiED::System::GetServer(void)
 	return m_Server;
 }
 
-bool DiED::System::bListen(u_int16_t u16ServicePort)
+bool DiED::System::bListen(const Network::port_t & ServicePort)
 {
-	m_Server.vOpen(u16ServicePort);
+	m_Server.vOpen(ServicePort);
 	if(m_Server.bIsOpen() == false)
 	{
 		std::cerr << "[Server]: Error setting up the server. [" << sErrorCodeToString(m_Server.iGetError()) << "]." << std::endl;
@@ -49,21 +49,18 @@ bool DiED::System::bListen(u_int16_t u16ServicePort)
 	return true;
 }
 
-bool DiED::System::bConnectTo(const std::string & sConnectAddress, u_int16_t u16ConnectPort)
+bool DiED::System::bConnectTo(const Network::address_t & ConnectAddress, const Network::port_t & ConnectPort)
 {
 	boost::shared_ptr< DiED::Client > Client(new DiED::Client(m_MessageFactory, *this));
 	
-	Client->vOpen(sConnectAddress, u16ConnectPort);
+	Client->vOpen(ConnectAddress, ConnectPort);
 	if(Client->bIsOpen() == false)
 	{
 		std::cout << "[Client]: Connection failed." << std::endl;
 	}
 	else
 	{
-		std::cout << "[Client]: Connected to " << sConnectAddress << ':' << u16ConnectPort << std::endl;
-		
-		Client->operator<<(DiED::HelloMessage());
-		Client->operator<<(DiED::PingMessage());
+		std::cout << "[Client]: Connected to " << ConnectAddress << ':' << ConnectPort << std::endl;
 	}
 	m_Clients.push_back(Client);
 }

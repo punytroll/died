@@ -16,9 +16,11 @@ namespace DiED
 		void vSetExternalEnvironment(DiED::ExternalEnvironment * pExternalEnvironment);
 		virtual boost::shared_ptr< Network::MessageFactory > GetMessageFactory(void);
 		DiED::Server & GetServer(void);
+		
 		// functions which will setup the server or the connection to a network
-		bool bListen(u_int16_t u16ServicePort);
-		bool bConnectTo(const std::string & sConnectAddress, u_int16_t u16ConnectPort);
+		bool bListen(const Network::port_t & ServicePort);
+		bool bConnectTo(const Network::address_t & ConnectAddress, const Network::port_t & ConnectPort);
+		
 		// functions which will send messages to the connected clients
 		void vInput(const Glib::ustring & sString);
 		// implementation of the InternalEnvironment interface
