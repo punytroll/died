@@ -122,7 +122,7 @@ void GUI::MainWindow::vInsertText(const Glib::ustring & sString, int iLine, int 
 	m_InsertConnection.unblock();
 }
 
-void GUI::MainWindow::vClientStatusChanged(const DiED::clientid_t & ClientID, const DiED::User::Status & Status, boost::reference_wrapper< DiED::Client > Client)
+void GUI::MainWindow::vClientStatusChanged(const DiED::clientid_t & ClientID, const DiED::clientstatus_t & Status, boost::reference_wrapper< DiED::Client > Client)
 {
 	DiED::Client * pDiEDClient(m_System.pGetClient(ClientID));
 	
@@ -155,28 +155,28 @@ void GUI::MainWindow::vClientStatusChanged(const DiED::clientid_t & ClientID, co
 	
 	switch(Status)
 	{
-	case DiED::User::Connected:
+	case DiED::Connected:
 		{
 			pLabel->modify_fg(Gtk::STATE_NORMAL, Gdk::Color(&Connected));
 			pLabel->modify_fg(Gtk::STATE_ACTIVE, Gdk::Color(&Connected));
 			
 			break;
 		}
-	case DiED::User::Disconnected:
+	case DiED::Disconnected:
 		{
 			pLabel->modify_fg(Gtk::STATE_NORMAL, Gdk::Color(&Disconnected));
 			pLabel->modify_fg(Gtk::STATE_ACTIVE, Gdk::Color(&Disconnected));
 			
 			break;
 		}
-	case DiED::User::Deleted:
+	case DiED::Deleted:
 		{
 			pLabel->modify_fg(Gtk::STATE_NORMAL, Gdk::Color(&Deleted));
 			pLabel->modify_fg(Gtk::STATE_ACTIVE, Gdk::Color(&Deleted));
 			
 			break;
 		}
-	case DiED::User::Connecting:
+	case DiED::Connecting:
 		{
 			pLabel->modify_fg(Gtk::STATE_NORMAL, Gdk::Color(&Connecting));
 			pLabel->modify_fg(Gtk::STATE_ACTIVE, Gdk::Color(&Connecting));
