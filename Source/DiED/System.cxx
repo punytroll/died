@@ -80,7 +80,7 @@ bool DiED::System::bConnectTo(const Network::address_t & ConnectAddress, const N
 
 void DiED::System::vInput(const Glib::ustring & sString)
 {
-	boost::shared_ptr< DiED::BasicMessage > Message(new DiED::InputMessage(sString));
+	boost::shared_ptr< DiED::BasicMessage > Message(new DiED::InputMessage(m_Client->GetClientID(), 0, 0, sString));
 	
 	vSendMessage(Message);
 	vInsertText(*m_Client, sString, false);

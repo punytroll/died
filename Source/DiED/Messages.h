@@ -98,21 +98,6 @@ namespace DiED
 		Network::Value< DiED::messageid_t > m_MessageID;
 	};
 	
-	class InputMessage : public DiED::BasicMessage
-	{
-	public:
-		InputMessage(void);
-		InputMessage(const Glib::ustring & sString);
-		virtual bool bIsReady(void) const;
-		virtual void vReadFrom(Network::Stream & Stream);
-		virtual void vExecute(DiED::MessageTarget & MessageTarget);
-		virtual Glib::ustring sGetString(void);
-	protected:
-		virtual void vWriteToInternal(Network::Stream & Stream) const;
-	private:
-		Network::Value< Glib::ustring > m_String;
-	};
-	
 	class PingMessage : public DiED::BasicMessage
 	{
 	public:
@@ -192,10 +177,27 @@ namespace DiED
 	{
 	public:
 		EventMessage(const Network::BasicMessage::type_t & Type, bool bForSending);
-		virtual bool bIsEventMessage(void)
-		{
-			return true;
-		}
+		EventMessage(const DiED::clientid_t & CreatorID, const DiED::messageid_t & EventID, const DiED::clientid_t & LostClientID, const Network::BasicMessage::type_t & Type, bool bForSending);
+		virtual bool bIsEventMessage(void);
+	private:
+		Network::Value< DiED::clientid_t > m_CreatorID;
+		Network::Value< DiED::messageid_t > m_EventID;
+		Network::Value< DiED::clientid_t > m_LostClientID;
+	};
+	
+	class InputMessage : public DiED::EventMessage
+	{
+	public:
+		InputMessage(void);
+		InputMessage(const DiED::clientid_t & CreatorID, const DiED::messageid_t & EventID, const DiED::clientid_t & LostClientID, const Glib::ustring & sString);
+		virtual bool bIsReady(void) const;
+		virtual void vReadFrom(Network::Stream & Stream);
+		virtual void vExecute(DiED::MessageTarget & MessageTarget);
+		virtual Glib::ustring sGetString(void);
+	protected:
+		virtual void vWriteToInternal(Network::Stream & Stream) const;
+	private:
+		Network::Value< Glib::ustring > m_String;
 	};
 }
 
