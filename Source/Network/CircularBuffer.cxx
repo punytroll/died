@@ -56,7 +56,7 @@ size_t Network::CircularBuffer::stRead(u_int8_t * pu8Memory, size_t stSize)
 	}
 	else
 	{
-		if((m_pu8StorageEnd - m_pu8DataBegin) >= stSize)
+		if(m_pu8StorageEnd >= stSize + m_pu8DataBegin)
 		{
 			memcpy(pu8Memory, m_pu8DataBegin, stSize);
 			m_pu8DataBegin += stSize;
@@ -87,7 +87,7 @@ void Network::CircularBuffer::vWrite(const u_int8_t * pu8Memory, size_t stSize)
 	if(m_pu8DataBegin <= m_pu8DataEnd)
 	{
 //~ 		std::cout << "\t[Write]: DataBegin <= DataEnd" << std::endl;
-		if((m_pu8StorageEnd - m_pu8DataEnd) >= stSize)
+		if(m_pu8StorageEnd >= stSize + m_pu8DataEnd)
 		{
 //~ 			std::cout << "\t[Write]: New data fits." << std::endl;
 			memcpy(m_pu8DataEnd, pu8Memory, stSize);
