@@ -202,48 +202,6 @@ void DiED::ClientsRegisteredMessage::vWriteToInternal(Network::Stream & Stream) 
 	Stream << m_MessageID;
 }
 
-///////////////////////////////////////////////////////////////////////////////////////////////////
-
-DiED::InputMessage::InputMessage(void) :
-	DiED::BasicMessage(DiED::_InputMessage, false)
-{
-}
-
-DiED::InputMessage::InputMessage(const Glib::ustring & sString) :
-	DiED::BasicMessage(DiED::_InputMessage, true),
-	m_String(sString)
-{
-}
-
-bool DiED::InputMessage::bIsReady(void) const
-{
-	return m_String.bIsReady();
-}
-
-void DiED::InputMessage::vReadFrom(Network::Stream & Stream)
-{
-	Stream >> m_String;
-}
-
-void DiED::InputMessage::vWriteToInternal(Network::Stream & Stream) const
-{
-	Stream << m_String;
-}
-
-void DiED::InputMessage::vExecute(DiED::MessageTarget & MessageTarget)
-{
-	MessageTarget.vInsertText(m_String);
-}
-
-Glib::ustring DiED::InputMessage::sGetString(void)
-{
-	std::stringstream ssString;
-	
-	ssString << "InputMessage [Text = " << m_String << "]";
-	
-	return ssString.str();
-}
-
 DiED::PingMessage::PingMessage(void) :
 	DiED::BasicMessage(DiED::_PingMessage, true)
 {
@@ -423,4 +381,68 @@ Glib::ustring DiED::TestMessage::sGetString(void)
 void DiED::TestMessage::vWriteToInternal(Network::Stream & Stream) const
 {
 	Stream << m_Values;
+}
+
+///////////////////////////////////////////////////////////////////////////////////////////////////
+
+DiED::EventMessage::EventMessage(const Network::BasicMessage::type_t & Type, bool bForSending) :
+	DiED::BasicMessage(Type, bForSending)
+{
+}
+
+DiED::EventMessage::EventMessage(const DiED::clientid_t & CreatorID, const DiED::messageid_t & EventID, const DiED::clientid_t & LostClientID, const Network::BasicMessage::type_t & Type, bool bForSending) :
+	DiED::BasicMessage(Type, bForSending),
+	m_CreatorID(CreatorID),
+	m_EventID(EventID),
+	m_LostClientID(LostClientID)
+{
+	
+}
+
+bool DiED::EventMessage::bIsEventMessage(void)
+{
+	return true;
+}
+
+///////////////////////////////////////////////////////////////////////////////////////////////////
+
+DiED::InputMessage::InputMessage(void) :
+	DiED::EventMessage(DiED::_InputMessage, false)
+{
+}
+
+DiED::InputMessage::InputMessage(const DiED::clientid_t & CreatorID, const DiED::messageid_t & EventID, const DiED::clientid_t & LostClientID, const Glib::ustring & sString) :
+	DiED::EventMessage(CreatorID, EventID, LostClientID, DiED::_InputMessage, true),
+	m_String(sString)
+{
+//~ 	vRegisterVariable(m_String, "Text");
+}
+
+bool DiED::InputMessage::bIsReady(void) const
+{
+	return m_String.bIsReady();
+}
+
+void DiED::InputMessage::vReadFrom(Network::Stream & Stream)
+{
+	Stream >> m_String;
+}
+
+void DiED::InputMessage::vWriteToInternal(Network::Stream & Stream) const
+{
+	Stream << m_String;
+}
+
+void DiED::InputMessage::vExecute(DiED::MessageTarget & MessageTarget)
+{
+	MessageTarget.vInsertText(m_String);
+}
+
+Glib::ustring DiED::InputMessage::sGetString(void)
+{
+	std::stringstream ssString;
+	
+	ssString << "InputMessage [Text = " << m_String << "]";
+	
+	return ssString.str();
 }
