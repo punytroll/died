@@ -2,13 +2,19 @@
 
 #include <sstream>
 
+#include <boost/weak_ptr.hpp>
+
 #include <DiED/BasicMessage.h>
+
+GdkColor OutMessage = { 0x0000, 0xA0A0, 0xA0A0, 0xA0A0 };
 
 GUI::Client::Client(DiED::InternalEnvironment & InternalEnvironment) :
 	DiED::Client(InternalEnvironment),
 	m_bHoldMessagesBack(false),
 	m_MessageListStore(GUI::MessageListStore::create())
 {
+	MessageQueued.connect(sigc::mem_fun(*this, &GUI::Client::vOnMessageQueued));
+	MessageSent.connect(sigc::mem_fun(*this, &GUI::Client::vOnMessageSent));
 //~ 	std::cout << "[GUI/Client]: Created new Client." << std::endl;
 }
 
@@ -33,6 +39,9 @@ void GUI::Client::vOnMessageReady(void)
 		if((*Iterator)[m_MessageListStore->Columns.Status] == "Downloading")
 		{
 			Row = *Iterator;
+		} else if((*Iterator)[m_MessageListStore->Columns.Status] == "Executed")
+		{
+			break;
 		}
 		++Iterator;
 	}
@@ -67,11 +76,18 @@ void GUI::Client::vOnMessageExecuted(void)
 	Gtk::TreeIter Iterator(m_MessageListStore->children().begin());
 	Gtk::TreeRow Row;
 	
+	// go from the top of the list down
 	while(Iterator != m_MessageListStore->children().end())
 	{
+		// if the Status of the Row is "Ready" set the Row
 		if((*Iterator)[m_MessageListStore->Columns.Status] == "Ready")
 		{
 			Row = *Iterator;
+		}
+		// if we encounter the first "Executed" message, Row points to the last one with Status "Ready"
+		else if((*Iterator)[m_MessageListStore->Columns.Status] == "Executed")
+		{
+			break;
 		}
 		++Iterator;
 	}
@@ -103,4 +119,40 @@ void GUI::Client::vSetWidget(Gtk::Widget * pWidget)
 Gtk::Widget * GUI::Client::pGetWidget(void)
 {
 	return m_pWidget;
+}
+
+void GUI::Client::vOnMessageQueued(boost::weak_ptr< DiED::BasicMessage > _Message)
+{
+	boost::shared_ptr< DiED::BasicMessage > Message(_Message.lock());
+	Gtk::TreeRow Row(*m_MessageListStore->prepend());
+	std::stringstream ssName;
+	
+	Row[m_MessageListStore->Columns.Name] = Message->sGetString();
+	Row[m_MessageListStore->Columns.ClientID] = GetID();
+	Row[m_MessageListStore->Columns.Status] = "Queued";
+	Row[m_MessageListStore->Columns.Color] = Gdk::Color(&OutMessage);
+}
+
+void GUI::Client::vOnMessageSent(boost::weak_ptr< DiED::BasicMessage > Message)
+{
+//~ 	std::cout << "Message executed:\n\t" << boost::dynamic_pointer_cast< DiED::BasicMessage >(m_MessageStream->back())->sGetString() << std::endl;
+	Gtk::TreeIter Iterator(m_MessageListStore->children().begin());
+	Gtk::TreeRow Row;
+	
+	// go from the top of the list down
+	while(Iterator != m_MessageListStore->children().end())
+	{
+		// if the Status of the Row is "Ready" set the Row
+		if((*Iterator)[m_MessageListStore->Columns.Status] == "Queued")
+		{
+			Row = *Iterator;
+		}
+		// if we encounter the first "Executed" message, Row points to the last one with Status "Ready"
+		else if((*Iterator)[m_MessageListStore->Columns.Status] == "Sent")
+		{
+			break;
+		}
+		++Iterator;
+	}
+	Row[m_MessageListStore->Columns.Status] = "Sent";
 }

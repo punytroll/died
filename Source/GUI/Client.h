@@ -27,6 +27,8 @@ namespace GUI
 		virtual void vOnMessageReady(void);
 		virtual void vOnMessageBegin(void);
 		virtual void vOnMessageExecuted(void);
+		void vOnMessageQueued(boost::weak_ptr< DiED::BasicMessage > Message);
+		void vOnMessageSent(boost::weak_ptr< DiED::BasicMessage > Message);
 	private:
 		bool m_bHoldMessagesBack;
 		Glib::RefPtr< GUI::MessageListStore > m_MessageListStore;
