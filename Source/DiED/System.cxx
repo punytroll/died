@@ -8,10 +8,8 @@
 
 DiED::System::System(void) :
 	m_MessageFactory(new DiED::MessageFactory()),
-	m_Client(new DiED::Client(*this)),
 	m_ServicePort(0)
 {
-	m_Clients.insert(std::make_pair(m_Client->GetClientID(), m_Client));
 }
 
 DiED::System::~System(void)
@@ -30,6 +28,11 @@ boost::shared_ptr< Network::MessageFactory > DiED::System::GetMessageFactory(voi
 
 void DiED::System::vSetClientFactory(boost::shared_ptr< DiED::ClientFactory > ClientFactory)
 {
+	if((!m_ClientFactory) && (!m_Client))
+	{
+		m_Client = boost::dynamic_pointer_cast< DiED::Client >(ClientFactory->GetSocket());
+		m_Clients.insert(std::make_pair(m_Client->GetClientID(), m_Client));
+	}
 	m_ClientFactory = ClientFactory;
 	m_Server.vSetSocketFactory(ClientFactory);
 }
