@@ -32,6 +32,7 @@ void DiED::System::vSetClientFactory(boost::shared_ptr< DiED::ClientFactory > Cl
 	{
 		m_Client = boost::dynamic_pointer_cast< DiED::Client >(ClientFactory->GetSocket());
 		m_Clients.insert(std::make_pair(m_Client->GetClientID(), m_Client));
+		m_pExternalEnvironment->vClientConnected(*m_Client);
 	}
 	m_ClientFactory = ClientFactory;
 	m_Server.vSetSocketFactory(ClientFactory);
@@ -72,6 +73,7 @@ bool DiED::System::bConnectTo(const Network::address_t & ConnectAddress, const N
 		Client->operator<<(DiED::ConnectMessage(m_Client->GetClientID(), m_ServicePort));
 	}
 	m_Clients.insert(std::make_pair(Client->GetClientID(), Client));
+	m_pExternalEnvironment->vClientConnected(*Client);
 	
 	return true;
 }
@@ -167,5 +169,5 @@ void DiED::System::vAccepted(boost::shared_ptr< Network::Socket > Socket)
 	boost::shared_ptr< DiED::Client > NewClient(boost::dynamic_pointer_cast< DiED::Client >(Socket));
 	
 	m_Clients.insert(std::make_pair(NewClient->GetClientID(), NewClient));
-//~ 	ClientConnected(*NewClient);
+	m_pExternalEnvironment->vClientConnected(*NewClient);
 }
