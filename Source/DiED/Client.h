@@ -7,6 +7,8 @@
 
 namespace DiED
 {
+	typedef u_int32_t clientid_t;
+	
 	class Client : public Network::MessageStream, public DiED::User
 	{
 	public:

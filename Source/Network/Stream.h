@@ -15,11 +15,16 @@ namespace Network
 	class Stream : public Network::Socket
 	{
 	public:
+		// constructors and destructors
 		Stream(void);
 		Stream(int iSocket);
+		
+		// connection
+		void vOpen(const Network::address_t & ConnectAddress, const Network::port_t & ConnectPort);
+		
+		// input/output streaming of Values
 		Stream & operator>>(Network::BasicValue & Value);
 		Stream & operator<<(const Network::BasicValue & Value);
-		void vOpen(const std::string & sConnectAddress, u_int16_t u16ConnectPort);
 	protected:
 		void vRead(Network::BasicValue & Value);
 		virtual void vOnIn(void);

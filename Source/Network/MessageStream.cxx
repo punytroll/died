@@ -41,7 +41,7 @@ Network::MessageStream & Network::MessageStream::operator<<(const Network::Basic
 	}
 	else
 	{
-		std::cout << "[MessageStream]: Trying to send Message [" << Message.u32GetType() << "] which is not for sending." << std::endl;
+		std::cout << "[MessageStream]: Trying to send Message [" << Message.GetType() << "] which is not for sending." << std::endl;
 	}
 	
 	return *this;

@@ -18,20 +18,22 @@ namespace DiED
 	{
 	public:
 		NoMessage(void);
-		virtual bool bIsReady(void);
+		virtual bool bIsReady(void) const;
 		virtual void vReadFrom(Network::Stream & Stream);
-		virtual void vWriteToInternal(Network::Stream & Stream) const;
 		virtual void vExecute(DiED::Client & Client);
+	protected:
+		virtual void vWriteToInternal(Network::Stream & Stream) const;
 	};
 	
 	class HelloMessage : public DiED::BasicMessage
 	{
 	public:
 		HelloMessage(void);
-		virtual bool bIsReady(void);
+		virtual bool bIsReady(void) const;
 		virtual void vReadFrom(Network::Stream & Stream);
-		virtual void vWriteToInternal(Network::Stream & Stream) const;
 		virtual void vExecute(DiED::Client & Client);
+	protected:
+		virtual void vWriteToInternal(Network::Stream & Stream) const;
 	};
 	
 	class InputMessage : public DiED::BasicMessage
@@ -39,10 +41,11 @@ namespace DiED
 	public:
 		InputMessage(void);
 		InputMessage(const Glib::ustring & sString);
-		virtual bool bIsReady(void);
+		virtual bool bIsReady(void) const;
 		virtual void vReadFrom(Network::Stream & Stream);
-		virtual void vWriteToInternal(Network::Stream & Stream) const;
 		virtual void vExecute(DiED::Client & Client);
+	protected:
+		virtual void vWriteToInternal(Network::Stream & Stream) const;
 	private:
 		Network::Value< Glib::ustring > m_String;
 	};
@@ -51,20 +54,22 @@ namespace DiED
 	{
 	public:
 		PingMessage(void);
-		virtual bool bIsReady(void);
+		virtual bool bIsReady(void) const;
 		virtual void vReadFrom(Network::Stream & Stream);
-		virtual void vWriteToInternal(Network::Stream & Stream) const;
 		virtual void vExecute(DiED::Client & Client);
+	protected:
+		virtual void vWriteToInternal(Network::Stream & Stream) const;
 	};
 	
 	class PongMessage : public DiED::BasicMessage
 	{
 	public:
 		PongMessage(void);
-		virtual bool bIsReady(void);
+		virtual bool bIsReady(void) const;
 		virtual void vReadFrom(Network::Stream & Stream);
-		virtual void vWriteToInternal(Network::Stream & Stream) const;
 		virtual void vExecute(DiED::Client & Client);
+	protected:
+		virtual void vWriteToInternal(Network::Stream & Stream) const;
 	};
 }
 

@@ -5,7 +5,7 @@ DiED::NoMessage::NoMessage(void) :
 {
 }
 
-bool DiED::NoMessage::bIsReady(void)
+bool DiED::NoMessage::bIsReady(void) const
 {
 	return true;
 }
@@ -27,7 +27,7 @@ DiED::HelloMessage::HelloMessage(void) :
 {
 }
 
-bool DiED::HelloMessage::bIsReady(void)
+bool DiED::HelloMessage::bIsReady(void) const
 {
 	return true;
 }
@@ -55,7 +55,7 @@ DiED::InputMessage::InputMessage(const Glib::ustring & sString) :
 {
 }
 
-bool DiED::InputMessage::bIsReady(void)
+bool DiED::InputMessage::bIsReady(void) const
 {
 	return m_String.bIsReady();
 }
@@ -80,7 +80,7 @@ DiED::PingMessage::PingMessage(void) :
 {
 }
 
-bool DiED::PingMessage::bIsReady(void)
+bool DiED::PingMessage::bIsReady(void) const
 {
 	return true;
 }
@@ -103,7 +103,7 @@ DiED::PongMessage::PongMessage(void) :
 {
 }
 
-bool DiED::PongMessage::bIsReady(void)
+bool DiED::PongMessage::bIsReady(void) const
 {
 	return true;
 }

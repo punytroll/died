@@ -27,7 +27,7 @@ Network::Stream::Stream(int iSocket) :
 {
 }
 
-void Network::Stream::vOpen(const std::string & sConnectAddress, u_int16_t u16ConnectPort)
+void Network::Stream::vOpen(const Network::address_t & ConnectAddress, const Network::port_t & ConnectPort)
 {
 	if(bIsOpen() == true)
 	{
@@ -44,9 +44,9 @@ void Network::Stream::vOpen(const std::string & sConnectAddress, u_int16_t u16Co
 	
 	sockaddr SocketAddress;
 	sockaddr_in & SocketInformation = reinterpret_cast< sockaddr_in & >(SocketAddress);
-	hostent * pHostEntity = ::gethostbyname(sConnectAddress.c_str());
+	hostent * pHostEntity = ::gethostbyname(ConnectAddress.c_str());
 	
-	SocketInformation.sin_port = htons(u16ConnectPort);
+	SocketInformation.sin_port = htons(ConnectPort);
 	if(pHostEntity != 0)
 	{
 		SocketInformation.sin_family = pHostEntity->h_addrtype;
@@ -54,7 +54,7 @@ void Network::Stream::vOpen(const std::string & sConnectAddress, u_int16_t u16Co
 	}
 	else
 	{
-		if(::inet_aton(sConnectAddress.c_str(), &(SocketInformation.sin_addr)) == 0)
+		if(::inet_aton(ConnectAddress.c_str(), &(SocketInformation.sin_addr)) == 0)
 		{
 			::close(m_iSocket);
 			m_iSocket = g_iInvalidSocket;

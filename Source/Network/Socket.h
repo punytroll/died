@@ -9,6 +9,9 @@ namespace Network
 {
 	extern const int g_iInvalidSocket;
 	
+	typedef Glib::ustring address_t;
+	typedef u_int16_t port_t;
+	
 	class Socket : virtual public sigc::trackable
 	{
 	public:

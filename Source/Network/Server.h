@@ -6,12 +6,19 @@
 
 namespace Network
 {
-	class Server : public Socket
+	class Server : public Network::Socket
 	{
 	public:
+		// constructors and destructors
 		Server(void);
+		
+		// connection
+		void vOpen(const Network::port_t & ServicePort);
+		
+		// setting the socket factory
 		void vSetSocketFactory(boost::shared_ptr< Network::SocketFactory > SocketFactory);
-		void vOpen(u_int16_t u16ServicePort);
+		
+		// signal is fired when a new connection has been established via the socket
 		sigc::signal< void, boost::shared_ptr< Network::Socket > > Accepted;
 	protected:
 		virtual void vOnIn(void);
