@@ -17,17 +17,17 @@ DiED::System::~System(void)
 
 void DiED::System::vSetClientFactory(boost::shared_ptr< DiED::ClientFactory > ClientFactory)
 {
-	m_ClientFactory = ClientFactory;
-	if(m_ClientFactory)
-	{
-		m_ClientFactory->vSetMessageFactory(m_MessageFactory);
-		m_Server.vSetSocketFactory(m_ClientFactory);
-	}
+	m_Server.vSetSocketFactory(m_ClientFactory);
 }
 
 void DiED::System::vSetExternalEnvironment(DiED::ExternalEnvironment * pExternalEnvironment)
 {
 	m_pExternalEnvironment = pExternalEnvironment;
+}
+
+boost::shared_ptr< Network::MessageFactory > DiED::System::GetMessageFactory(void)
+{
+	return m_MessageFactory;
 }
 
 bool DiED::System::bListen(u_int16_t u16ServicePort)
@@ -74,10 +74,10 @@ void DiED::System::vInput(const Glib::ustring & sString)
 	vSendMessage(Message);
 }
 
-void DiED::System::vInsertText(DiED::Client & Client, const Glib::ustring & sString)
+void DiED::System::vInsertText(DiED::User & User, const Glib::ustring & sString)
 {
-	int iLine(Client.iGetLine());
-	int iCharacter(Client.iGetCharacter());
+	int iLine(User.iGetLine());
+	int iCharacter(User.iGetCharacter());
 	
 	if(m_pExternalEnvironment != 0)
 	{
@@ -103,11 +103,11 @@ void DiED::System::vInsertText(DiED::Client & Client, const Glib::ustring & sStr
 		
 		while(iClient != m_Clients.end())
 		{
-			DiED::Client & OtherClient = dynamic_cast< DiED::Client & >(**iClient);
+			DiED::User & OtherUser = dynamic_cast< DiED::User & >(**iClient);
 			
-			if((&OtherClient == &Client) || (iLine < OtherClient.iGetLine()) || ((iLine == OtherClient.iGetLine()) && (iCharacter < OtherClient.iGetCharacter())))
+			if((&User == &OtherUser) || (iLine < OtherUser.iGetLine()) || ((iLine == OtherUser.iGetLine()) && (iCharacter < OtherUser.iGetCharacter())))
 			{
-				OtherClient.vModifyCaretPosition(iDeltaLine, iDeltaCharacter);
+				OtherUser.vModifyCaretPosition(iDeltaLine, iDeltaCharacter);
 			}
 			++iClient;
 		}
