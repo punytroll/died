@@ -151,13 +151,27 @@ void Network::Stream::vOnOut(void)
 //~ 		std::cout << static_cast< u_int32_t >(pu8Temporary[stI]) << ' ';
 //~ 	}
 //~ 	std::cout << std::endl;
-	stSize = send(m_iSocket, pu8Temporary, stSize, 0);
+	size_t stSentSize = send(m_iSocket, pu8Temporary, stSize, 0);
+	
+	if(stSize != stSentSize)
+	{
+		std::cout << "VERY BAD: " << __FILE__ << ':' << __LINE__ << std::endl;
+		
+		throw;
+		
+		// TODO: write overhang back to m_OBuffer
+	}
 //~ 	std::cout << "Sent " << std::dec << stSize << " bytes through socket." << std::endl;
 	delete[] pu8Temporary;
 	vIgnoreOnOut();
+	vBytesSent(stSentSize);
 }
 
 void Network::Stream::vRead(Network::BasicValue & Value)
 {
 	Value.vReadFrom(m_IBuffer.GetReader());
+}
+
+void Network::Stream::vBytesSent(size_t stSize)
+{
 }

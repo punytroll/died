@@ -62,3 +62,8 @@ void Network::MessageStream::vMessageReady(void)
 		MessageReady();
 	}
 }
+
+void Network::MessageStream::vBytesSent(size_t stSize)
+{
+	Network::Stream::vBytesSent(stSize);
+}
