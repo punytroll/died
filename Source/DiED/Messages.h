@@ -1,7 +1,9 @@
 #ifndef MESSAGES_H
 #define MESSAGES_H
 
-#include "DiED/BasicMessage.h"
+#include <Network/VectorValue.h>
+
+#include "BasicMessage.h"
 
 namespace DiED
 {
@@ -13,7 +15,8 @@ namespace DiED
 		_PingMessage,
 		_PongMessage,
 		_ConnectionEstablishedMessage,
-		_ConnectionLostMessage
+		_ConnectionLostMessage,
+		_TestMessage,
 	};
 	
 	class NoMessage : public DiED::BasicMessage
@@ -106,6 +109,24 @@ namespace DiED
 		virtual void vWriteToInternal(Network::Stream & Stream) const;
 	private:
 		Network::Value< DiED::clientid_t > m_ClientID;
+	};
+	
+	class TestMessage : public DiED::BasicMessage
+	{
+	public:
+		TestMessage(void);
+		virtual bool bIsReady(void) const;
+		virtual void vReadFrom(Network::Stream & Stream);
+		virtual void vExecute(DiED::Client & Client);
+	protected:
+		virtual void vWriteToInternal(Network::Stream & Stream) const;
+	private:
+		Network::VectorValue< DiED::clientid_t > m_Values;
+	public:
+		void vAdd(clientid_t ClientID)
+		{
+			m_Values.push_back(ClientID);
+		}
 	};
 }
 
