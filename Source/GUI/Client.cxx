@@ -32,11 +32,12 @@ Glib::RefPtr< GUI::MessageListStore > GUI::Client::GetMessageListStore(void)
 
 void GUI::Client::vOnMessageReady(void)
 {
-	std::cout << "Message ready:\n\t" << boost::dynamic_pointer_cast< DiED::BasicMessage >(back())->sGetString() << std::endl;
+//~ 	std::cout << "Message ready:\n\t" << boost::dynamic_pointer_cast< DiED::BasicMessage >(back())->sGetString() << std::endl;
 	
 	Gtk::TreeRow Row(*(m_MessageListStore->children().begin()));
 	
 	Row[m_MessageListStore->Columns.Name] = boost::dynamic_pointer_cast< DiED::BasicMessage >(back())->sGetString();
+	Row[m_MessageListStore->Columns.Status] = "Ready";
 	if(m_bHoldMessagesBack == false)
 	{
 		DiED::Client::vOnMessageReady();
@@ -51,11 +52,15 @@ void GUI::Client::vOnMessageBegin(void)
 	ssName << "Type = " << back()->GetType();
 	Row[m_MessageListStore->Columns.Name] = ssName.str();
 	Row[m_MessageListStore->Columns.ClientID] = GetClientID();
+	Row[m_MessageListStore->Columns.Status] = "Downloading";
 	std::cout << "Message begin: " << ssName.str() << std::endl;
 	DiED::Client::vOnMessageBegin();
 }
 
 void GUI::Client::vOnMessageExecuted(void)
 {
-	std::cout << "Message executed:\n\t" << boost::dynamic_pointer_cast< DiED::BasicMessage >(back())->sGetString() << std::endl;
+//~ 	std::cout << "Message executed:\n\t" << boost::dynamic_pointer_cast< DiED::BasicMessage >(back())->sGetString() << std::endl;
+	Gtk::TreeRow Row(*(m_MessageListStore->children().begin()));
+	
+	Row[m_MessageListStore->Columns.Status] = "Executed";
 }
