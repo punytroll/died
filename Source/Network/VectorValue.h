@@ -70,6 +70,11 @@ namespace Network
 				++iValue;
 			}
 		}
+		
+		virtual Glib::ustring sGetString(void) const
+		{
+			return Glib::ustring("Vector of ") + typeid(Type).name();
+		}
 	private:
 		size_t m_stSize;
 	};
