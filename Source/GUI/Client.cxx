@@ -9,7 +9,7 @@ GUI::Client::Client(DiED::InternalEnvironment & InternalEnvironment) :
 	m_bHoldMessagesBack(false),
 	m_MessageListStore(GUI::MessageListStore::create())
 {
-//~ 	std::cout << "[GUI/Client]: Created new Client." << std::endl;
+	std::cout << "[GUI/Client]: Created new Client." << std::endl;
 }
 
 GUI::Client::Client(int iSocket, DiED::InternalEnvironment & InternalEnvironment) :
@@ -17,7 +17,7 @@ GUI::Client::Client(int iSocket, DiED::InternalEnvironment & InternalEnvironment
 	m_bHoldMessagesBack(false),
 	m_MessageListStore(GUI::MessageListStore::create())
 {
-//~ 	std::cout << "[GUI/Client]: Created new Client from socket." << std::endl;
+	std::cout << "[GUI/Client]: Created new Client from socket." << std::endl;
 }
 
 GUI::Client::~Client(void)
