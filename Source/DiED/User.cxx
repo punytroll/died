@@ -17,17 +17,14 @@ DiED::User::~User(void)
 
 void DiED::User::vModifyCaretPosition(int iDeltaLine, int iDeltaCharacter)
 {
-	// if n lines where inserted before our position we have to go down n lines
+	// avoid all the fuss if we can
+	if((iDeltaLine == 0) && (iDeltaCharacter == 0))
+	{
+		return;
+	}
 	m_iLine += iDeltaLine;
-	// 
-	if(iDeltaLine == 0)
-	{
-		m_iCharacter += iDeltaCharacter;
-	}
-	else
-	{
-		m_iCharacter = iDeltaCharacter;
-	}
+	m_iCharacter += iDeltaCharacter;
+	CaretPositionChanged();
 }
 
 int DiED::User::iGetLine(void) const
