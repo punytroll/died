@@ -21,7 +21,7 @@ namespace DiED
 		// functions which will send messages to the connected clients
 		void vInput(const Glib::ustring & sString);
 		// implementation of the InternalEnvironment interface
-		virtual void vInsertText(const Glib::ustring & sString, int iLine, int iCharacter);
+		virtual void vInsertText(DiED::Client & Client, const Glib::ustring & sString);
 	protected:
 		void vSendMessage(Network::BasicMessage & Message);
 		virtual void vAccepted(boost::shared_ptr< Network::Socket > Client);

@@ -19,7 +19,7 @@ int main(int argc, char ** argv)
 	
 	while(iI < argc)
 	{
-		if(std::string(argv[iI]) == "serve")
+		if(std::string(argv[iI]) == "--serve")
 		{
 			++iI;
 			
@@ -27,7 +27,7 @@ int main(int argc, char ** argv)
 			
 			ssPort >> u16ServerPort;
 		}
-		else if(std::string(argv[iI]) == "connect")
+		else if(std::string(argv[iI]) == "--connect")
 		{
 			++iI;
 			sConnectAddress = argv[iI];

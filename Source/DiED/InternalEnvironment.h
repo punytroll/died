@@ -1,12 +1,16 @@
 #ifndef DIED_INTERNALENVIRONMENT_H
 #define DIED_INTERNALENVIRONMENT_H
 
+#include "Client.h"
+
 namespace DiED
 {
+	class Client;
+	
 	class InternalEnvironment
 	{
 	public:
-		virtual void vInsertText(const Glib::ustring & sString, int iLine, int iCharacter) = 0;
+		virtual void vInsertText(DiED::Client & Client, const Glib::ustring & sString) = 0;
 	};
 }
 
