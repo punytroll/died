@@ -43,13 +43,18 @@ namespace DiED
 		void vInsertText(DiED::User & User, const Glib::ustring & sString, bool bWriteToEnvironment);
 		virtual void vAccepted(boost::shared_ptr< Network::MessageStream > MessageStream);
 	private:
-		void vAssignClientID(DiED::Client & Client, const DiED::clientid_t & ClientID);
-		boost::shared_ptr< DiED::Client > RegisterClient(const DiED::clientid_t & ClientID = 0);
+//~ 		void vAssignClientID(DiED::Client & Client, const DiED::clientid_t & ClientID);
+//~ 		boost::shared_ptr< DiED::Client > RegisterClient(const DiED::clientid_t & ClientID = 0);
+		
+		boost::shared_ptr< DiED::Client > GetNewPreliminaryClient(void);
+		boost::shared_ptr< DiED::Client > RegisterClient(boost::shared_ptr< DiED::Client > Client, const DiED::clientid_t & _ClientID = 0);
+		
 		boost::shared_ptr< DiED::MessageFactory > m_MessageFactory;
 		boost::shared_ptr< DiED::ClientFactory > m_ClientFactory;
 		boost::shared_ptr< DiED::Client > m_Client;
 		DiED::Server m_Server;
-		std::multimap< DiED::clientid_t, boost::shared_ptr< DiED::Client > > m_Clients;
+		std::map< DiED::clientid_t, boost::shared_ptr< DiED::Client > > m_Clients;
+		std::map< DiED::User * , boost::shared_ptr< DiED::Client > > m_PreliminaryClients;
 		DiED::ExternalEnvironment * m_pExternalEnvironment;
 		Network::port_t m_ServicePort;
 	};

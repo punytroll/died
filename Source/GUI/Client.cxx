@@ -30,7 +30,7 @@ void GUI::Client::vOnMessageReady(void)
 	
 	if(m_MessageStream->size() > 0)
 	{
-		std::cout << "[GUI/Client]: " << boost::dynamic_pointer_cast< DiED::BasicMessage >(m_MessageStream->back())->sGetString() << std::endl;
+//~ 		std::cout << "[GUI/Client]: " << boost::dynamic_pointer_cast< DiED::BasicMessage >(m_MessageStream->back())->sGetString() << std::endl;
 		Row[m_MessageListStore->Columns.Name] = boost::dynamic_pointer_cast< DiED::BasicMessage >(m_MessageStream->back())->sGetString();
 		Row[m_MessageListStore->Columns.Status] = "Ready";
 		if(m_bHoldMessagesBack == false)

@@ -32,7 +32,7 @@ void DiED::System::vSetClientFactory(boost::shared_ptr< DiED::ClientFactory > Cl
 	m_ClientFactory = ClientFactory;
 	if(m_Client.get() == 0)
 	{
-		m_Client = RegisterClient();
+		m_Client = GetNewPreliminaryClient();
 	}
 }
 
@@ -70,7 +70,7 @@ bool DiED::System::bConnectTo(const Network::address_t & ConnectAddress, const N
 //~ 		std::cout << "[Client]: Connected to " << ConnectAddress << ':' << ConnectPort << std::endl;
 	}
 	
-	boost::shared_ptr< DiED::Client > Client(RegisterClient());
+	boost::shared_ptr< DiED::Client > Client(GetNewPreliminaryClient());
 	
 	Client->vSetMessageStream(MessageStream);
 	Client->operator<<(boost::shared_ptr< Network::BasicMessage >(new DiED::ConnectionRequestMessage(m_Client->GetClientID(), m_ServicePort)));
@@ -143,120 +143,118 @@ void DiED::System::vConnectionRequest(DiED::User & User, const DiED::clientid_t 
 	// first of all: if we have no ID yet (not connected to a network) and somebody connects to us we have to generate an ID ourself
 	if(m_Client->GetClientID() == 0)
 	{
-		vAssignClientID(*m_Client, rand());
+		// this assures that, after this point, the local client has NOT the client ID '0'
+		//  => NO client has the client ID '0'
+		//  => the only exception is the local client _BEFORE_ any network interaction with other clients occures
+		RegisterClient(m_Client);
 	}
 	
-	std::multimap< DiED::clientid_t, boost::shared_ptr< DiED::Client > >::iterator iClient(m_Clients.find(ClientID));
-	DiED::Client & Client(dynamic_cast< DiED::Client & >(User));
+	// ConnectionRequest messages are not allowed if the client is not in the PreliminaryClients map
+	//  => this means, only Clients that have freshly been accepted by the server are allowed
+	std::map< DiED::User *, boost::shared_ptr< DiED::Client > >::iterator iPreliminaryClient(m_PreliminaryClients.find(&User));
 	
-	if((iClient == m_Clients.end()) || (ClientID == 0))
+	if(iPreliminaryClient == m_PreliminaryClients.end())
 	{
-		vAssignClientID(Client, rand());
-		Client << boost::shared_ptr< Network::BasicMessage >(new ConnectionAcceptMessage(Client.GetClientID(), m_Client->GetClientID()));
-		// send KnownClients to this client
-		Client.m_u32KnownClientsMessageID = rand();
+		// no preliminary client => ignore the message
+		return;
+	}
+	
+	boost::shared_ptr< DiED::Client > Client(iPreliminaryClient->second);
+	
+	// the client asking for a connection can be either:
+	//  - known, which means a client with the client ID 'ClientID' already exists in the clients list
+	//  - unknown, when no such client exists
+	//  => since no client can have client ID '0' (see above) a newling will be recognized here
+	std::map< DiED::clientid_t, boost::shared_ptr< DiED::Client > >::iterator iClient(m_Clients.find(ClientID));
+	
+	if(iClient == m_Clients.end())
+	{
+		// => client unknown
+		RegisterClient(Client);
+		// now we can answer the message with ConnectionAccept according to specification
+		Client->operator<<(boost::shared_ptr< Network::BasicMessage >(new ConnectionAcceptMessage(Client->GetClientID(), m_Client->GetClientID())));
 		
+		// send KnownClients to this client
 		std::vector< DiED::clientid_t > DisconnectedClientIDs(GetDisconnectedClientIDs());
-		std::vector< DiED::clientid_t >::iterator iTempClient(find(DisconnectedClientIDs.begin(), DisconnectedClientIDs.end(), Client.GetClientID()));
+		std::vector< DiED::clientid_t >::iterator iTempClient(find(DisconnectedClientIDs.begin(), DisconnectedClientIDs.end(), Client->GetClientID()));
 		
 		if(iTempClient != DisconnectedClientIDs.end())
 		{
 			DisconnectedClientIDs.erase(iTempClient);
 		}
-		Client << boost::shared_ptr< Network::BasicMessage >(new KnownClientsMessage(Client.m_u32KnownClientsMessageID, GetConnectedClientIDs(), DisconnectedClientIDs));
+		Client->operator<<(boost::shared_ptr< Network::BasicMessage >(new KnownClientsMessage(rand(), GetConnectedClientIDs(), DisconnectedClientIDs)));
 	}
 	else
 	{
-		// !(A || B) == !A && !B  ==>  ((iClient != m_Clients.end()) && (ClientID != 0)) ==> so iClient is valid
-		iClient->second->vSetMessageStream(Client.GetMessageStream());
-		Client.vSetMessageStream(boost::shared_ptr< Network::MessageStream >());
-		iClient->second->operator<<(boost::shared_ptr< Network::BasicMessage >(new ConnectionAcceptMessage(iClient->first, m_Client->GetClientID())));
-	}
-}
-
-void DiED::System::vAssignClientID(DiED::Client & Client, const DiED::clientid_t & ClientID)
-{
-	DiED::clientid_t OldClientID(Client.GetClientID());
-	
-	if(OldClientID == ClientID)
-	{
-		// nothing to do, eh!?
-		return;
-	}
-	if(OldClientID != 0)
-	{
-		// we should not not change the client ID of a client that already has a "good" client ID ...
-		//  => special cases/why not/what to do???
-		std::cout << "VERY BAD: " << __FILE__ << ':' << __LINE__ << std::endl;
-	}
-	if(ClientID == 0)
-	{
-		// we will not set a client ID to 0 but what to do???
-		std::cout << "VERY BAD: " << __FILE__ << ':' << __LINE__ << std::endl;
-	}
-	
-	// since multiple clients with client ID are allowed we need to find the right one
-	std::multimap< DiED::clientid_t, boost::shared_ptr< DiED::Client > >::iterator iClient(m_Clients.lower_bound(OldClientID));
-	std::multimap< DiED::clientid_t, boost::shared_ptr< DiED::Client > >::iterator iLastClient(m_Clients.upper_bound(OldClientID));
-	
-	while((iClient != iLastClient) && (iClient->second.get() != &Client))
-	{
-		++iClient;
-	}
-	// the client "Client" is not in our client list => strange
-	if(iClient == iLastClient)
-	{
-		std::cout << "VERY BAD!! " << __FILE__ << ':' << __LINE__ << std::endl;
-		
-		throw;
-	}
-	
-	// save the client locally
-	boost::shared_ptr< DiED::Client > ClientPtr(iClient->second);
-	
-	// delete the old client
-	m_Clients.erase(iClient);
-	//set the new client ID
-	ClientPtr->vSetClientID(ClientID);
-	// insert the new client with the new client ID
-	m_Clients.insert(std::make_pair(ClientPtr->GetClientID(), ClientPtr));
-	
-	// go through the client list and set the connection status
-	//  => this will finish the task of RegisterClient() 
-	iClient = m_Clients.begin();
-	while(iClient != m_Clients.end())
-	{
-		if((iClient->first != 0) && (iClient->second.get() != &Client) && (iClient->second->GetStatus(ClientID) == DiED::User::Deleted))
-		{
-			iClient->second->vSetStatus(ClientID, DiED::User::Disconnected);
-		}
-		++iClient;
+		// => client known
+		Client->operator<<(boost::shared_ptr< Network::BasicMessage >(new ConnectionAcceptMessage(iClient->first, m_Client->GetClientID())));
+		iClient->second->vSetMessageStream(Client->GetMessageStream());
+		Client->vSetMessageStream(boost::shared_ptr< Network::MessageStream >());
 	}
 }
 
 void DiED::System::vConnectionAccept(DiED::User & User, const DiED::clientid_t & LocalClientID, const DiED::clientid_t & RemoteClientID)
 {
-	DiED::Client & Client(dynamic_cast< DiED::Client & >(User));
+	std::map< DiED::User *, boost::shared_ptr< DiED::Client > >::iterator iPreliminaryClient(m_PreliminaryClients.find(&User));
+	boost::shared_ptr< DiED::Client > Client;
 	
-	if(LocalClientID == 0)
+	if(iPreliminaryClient == m_PreliminaryClients.end())
 	{
-		Client.vSetMessageStream(boost::shared_ptr< Network::MessageStream >());
-	}
-	vAssignClientID(Client, RemoteClientID);
-	if(m_Client->GetClientID() != LocalClientID)
-	{
-		vAssignClientID(*m_Client, LocalClientID);
+		// this can happen if we connect to a client we already know the ClientID of and thus is registered already
+		//  => User IS the valid client, so we only need to resolve it
+		std::map< DiED::clientid_t, boost::shared_ptr< DiED::Client > >::iterator iClient(m_Clients.find(RemoteClientID));
+		
+		if(iClient == m_Clients.end())
+		{
+			// this is very bad indeed
+			std::cout << "VERY BAD: " << __FILE__ << ':' << __LINE__ << " ; RemoteClientID = " << RemoteClientID << " ; User.ClientID = " << User.GetClientID() << std::endl;
+			
+			throw;
+		}
+		else
+		{
+			Client = iClient->second;
+		}
 	}
 	else
 	{
+		Client = iPreliminaryClient->second;
+		RegisterClient(Client, RemoteClientID);
+	}
+	
+	// if we get assigned a client ID '0' there is nothing for it but to close the socket
+	if(LocalClientID == 0)
+	{
+		Client->vSetMessageStream(boost::shared_ptr< Network::MessageStream >());
+	}
+	if(m_Client->GetClientID() != LocalClientID)
+	{
+		// in this case the local client is a newling to the network
+		if(m_Client->GetClientID() != 0)
+		{
+			// this seems to be a reconnection to a network and we have a client id, meaning m_Client already is in the client list
+			//  => if this happens we need to examine the case
+			std::cout << "VERY BAD: " << __FILE__ << ':' << __LINE__ << std::endl;
+			
+			throw;
+		}
+		else
+		{
+			RegisterClient(m_Client, LocalClientID);
+		}
+		// newlings are not expected to do anything else
+	}
+	else
+	{
+		// the local client is not a newling => answer with KnownClients
 		std::vector< DiED::clientid_t > DisconnectedClientIDs(GetDisconnectedClientIDs());
-		std::vector< DiED::clientid_t >::iterator iTempClient(find(DisconnectedClientIDs.begin(), DisconnectedClientIDs.end(), Client.GetClientID()));
+		std::vector< DiED::clientid_t >::iterator iTempClient(find(DisconnectedClientIDs.begin(), DisconnectedClientIDs.end(), Client->GetClientID()));
 		
 		if(iTempClient != DisconnectedClientIDs.end())
 		{
 			DisconnectedClientIDs.erase(iTempClient);
 		}
-		Client << boost::shared_ptr< Network::BasicMessage >(new KnownClientsMessage(0, GetConnectedClientIDs(), DisconnectedClientIDs));
+		Client->operator<<(boost::shared_ptr< Network::BasicMessage >(new KnownClientsMessage(0, GetConnectedClientIDs(), DisconnectedClientIDs)));
 	}
 }
 
@@ -269,12 +267,13 @@ void DiED::System::vKnownClients(DiED::User & User, const DiED::messageid_t & Me
 	
 	while(iClient != ConnectedClientIDs.end())
 	{
-		boost::shared_ptr< DiED::Client > Client(RegisterClient(*iClient));
+		boost::shared_ptr< DiED::Client > Client(RegisterClient(boost::shared_ptr< DiED::Client >(), *iClient));
 		
 		if(Client.get() == 0)
 		{
 			std::cout << "VERY BAD: " << __FILE__ << ':' << __LINE__ << ": ClientID = " << *iClient << std::endl;
 		}
+		// RegisterClient will give a client that is Disconnected to ALL clients.
 		Client->vSetStatus(User.GetClientID(), DiED::Client::Connected);
 		User.vSetStatus(*iClient, DiED::Client::Connected);
 		++iClient;
@@ -282,7 +281,7 @@ void DiED::System::vKnownClients(DiED::User & User, const DiED::messageid_t & Me
 	iClient = DisconnectedClientIDs.begin();
 	while(iClient != DisconnectedClientIDs.end())
 	{
-		boost::shared_ptr< DiED::Client > Client(RegisterClient(*iClient));
+		boost::shared_ptr< DiED::Client > Client(RegisterClient(boost::shared_ptr< DiED::Client >(), *iClient));
 		
 		if(Client.get() == 0)
 		{
@@ -342,7 +341,7 @@ void DiED::System::vClientsRegistered(DiED::User & User, const DiED::messageid_t
 	
 	while(iClient != m_Clients.end())
 	{
-		if((iClient->first == User.GetClientID()) || (iClient->first == m_Client->GetClientID()) || (m_Client->GetStatus(iClient->first) == DiED::Client::Disconnected))
+		if((iClient->first == User.GetClientID()) || (iClient->first == m_Client->GetClientID()) || (m_Client->GetStatus(iClient->first) != DiED::Client::Connected))
 		{
 //~ 			std::cout << "Client " << iClient->first << " is not messaged." << std::endl;
 			++iClient;
@@ -358,11 +357,11 @@ void DiED::System::vClientsRegistered(DiED::User & User, const DiED::messageid_t
 void DiED::System::vConnectionEstablished(DiED::User & User, const DiED::clientid_t & ClientID, const Network::address_t & ClientAddress, const Network::port_t & ClientPort)
 {
 	boost::shared_ptr< DiED::Client > Client;
-	std::multimap< DiED::clientid_t, boost::shared_ptr< DiED::Client > >::iterator iClient(m_Clients.find(ClientID));
+	std::map< DiED::clientid_t, boost::shared_ptr< DiED::Client > >::iterator iClient(m_Clients.find(ClientID));
 	
 	if(iClient == m_Clients.end())
 	{
-		Client = RegisterClient(ClientID);
+		Client = RegisterClient(boost::shared_ptr< DiED::Client >(), ClientID);
 		if(Client.get() == 0)
 		{
 			std::cout << "VERY BAD: " << __FILE__ << ':' << __LINE__ << ": ClientID = " << ClientID << std::endl;
@@ -371,7 +370,7 @@ void DiED::System::vConnectionEstablished(DiED::User & User, const DiED::clienti
 	else
 	{
 		Client = iClient->second;
-		// TODO
+		std::cout << "TODO: " << __FILE__ << ':' << __LINE__ << std::endl;
 	}
 	Client->vSetStatus(User.GetClientID(), DiED::Client::Connected);
 	User.vSetStatus(Client->GetClientID(), DiED::Client::Connected);
@@ -406,6 +405,8 @@ void DiED::System::vConnectionEstablished(DiED::User & User, const DiED::clienti
 			}
 			else
 			{
+//~ 				boost::shared_ptr< DiED::Client > PreliminaryClient(GetNewPreliminaryClient());
+				
 //~ 				std::cout << "[Client]: Connected to " << ClientAddress << ':' << ClientPort << std::endl;
 				Client->vSetMessageStream(MessageStream);
 				Client->operator<<(boost::shared_ptr< Network::BasicMessage >(new DiED::ConnectionRequestMessage(m_Client->GetClientID(), m_ServicePort)));
@@ -430,61 +431,131 @@ void DiED::System::vSendMessage(boost::shared_ptr< Network::BasicMessage > Messa
 	
 	while(iClient != m_Clients.end())
 	{
-		DiED::Client & Client(*(iClient->second));
-		
-		Client << Message;
+		if(iClient->second != m_Client)
+		{
+			iClient->second->operator<<(Message);
+		}
 		++iClient;
 	}
 }
 
 void DiED::System::vAccepted(boost::shared_ptr< Network::MessageStream > MessageStream)
 {
-	boost::shared_ptr< DiED::Client > Client(RegisterClient());
+	boost::shared_ptr< DiED::Client > Client(GetNewPreliminaryClient());
 	
 	Client->vSetMessageStream(MessageStream);
 }
 
-boost::shared_ptr< DiED::Client > DiED::System::RegisterClient(const DiED::clientid_t & ClientID)
+boost::shared_ptr< DiED::Client > DiED::System::GetNewPreliminaryClient(void)
 {
-	std::multimap< DiED::clientid_t, boost::shared_ptr< DiED::Client > >::iterator iTheClient(m_Clients.find(ClientID));
+	boost::shared_ptr< DiED::Client > Client(m_ClientFactory->GetClient());
 	
-	// if either no client with this client ID exists or the requested client ID is '0'
-	//  => Client ID '0' is allowed multiple times
-	if((iTheClient == m_Clients.end()) || (ClientID == 0))
+	m_PreliminaryClients[Client.get()] = Client;
+	std::cout << "[DiED/System] Created a preliminary client at " << Client.get() << '.' << std::endl;
+	
+	return Client;
+}
+
+/**
+ * @brief Registers a client.
+ * @param Client A shared pointer with the client that is to be registered.
+ * @param ClientID The ID that the client should have in the client list.
+ * @return A boost::shared_ptr to the registered client. It is an uninitialized shared pointer if the registration was not successful.
+ * 
+ * This function is the heart of local client management. It allows you to register clients on different sets of preconditions.
+ * 
+ * Both parameters @a Client and @a ClientID are allowed to be unspecified. In case of @a Client this means an uninitialized shared pointer the "unspecified" value for @a ClientID is specified as '0', which is the default value.
+ * 
+ * Given both, @a Client and @a ClientID are unspecified: In this case a new client will be created by asking the ClientFactory for a new one. The client's ID will be randomized however assuring that it is unique in the client list.
+ * 
+ * If only @a Client is unspecified, @a ClientID will be evaluated for its uniqueness in the clients list. A new client will then be created by asking the ClientFactory for a new one and the client's ID will be set to @a ClientID.
+ * 
+ * If only @a ClientID is unspecified the client's ID will be randomized assuring its uniqueness in the clients list. @a Client will be inserted in the clients list indexed with @a ClientID. If @a Client exists in the preliminary clients list it will be erased from this list.
+ *
+ * Given both, @a Client and @a ClientID are specified, @a ClientID will be evaluated for its uniqueness in the clients list and Client will be inserted in the clients list indexed with @a ClientID. If @a Client exists in the preliminary clients list it will be erased from this list.
+ *
+ * Last but not least this function initializes the Status for all other clients in the client list. The new client will be Disconnected to all other clients and all other clients will be disconnected to the new client. (Symmetry)
+ * 
+ * The return value will be uninitialized if both @a Client and @a ClientID have been specified but @a ClientID is not unique. If @a Client was specified and the registration was successful the return value will equal @a Client.
+ *
+ * If @a ClientID is not unique and @a Client is unspecified this function will act as a retrieval function and will return the already registered client with client ID equal to ClientID.
+ *
+ * @note In this case the Status flags will not be touched.
+ * 
+ * This function assures that at no point in the process the client is in both lists.
+ * 
+ * @todo Is this last item even wanted/necessary?
+ **/
+boost::shared_ptr< DiED::Client > DiED::System::RegisterClient(boost::shared_ptr< DiED::Client > Client, const DiED::clientid_t & _ClientID)
+{
+	DiED::clientid_t ClientID(_ClientID);
+	
+	std::cout << "[DiED/System] Registering Client " << Client.get() << " with ClientID " << ClientID << std::endl;
+	
+	// client ID unspecified?
+	if(ClientID == 0)
 	{
-		boost::shared_ptr< DiED::Client > Client(m_ClientFactory->GetClient());
-		
-		if(ClientID != 0)
+		// randomize until valid and unique
+		do
 		{
-			Client->vSetClientID(ClientID);
-		}
-		m_Clients.insert(std::make_pair(Client->GetClientID(), Client));
-		m_pExternalEnvironment->vNewClient(*Client);
-		
-		// no set the status to disconnected for all clients (except those with client ID '0')
-		std::multimap< DiED::clientid_t, boost::shared_ptr< DiED::Client > >::iterator iClient(m_Clients.begin());
-		
-		while(iClient != m_Clients.end())
-		{
-			if((iClient->first != ClientID) && (iClient->first != 0))
-			{
-				// don't set any connection if the client's client ID is zero
-				//  => will be done by vAssignClientID
-				if(ClientID != 0)
-				{
-					iClient->second->vSetStatus(ClientID, DiED::User::Disconnected);
-				}
-				Client->vSetStatus(iClient->first, DiED::User::Disconnected);
-			}
-			++iClient;
-		}
-		
-		return Client;
+			ClientID = rand();
+		} while((ClientID == 0) || (ClientID == 0xFFFFFFFF) || (m_Clients.find(ClientID) != m_Clients.end()));
 	}
 	else
 	{
-		// !(A || B) == (!A && !B)  ==>  ((iTheClient != m_Clients.end) && (ClientID != 0))
-		//  => registering an existing client => just return the existing one
-		return iTheClient->second;
+		std::map< DiED::clientid_t, boost::shared_ptr< DiED::Client > >::iterator iClient(m_Clients.find(ClientID));
+		// if ClientID is specified but not unique
+		if(iClient != m_Clients.end())
+		{
+			if(Client.get() == 0)
+			{
+				// if we don't care about WHAT client gets registered just return the one we have
+				// NOTE: we don't touch the Status
+				return iClient->second;
+			}
+			else
+			{
+				// if a specific client was to be registered with the existing ClientID we cannot perform the task
+				return boost::shared_ptr< DiED::Client >();
+			}
+		}
 	}
+	// client unspecified?
+	if(Client.get() == 0)
+	{
+		// make new one
+		Client = m_ClientFactory->GetClient();
+	}
+	else
+	{
+		// if client is specified => lookup in preliminary clients list and erase if present
+		std::map< DiED::User *, boost::shared_ptr< DiED::Client > >::iterator iPreliminaryClient(m_PreliminaryClients.find(Client.get()));
+		
+		if(iPreliminaryClient != m_PreliminaryClients.end())
+		{
+			m_PreliminaryClients.erase(iPreliminaryClient);
+		}
+		// the parameter Client is a safeguard aginst deletion from boost::shared_ptr
+	}
+	Client->vSetClientID(ClientID);
+	
+	// now setting the Status of all clients towards the newly registered client and the other way around
+	// ATTENTION: here comes a vulnerable state, because the status of Client will be set for all other clients but Client is not yet in the list
+	std::map< DiED::clientid_t, boost::shared_ptr< DiED::Client > >::iterator iClient(m_Clients.begin());
+	
+	while(iClient != m_Clients.end())
+	{
+		iClient->second->vSetStatus(ClientID, DiED::User::Disconnected);
+		Client->vSetStatus(iClient->first, DiED::User::Disconnected);
+		++iClient;
+	}
+	// now add the client
+	m_Clients[ClientID] = Client;
+	// and signal the world it is there
+	if(m_pExternalEnvironment != 0)
+	{
+		m_pExternalEnvironment->vNewClient(*Client);
+	}
+	
+	return Client;
 }
