@@ -10,7 +10,6 @@
 
 #include "Client.h"
 
-GdkColor Local = { 0x0000, 0x0000, 0x0000, 0x8080 };
 GdkColor Connected = { 0x0000, 0x0000, 0x8080, 0x0000 };
 GdkColor Disconnected = { 0x0000, 0x8080, 0x0000, 0x0000 };
 GdkColor Deleted = { 0x0000, 0x6060, 0x6060, 0x6060 };
@@ -50,6 +49,17 @@ bool GUI::MainWindow::bKeyPressed(GdkEventKey * pEvent)
 
 void GUI::MainWindow::vNewClient(DiED::Client & DiEDClient)
 {
+	if(DiEDClient.GetID() == m_System.GetLocalClientID())
+	{
+		std::stringstream ssName;
+		
+		ssName << DiEDClient.GetID();
+		set_title(ssName.str());
+		DiEDClient.StatusChanged.connect(sigc::bind(sigc::mem_fun(*this, &GUI::MainWindow::vClientStatusChanged), boost::ref(DiEDClient)));
+		
+		return;
+	}
+	
 	GUI::Client & Client(dynamic_cast< GUI::Client & >(DiEDClient));
 	Gtk::VBox * pBox(manage(new Gtk::VBox()));
 	Gtk::ScrolledWindow * pScrolledWindow(manage(new Gtk::ScrolledWindow()));
@@ -62,6 +72,13 @@ void GUI::MainWindow::vNewClient(DiED::Client & DiEDClient)
 	ssName << Client.GetID();
 	pClientView->append_column("Name", Client.GetMessageListStore()->Columns.Name);
 	pClientView->append_column("Status", Client.GetMessageListStore()->Columns.Status);
+	
+	Gtk::CellRendererText * pCellRenderer = 0;
+	
+	pCellRenderer = dynamic_cast< Gtk::CellRendererText * >(pClientView->get_column_cell_renderer(0));
+	pClientView->get_column(0)->add_attribute(pCellRenderer->property_foreground_gdk(), Client.GetMessageListStore()->Columns.Color);
+	pCellRenderer = dynamic_cast< Gtk::CellRendererText * >(pClientView->get_column_cell_renderer(1));
+	pClientView->get_column(1)->add_attribute(pCellRenderer->property_foreground_gdk(), Client.GetMessageListStore()->Columns.Color);
 	pClientView->show();
 	Client.GetMessageListStore()->signal_row_inserted().connect(sigc::bind(sigc::mem_fun(*this, &GUI::MainWindow::vRowInsertedForClient), pClientView));
 	pScrolledWindow->add(*pClientView);
@@ -80,18 +97,7 @@ void GUI::MainWindow::vNewClient(DiED::Client & DiEDClient)
 	pBox->show();
 	m_Notebook.append_page(*pBox, ssName.str());
 	Client.vSetWidget(pBox);
-	if(DiEDClient.GetID() == m_System.GetLocalClientID())
-	{
-		Gtk::Widget * pLabel = m_Notebook.get_tab_label(*pBox);
-		
-		pLabel->modify_fg(Gtk::STATE_NORMAL, Gdk::Color(&Local));
-		pLabel->modify_fg(Gtk::STATE_ACTIVE, Gdk::Color(&Local));
-		DiEDClient.StatusChanged.connect(sigc::bind(sigc::mem_fun(*this, &GUI::MainWindow::vClientStatusChanged), boost::ref(DiEDClient)));
-	}
-	else
-	{
-		vClientStatusChanged(DiEDClient.GetID(), DiEDClient.GetStatus(m_System.GetLocalClientID()), boost::ref(DiEDClient));
-	}
+	vClientStatusChanged(DiEDClient.GetID(), DiEDClient.GetStatus(m_System.GetLocalClientID()), boost::ref(DiEDClient));
 }
 
 void GUI::MainWindow::vInsertText(const Glib::ustring & sString, int iLine, int iCharacter)
