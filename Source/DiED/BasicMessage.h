@@ -2,7 +2,8 @@
 #define DIED_BASICMASSAGE_H
 
 #include <Network/BasicMessage.h>
-#include <DiED/Client.h>
+
+#include "MessageTarget.h"
 
 namespace DiED
 {
@@ -10,8 +11,18 @@ namespace DiED
 	{
 	public:
 		BasicMessage(const Network::BasicMessage::type_t & Type, bool bForSending);
-		virtual void vExecute(DiED::Client & Client) = 0;
+		virtual void vExecute(DiED::MessageTarget & MessageTarget) = 0;
 		virtual Glib::ustring sGetString(void) = 0;
+		
+		virtual bool bIsEventMessage(void)
+		{
+			return false;
+		}
+		
+		virtual bool bRequiresConfirmation(void)
+		{
+			return false;
+		}
 	};
 }
 

@@ -73,14 +73,14 @@ bool DiED::System::bConnectTo(const Network::address_t & ConnectAddress, const N
 	boost::shared_ptr< DiED::Client > Client(GetNewPreliminaryClient());
 	
 	Client->vSetMessageStream(MessageStream);
-	Client->operator<<(boost::shared_ptr< Network::BasicMessage >(new DiED::ConnectionRequestMessage(m_Client->GetClientID(), m_ServicePort)));
+	Client->operator<<(boost::shared_ptr< DiED::BasicMessage >(new DiED::ConnectionRequestMessage(m_Client->GetClientID(), m_ServicePort)));
 	
 	return true;
 }
 
 void DiED::System::vInput(const Glib::ustring & sString)
 {
-	boost::shared_ptr< Network::BasicMessage > Message(new DiED::InputMessage(sString));
+	boost::shared_ptr< DiED::BasicMessage > Message(new DiED::InputMessage(sString));
 	
 	vSendMessage(Message);
 	vInsertText(*m_Client, sString, false);
@@ -172,7 +172,7 @@ void DiED::System::vConnectionRequest(DiED::User & User, const DiED::clientid_t 
 		// => client unknown
 		RegisterClient(Client);
 		// now we can answer the message with ConnectionAccept according to specification
-		Client->operator<<(boost::shared_ptr< Network::BasicMessage >(new ConnectionAcceptMessage(Client->GetClientID(), m_Client->GetClientID())));
+		Client->operator<<(boost::shared_ptr< DiED::BasicMessage >(new ConnectionAcceptMessage(Client->GetClientID(), m_Client->GetClientID())));
 		
 		// send KnownClients to this client
 		std::vector< DiED::clientid_t > DisconnectedClientIDs(GetDisconnectedClientIDs());
@@ -182,12 +182,12 @@ void DiED::System::vConnectionRequest(DiED::User & User, const DiED::clientid_t 
 		{
 			DisconnectedClientIDs.erase(iTempClient);
 		}
-		Client->operator<<(boost::shared_ptr< Network::BasicMessage >(new KnownClientsMessage(rand(), GetConnectedClientIDs(), DisconnectedClientIDs)));
+		Client->operator<<(boost::shared_ptr< DiED::BasicMessage >(new KnownClientsMessage(rand(), GetConnectedClientIDs(), DisconnectedClientIDs)));
 	}
 	else
 	{
 		// => client known
-		Client->operator<<(boost::shared_ptr< Network::BasicMessage >(new ConnectionAcceptMessage(iClient->first, m_Client->GetClientID())));
+		Client->operator<<(boost::shared_ptr< DiED::BasicMessage >(new ConnectionAcceptMessage(iClient->first, m_Client->GetClientID())));
 		iClient->second->vSetMessageStream(Client->GetMessageStream());
 		Client->vSetMessageStream(boost::shared_ptr< Network::MessageStream >());
 	}
@@ -254,7 +254,7 @@ void DiED::System::vConnectionAccept(DiED::User & User, const DiED::clientid_t &
 		{
 			DisconnectedClientIDs.erase(iTempClient);
 		}
-		Client->operator<<(boost::shared_ptr< Network::BasicMessage >(new KnownClientsMessage(0, GetConnectedClientIDs(), DisconnectedClientIDs)));
+		Client->operator<<(boost::shared_ptr< DiED::BasicMessage >(new KnownClientsMessage(0, GetConnectedClientIDs(), DisconnectedClientIDs)));
 	}
 }
 
@@ -304,11 +304,11 @@ void DiED::System::vKnownClients(DiED::User & User, const DiED::messageid_t & Me
 		{
 			DisconnectedClientIDs.erase(iTempClient);
 		}
-		Client->operator<<(boost::shared_ptr< Network::BasicMessage >(new KnownClientsMessage(Client->m_u32KnownClientsMessageID, GetConnectedClientIDs(), DisconnectedClientIDs)));
+		Client->operator<<(boost::shared_ptr< DiED::BasicMessage >(new KnownClientsMessage(Client->m_u32KnownClientsMessageID, GetConnectedClientIDs(), DisconnectedClientIDs)));
 	}
 	else
 	{
-		Client->operator<<(boost::shared_ptr< Network::BasicMessage >(new ClientsRegisteredMessage(MessageID)));
+		Client->operator<<(boost::shared_ptr< DiED::BasicMessage >(new ClientsRegisteredMessage(MessageID)));
 		Client->vSetStatus(m_Client->GetClientID(), DiED::User::Connected);
 		m_Client->vSetStatus(User.GetClientID(), DiED::User::Connected);
 		
@@ -324,7 +324,7 @@ void DiED::System::vKnownClients(DiED::User & User, const DiED::messageid_t & Me
 				continue;
 			}
 //~ 			std::cout << "Sending ConnectionEstablishedMessage(" << Client->GetClientID() << ", " << Client->GetAddress() << ", " << Client->GetPort() << ") to " << iClient->first << " == " << iClient->second->GetClientID() << std::endl;
-			iClient->second->operator<<(boost::shared_ptr< Network::BasicMessage >(new ConnectionEstablishedMessage(Client->GetClientID(), Client->GetAddress(), Client->GetPort())));
+			iClient->second->operator<<(boost::shared_ptr< DiED::BasicMessage >(new ConnectionEstablishedMessage(Client->GetClientID(), Client->GetAddress(), Client->GetPort())));
 			++iClient;
 		}
 	}
@@ -349,7 +349,7 @@ void DiED::System::vClientsRegistered(DiED::User & User, const DiED::messageid_t
 			continue;
 		}
 //~ 		std::cout << "Sending ConnectionEstablishedMessage(" << Client->GetClientID() << ", " << Client->GetAddress() << ", " << Client->GetPort() << ") to " << iClient->first << " == " << iClient->second->GetClientID() << std::endl;
-		iClient->second->operator<<(boost::shared_ptr< Network::BasicMessage >(new ConnectionEstablishedMessage(Client->GetClientID(), Client->GetAddress(), Client->GetPort())));
+		iClient->second->operator<<(boost::shared_ptr< DiED::BasicMessage >(new ConnectionEstablishedMessage(Client->GetClientID(), Client->GetAddress(), Client->GetPort())));
 		++iClient;
 	}
 }
@@ -390,7 +390,7 @@ void DiED::System::vConnectionEstablished(DiED::User & User, const DiED::clienti
 					
 					continue;
 				}
-				iClient->second->operator<<(boost::shared_ptr< Network::BasicMessage >(new ConnectionLostMessage(Client->GetClientID())));
+				iClient->second->operator<<(boost::shared_ptr< DiED::BasicMessage >(new ConnectionLostMessage(Client->GetClientID())));
 				++iClient;
 			}
 		}
@@ -409,7 +409,7 @@ void DiED::System::vConnectionEstablished(DiED::User & User, const DiED::clienti
 				
 //~ 				std::cout << "[Client]: Connected to " << ClientAddress << ':' << ClientPort << std::endl;
 				Client->vSetMessageStream(MessageStream);
-				Client->operator<<(boost::shared_ptr< Network::BasicMessage >(new DiED::ConnectionRequestMessage(m_Client->GetClientID(), m_ServicePort)));
+				Client->operator<<(boost::shared_ptr< DiED::BasicMessage >(new DiED::ConnectionRequestMessage(m_Client->GetClientID(), m_ServicePort)));
 			}
 		}
 	}
@@ -425,7 +425,29 @@ std::vector< DiED::clientid_t > DiED::System::GetDisconnectedClientIDs(void)
 	return m_Client->GetDisconnectedClientIDs();
 }
 
-void DiED::System::vSendMessage(boost::shared_ptr< Network::BasicMessage > Message)
+DiED::User::Status DiED::System::GetStatus(const DiED::clientid_t & ClientID1, const DiED::clientid_t & ClientID2)
+{
+	boost::shared_ptr< DiED::Client > Client2;
+	
+	if(ClientID2 == 0)
+	{
+		Client2 = m_Client;
+	}
+	else
+	{
+		std::map< DiED::clientid_t, boost::shared_ptr< DiED::Client > >::iterator iClient(m_Clients.find(ClientID2));
+		
+		if(iClient == m_Clients.end())
+		{
+			return DiED::User::Deleted;
+		}
+		Client2 = iClient->second;
+	}
+	
+	return Client2->GetStatus(ClientID1);
+}
+
+void DiED::System::vSendMessage(boost::shared_ptr< DiED::BasicMessage > Message)
 {
 	std::multimap< DiED::clientid_t, boost::shared_ptr< DiED::Client > >::iterator iClient(m_Clients.begin());
 	

@@ -117,12 +117,49 @@ void DiED::Client::vExecuteTopMessage(void)
 	MessageStream->pop_front();
 }
 
-DiED::Client & DiED::Client::operator<<(boost::shared_ptr< Network::BasicMessage > Message)
+DiED::Client & DiED::Client::operator<<(boost::shared_ptr< DiED::BasicMessage > Message)
 {
-	m_MessageQueue.push_back(Message);
-	if(m_MessageStream.get() != 0)
+	if(Message->bIsEventMessage() == true)
 	{
-		m_MessageStream->operator<<(*Message);
+		m_EventQueue.push_back(boost::dynamic_pointer_cast< DiED::EventMessage >(Message));
+	}
+	else
+	{
+		if((m_MessageStream.get() != 0) && (m_MessageStream->bIsOpen() == true))
+		{
+			// m_MessageStream->vEmptyBuffer();
+			m_MessageStream->operator<<(*Message);
+			if(Message->bRequiresConfirmation() == true)
+			{
+				m_AwaitingConfirmationQueue.push_back(Message);
+			}
+		}
+		else
+		{
+			std::cout << "VERY BAD: " << __FILE__ << ':' << __LINE__ << std::endl;
+		}
+	}
+	if(m_InternalEnvironment.GetStatus(GetClientID()) == DiED::User::Connected)
+	{
+		if((m_MessageStream.get() != 0) && (m_MessageStream->bIsOpen() == true))
+		{
+			std::deque< boost::shared_ptr< DiED::EventMessage > >::iterator iEventMessage(m_EventQueue.begin());
+			
+			while(iEventMessage != m_EventQueue.end())
+			{
+				m_MessageStream->operator<<(**iEventMessage);
+				if((*iEventMessage)->bRequiresConfirmation() == true)
+				{
+					m_AwaitingConfirmationQueue.push_back(*iEventMessage);
+				}
+				m_EventQueue.erase(iEventMessage);
+				iEventMessage = m_EventQueue.begin();
+			}
+		}
+		else
+		{
+			std::cout << "VERY BAD: " << __FILE__ << ':' << __LINE__ << std::endl;
+		}
 	}
 	
 	return *this;
