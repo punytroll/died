@@ -95,6 +95,11 @@ void DiED::Client::vOnMessageExecuted(void)
 
 void DiED::Client::vExecuteTopMessage(void)
 {
+	if(m_MessageStream.get() == 0)
+	{
+		return;
+	}
+	
 	std::deque< boost::shared_ptr< Network::BasicMessage > >::iterator iMessage(m_MessageStream->begin());
 	
 	if(iMessage == m_MessageStream->end())
