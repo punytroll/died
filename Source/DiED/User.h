@@ -8,7 +8,7 @@
 
 #include <sigc++/sigc++.h>
 
-#include <Common.h>
+#include "Common.h"
 
 namespace DiED
 {
