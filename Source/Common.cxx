@@ -61,7 +61,7 @@ std::string sErrorCodeToString(int iError)
 	}
 }
 
-std::string sStatusToString(const DiED::clientstatus_t & Status)
+std::string DiED::sStatusToString(const DiED::clientstatus_t & Status)
 {
 	switch(Status)
 	{
