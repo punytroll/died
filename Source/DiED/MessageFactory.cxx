@@ -32,6 +32,12 @@ boost::shared_ptr< Network::BasicMessage > DiED::MessageFactory::GetMessage(u_in
 			
 			break;
 		}
+	case DiED::_ConnectionEstablishedMessage:
+		{
+			return boost::shared_ptr< Network::BasicMessage >(new DiED::ConnectionEstablishedMessage());
+			
+			break;
+		}
 	case DiED::_NoMessage:
 	default:
 		{

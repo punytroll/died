@@ -14,11 +14,11 @@ void DiED::NoMessage::vReadFrom(Network::Stream & Stream)
 {
 }
 
-void DiED::NoMessage::vWriteToInternal(Network::Stream & Stream) const
+void DiED::NoMessage::vExecute(DiED::Client & Client)
 {
 }
 
-void DiED::NoMessage::vExecute(DiED::Client & Client)
+void DiED::NoMessage::vWriteToInternal(Network::Stream & Stream) const
 {
 }
 
@@ -118,4 +118,37 @@ void DiED::PongMessage::vWriteToInternal(Network::Stream & Stream) const
 
 void DiED::PongMessage::vExecute(DiED::Client & Client)
 {
+}
+
+DiED::ConnectionEstablishedMessage::ConnectionEstablishedMessage(void) :
+	DiED::BasicMessage(DiED::_ConnectionEstablishedMessage, true)
+{
+}
+
+DiED::ConnectionEstablishedMessage::ConnectionEstablishedMessage(const DiED::clientid_t & ClientID, const Network::address_t & ClientAddress, const Network::port_t & ClientPort) :
+	DiED::BasicMessage(DiED::_ConnectionEstablishedMessage, true),
+	m_ClientID(ClientID),
+	m_ClientAddress(ClientAddress),
+	m_ClientPort(ClientPort)
+{
+}
+
+bool DiED::ConnectionEstablishedMessage::bIsReady(void) const
+{
+	return (m_ClientID.bIsReady() == true) && (m_ClientAddress.bIsReady() == true) && (m_ClientPort.bIsReady() == true);
+}
+
+void DiED::ConnectionEstablishedMessage::vReadFrom(Network::Stream & Stream)
+{
+	Stream >> m_ClientID >> m_ClientAddress >> m_ClientPort;
+}
+
+void DiED::ConnectionEstablishedMessage::vExecute(DiED::Client & Client)
+{
+	std::cout << "Executing a ConnectionEstablished message with parameters:\n\tClientID = " << m_ClientID << "\n\tClientAddress = " << m_ClientAddress << "\n\tClientPort = " << m_ClientPort << std::endl;
+}
+
+void DiED::ConnectionEstablishedMessage::vWriteToInternal(Network::Stream & Stream) const
+{
+	Stream << m_ClientID << m_ClientAddress << m_ClientPort;
 }
