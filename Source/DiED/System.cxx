@@ -74,11 +74,43 @@ void DiED::System::vInput(const Glib::ustring & sString)
 	vSendMessage(Message);
 }
 
-void DiED::System::vInsertText(const Glib::ustring & sString, int iLine, int iCharacter)
+void DiED::System::vInsertText(DiED::Client & Client, const Glib::ustring & sString)
 {
+	int iLine(Client.iGetLine());
+	int iCharacter(Client.iGetCharacter());
+	
 	if(m_pExternalEnvironment != 0)
 	{
 		m_pExternalEnvironment->vInsertText(sString, iLine, iCharacter);
+		
+		int iDeltaLine = 0;
+		int iDeltaCharacter = 0;
+		
+		for(Glib::ustring::size_type stI = 0; stI < sString.length(); ++stI)
+		{
+			if(sString[stI] == '\n')
+			{
+				++iDeltaLine;
+				iDeltaCharacter = 0;
+			}
+			else
+			{
+				++iDeltaCharacter;
+			}
+		}
+		
+		std::vector< boost::shared_ptr< Network::Socket > >::iterator iClient = m_Clients.begin();
+		
+		while(iClient != m_Clients.end())
+		{
+			DiED::Client & OtherClient = dynamic_cast< DiED::Client & >(**iClient);
+			
+			if((&OtherClient == &Client) || (iLine < OtherClient.iGetLine()) || ((iLine == OtherClient.iGetLine()) && (iCharacter < OtherClient.iGetCharacter())))
+			{
+				OtherClient.vModifyCaretPosition(iDeltaLine, iDeltaCharacter);
+			}
+			++iClient;
+		}
 	}
 }
 

@@ -24,19 +24,19 @@ DiED::Client::Client(int iSocket, boost::shared_ptr< Network::MessageFactory > M
 
 void DiED::Client::vInsertText(const Glib::ustring & sString)
 {
-	m_InternalEnvironment.vInsertText(sString, m_iLine, m_iCharacter);
-	
-	for(Glib::ustring::size_type stI = 0; stI < sString.length(); ++stI)
+	m_InternalEnvironment.vInsertText(*this, sString);
+}
+
+void DiED::Client::vModifyCaretPosition(int iDeltaLine, int iDeltaCharacter)
+{
+	m_iLine += iDeltaLine;
+	if(iDeltaLine == 0)
 	{
-		if(sString[stI] == '\n')
-		{
-			++m_iLine;
-			m_iCharacter = 0;
-		}
-		else
-		{
-			++m_iCharacter;
-		}
+		m_iCharacter += iDeltaCharacter;
+	}
+	else
+	{
+		m_iCharacter = iDeltaCharacter;
 	}
 }
 

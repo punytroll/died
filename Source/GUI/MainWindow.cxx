@@ -22,6 +22,11 @@ void GUI::MainWindow::vInserted(const Gtk::TextBuffer::iterator & Iterator, cons
 void GUI::MainWindow::vInsertText(const Glib::ustring & sString, int iLine, int iCharacter)
 {
 	m_InsertConnection.block();
+	
+	Glib::RefPtr< Gtk::TextMark > Marker(m_TextBuffer->create_mark("insert-save", m_TextBuffer->get_insert()->get_iter(), true));
+	
 	m_TextBuffer->insert(m_TextBuffer->get_iter_at_line_offset(iLine, iCharacter), sString);
+	m_TextBuffer->place_cursor(Marker->get_iter());
+	m_TextBuffer->delete_mark(Marker);
 	m_InsertConnection.unblock();
 }
