@@ -8,7 +8,7 @@
 
 namespace DiED
 {
-	class BasicMessage : public Network::BasicMessage
+	class BasicMessage : public sigc::trackable, public Network::BasicMessage
 	{
 	public:
 		BasicMessage(const Network::BasicMessage::type_t & Type);
