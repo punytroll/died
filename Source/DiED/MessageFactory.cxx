@@ -24,9 +24,13 @@ boost::shared_ptr< Network::BasicMessage > DiED::MessageFactory::GetMessage(u_in
 		{
 			return boost::shared_ptr< Network::BasicMessage >(new DiED::ClientsRegisteredMessage());
 		}
-	case DiED::_InputMessage:
+	case DiED::_ConnectionEstablishedMessage:
 		{
-			return boost::shared_ptr< Network::BasicMessage >(new DiED::InputMessage());
+			return boost::shared_ptr< Network::BasicMessage >(new DiED::ConnectionEstablishedMessage());
+		}
+	case DiED::_ConnectionLostMessage:
+		{
+			return boost::shared_ptr< Network::BasicMessage >(new DiED::ConnectionLostMessage());
 		}
 	case DiED::_PingMessage:
 		{
@@ -36,17 +40,9 @@ boost::shared_ptr< Network::BasicMessage > DiED::MessageFactory::GetMessage(u_in
 		{
 			return boost::shared_ptr< Network::BasicMessage >(new DiED::PongMessage());
 		}
-	case DiED::_ConnectionEstablishedMessage:
+	case DiED::_InputMessage:
 		{
-			return boost::shared_ptr< Network::BasicMessage >(new DiED::ConnectionEstablishedMessage());
-		}
-	case DiED::_ConnectionLostMessage:
-		{
-			return boost::shared_ptr< Network::BasicMessage >(new DiED::ConnectionLostMessage());
-		}
-	case DiED::_TestMessage:
-		{
-			return boost::shared_ptr< Network::BasicMessage >(new DiED::TestMessage());
+			return boost::shared_ptr< Network::BasicMessage >(new DiED::InputMessage());
 		}
 	case DiED::_NoMessage:
 	default:
