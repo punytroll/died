@@ -187,7 +187,7 @@ namespace DiED
 		virtual bool bIsConfirmedBy(boost::shared_ptr< DiED::ConfirmationParameters > ConfirmationParameters);
 		void vSetLostClientID(const DiED::clientid_t & ClientID);
 		virtual void vExecute(DiED::MessageTarget & MessageTarget);
-		virtual bool bIsEventMessage(void);
+		virtual bool bIsEvent(void);
 		virtual bool bRequiresConfirmation(void);
 		virtual Glib::ustring sGetString(void);
 		virtual bool bOnTimeout(DiED::MessageTarget * pMessageTarget);

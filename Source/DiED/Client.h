@@ -23,6 +23,7 @@ namespace DiED
 		// socket
 		void vSetMessageStream(boost::shared_ptr< Network::MessageStream > MessageStream);
 		boost::shared_ptr< Network::MessageStream > GetMessageStream(void);
+		void vNewReconnectTimeout(sigc::slot< bool > TimeoutSlot);
 		
 		// connection stuff
 		Network::port_t GetPort(void);
@@ -45,6 +46,7 @@ namespace DiED
 		void vClientsRegistered(const DiED::messageid_t & MessageID);
 		void vConnectionEstablished(const DiED::clientid_t & ClientID, const Network::address_t & ClientAddress, const Network::port_t & ClientPort);
 		void vConnectionLost(const DiED::clientid_t & ClientID, const Network::address_t & ClientAddress, const Network::port_t & ClientPort);
+		void vPing(sigc::slot< void > PongSlot, sigc::slot< void > PongTimeoutSlot);
 		void vPing(sigc::slot< void > PongTimeoutSlot);
 		void vPing(void);
 		
@@ -58,6 +60,7 @@ namespace DiED
 		DiED::messageid_t GetNextEventCounter(void);
 		
 		// message handling
+		void vProcessEventQueue(void);
 		virtual void vExecuteTopMessage(void);
 		
 		//signals
@@ -107,6 +110,7 @@ namespace DiED
 		
 		Network::address_t m_Address;
 		Network::port_t m_Port;
+		unsigned int m_uiReconnectTimeoutInterval;
 		sigc::connection m_BytesSentConnection;
 		sigc::connection m_MessageBeginConnection;
 		sigc::connection m_MessageReadyConnection;
@@ -128,6 +132,7 @@ namespace DiED
 		std::deque< boost::shared_ptr< DiED::EventMessage > > m_EventQueue;
 		std::deque< boost::shared_ptr< DiED::BasicMessage > > m_QueuedQueue;
 		std::map< DiED::messageid_t, boost::shared_ptr< DiED::EventAction > > m_ActionBuffer;
+		std::map< DiED::messageid_t, boost::shared_ptr< sigc::signal< void > > > m_PongSignals;
 	};
 }
 

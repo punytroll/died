@@ -22,7 +22,7 @@ bool DiED::BasicMessage::bIsConfirmedBy(boost::shared_ptr< DiED::ConfirmationPar
 	return false;
 }
 
-bool DiED::BasicMessage::bIsEventMessage(void)
+bool DiED::BasicMessage::bIsEvent(void)
 {
 	return false;
 }
