@@ -21,7 +21,7 @@ Network::Socket::~Socket(void)
 {
 	if(bIsOpen() == true)
 	{
-		close(m_iSocket);
+		vClose();
 	}
 }
 
@@ -38,6 +38,7 @@ int Network::Socket::iGetError(void) const
 void Network::Socket::vClose(void)
 {
 	close(m_iSocket);
+	m_iSocket = g_iInvalidSocket;
 }
 
 void Network::Socket::vMonitor(void)
@@ -98,6 +99,14 @@ bool Network::Socket::bNotify(const Glib::IOCondition & Condition)
 	}
 	
 	return true;
+}
+
+void Network::Socket::vOnConnect(void)
+{
+}
+
+void Network::Socket::vOnDisconnect(void)
+{
 }
 
 void Network::Socket::vOnIn(void)
