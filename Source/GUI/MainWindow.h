@@ -17,6 +17,7 @@ namespace GUI
 	{
 	public:
 		MainWindow(DiED::System & System);
+		~MainWindow(void);
 	protected:
 		void vInserted(const Gtk::TextBuffer::iterator & Iterator, const Glib::ustring & sString, int);
 		bool bKeyPressed(GdkEventKey * pEvent);
@@ -38,6 +39,7 @@ namespace GUI
 		Glib::RefPtr< Gtk::TextBuffer > m_TextBuffer;
 		sigc::connection m_KeyPressedConnection;
 		sigc::connection m_InsertConnection;
+		sigc::connection m_StatusChangedConnection;
 	};
 }
 
