@@ -75,11 +75,15 @@ GUI::MainWindow::MainWindow(DiED::System & System) :
 	
 	m_TextView.show();
 	pScrolledWindow->add(m_TextView);
+#ifndef NODEBUG
 	m_Notebook.show();
 	m_Pane.show();
 	m_Pane.pack1(*pScrolledWindow, true, true);
 	m_Pane.pack2(m_Notebook, true, true);
 	add(m_Pane);
+#else
+	add(*pScrolledWindow);
+#endif
 	set_default_size(500, 300);
 	show_all();
 	m_TextBuffer->signal_mark_set().connect(sigc::mem_fun(*this, &GUI::MainWindow::vMarkSet));
@@ -121,7 +125,8 @@ void GUI::MainWindow::vNewClient(DiED::Client & DiEDClient)
 		
 		return;
 	}
-	
+
+#ifndef NODEBUG
 	GUI::Client & Client(dynamic_cast< GUI::Client & >(DiEDClient));
 	Gtk::VBox * pBox(manage(new Gtk::VBox()));
 	Gtk::ScrolledWindow * pScrolledWindow(manage(new Gtk::ScrolledWindow()));
@@ -163,6 +168,7 @@ void GUI::MainWindow::vNewClient(DiED::Client & DiEDClient)
 	pBox->show();
 	m_Notebook.append_page(*pBox, ssName.str());
 	Client.vSetWidget(pBox);
+#endif
 	vClientStatusChanged(DiEDClient.GetID(), DiEDClient.GetStatus(m_System.GetLocalClientID()), boost::ref(DiEDClient));
 }
 
@@ -244,7 +250,7 @@ void GUI::MainWindow::vClientStatusChanged(const DiED::clientid_t & ClientID, co
 		//  => The local client is set to Disconnected to the new client during registration but the client is not yet in the list.
 		return;
 	}
-	
+#ifndef NODEBUG
 	GUI::Client * pClient(dynamic_cast< GUI::Client * >(pDiEDClient));
 	
 	if(pClient == 0)
@@ -296,6 +302,7 @@ void GUI::MainWindow::vClientStatusChanged(const DiED::clientid_t & ClientID, co
 			break;
 		}
 	}
+#endif
 }
 
 void GUI::MainWindow::vHoldFlowButtonClicked(Gtk::Button * pHoldFlowButton, Gtk::Button * pNextButton, boost::reference_wrapper< GUI::Client > Client)
