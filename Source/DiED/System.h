@@ -41,8 +41,10 @@ namespace DiED
 		virtual std::vector< DiED::clientid_t > GetDisconnectedClientIDs(void);
 		virtual DiED::User::Status GetStatus(const DiED::clientid_t & ClientID1, const DiED::clientid_t & ClientID2);
 		virtual DiED::Client * pGetClient(const DiED::clientid_t & ClientID);
-		virtual void vSendConnectionLost(const DiED::clientid_t & ClientID);
-		virtual void vSendToConnected(boost::shared_ptr< Network::BasicMessage > Message);
+		
+		// "Announce" functions will forward the message in question to all connected clients
+		virtual void vAnnounceMessage(boost::shared_ptr< DiED::BasicMessage > Message);
+		virtual void vAnnounceConnectionLost(const DiED::clientid_t & ClientID);
 		
 		// signals
 		sigc::signal< void, DiED::Client & > ClientConnected;

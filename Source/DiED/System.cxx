@@ -665,7 +665,7 @@ DiED::Client * DiED::System::pGetClient(const DiED::clientid_t & ClientID)
 	return iClient->second.get();
 }
 
-void DiED::System::vSendConnectionLost(const DiED::clientid_t & ClientID)
+void DiED::System::vAnnounceConnectionLost(const DiED::clientid_t & ClientID)
 {
 	std::map< DiED::clientid_t, boost::shared_ptr< DiED::Client > >::iterator iClient(m_Clients.find(ClientID));
 	
@@ -687,7 +687,7 @@ void DiED::System::vSendConnectionLost(const DiED::clientid_t & ClientID)
 	}
 }
 
-void DiED::System::vSendToConnected(boost::shared_ptr< Network::BasicMessage > Message)
+void DiED::System::vAnnounceMessage(boost::shared_ptr< DiED::BasicMessage > Message)
 {
 	std::map< DiED::clientid_t, boost::shared_ptr< DiED::Client > >::iterator iClient(m_Clients.begin());
 	
@@ -695,7 +695,7 @@ void DiED::System::vSendToConnected(boost::shared_ptr< Network::BasicMessage > M
 	{
 		if(m_Client->GetStatus(iClient->first) == DiED::User::Connected)
 		{
-			iClient->second->vSend(boost::dynamic_pointer_cast< DiED::BasicMessage >(Message));
+			iClient->second->vSend(Message);
 		}
 		++iClient;
 	}
