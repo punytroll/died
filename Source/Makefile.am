@@ -22,5 +22,5 @@ died_LDADD = \
 	DiED/libdied.a \
 	Network/libnetwork.a
 
-EXTRA_dist = \
+EXTRA_DIST = \
 	Common.h

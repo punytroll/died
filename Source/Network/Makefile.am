@@ -13,7 +13,7 @@ libnetwork_a_SOURCES = \
 	Socket.cxx \
 	Stream.cxx
 
-EXTRA_dist = \
+EXTRA_DIST = \
 	BasicBuffer.h \
 	BasicMessage.h \
 	BasicReader.h \
