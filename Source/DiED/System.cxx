@@ -106,51 +106,6 @@ DiED::clientid_t DiED::System::GetLocalClientID(void)
 	return 0;
 }
 
-void DiED::System::vDelete(int iLine, int iCharacter)
-{
-	int iOldLine(m_Client->iGetLine());
-	int iOldCharacter(m_Client->iGetCharacter());
-	int iLineRelative(iLine - iOldLine);
-	int iCharacterRelative(iCharacter - iOldCharacter);
-	int iLineAbsolute(0);
-	int iCharacterAbsolute(0);
-	
-	if((iLineRelative == 0) && (iCharacterRelative == 0))
-	{
-		return;
-	}
-	if(iLineRelative < 0)
-	{
-		iLineAbsolute = iLineRelative - iOldLine;
-	}
-	else
-	{
-		iLineAbsolute = m_pExternalEnvironment->iGetNumberOfLines() - iLine;
-	}
-	if(iCharacterRelative < 0)
-	{
-		iCharacterAbsolute = - iCharacterRelative - iOldCharacter;
-	}
-	else
-	{
-		iCharacterAbsolute = m_pExternalEnvironment->iGetLengthOfLine(iLine) - iCharacter;
-	}
-	m_Client->vSetLine(iLine);
-	m_Client->vSetCharacter(iCharacter);
-	
-	std::map< DiED::clientid_t, boost::shared_ptr< DiED::Client > >::iterator iClient(m_Clients.begin());
-	DiED::messageid_t EventCounter(m_Client->GetNextEventCounter());
-	
-	while(iClient != m_Clients.end())
-	{
-		if(iClient->first != m_Client->GetID())
-		{
-			iClient->second->vDelete(iLineRelative, iCharacterRelative, iLineAbsolute, iCharacterAbsolute, EventCounter);
-		}
-		++iClient;
-	}
-}
-
 void DiED::System::vPosition(int iLine, int iCharacter)
 {
 	LOG(Verbose, "DiED/System", "Changing the local position to Line = " << iLine << " ; Character = " << iCharacter);
@@ -294,6 +249,70 @@ void DiED::System::vInsert(DiED::User & User, const Glib::ustring & sString, boo
 				}
 			}
 		}
+		++iClient;
+	}
+}
+
+void DiED::System::vDelete(int iLine, int iCharacter)
+{
+	int iLineRelative(m_Client->iGetLine() - iLine);
+	int iCharacterRelative(m_Client->iGetCharacter() - iCharacter);
+	int iLineAbsolute(0);
+	int iCharacterAbsolute(0);
+	
+	if((iLineRelative == 0) && (iCharacterRelative == 0))
+	{
+		return;
+	}
+	if(iLineRelative < 0)
+	{
+		iLineAbsolute = iLineRelative - m_Client->iGetLine();
+	}
+	else
+	{
+		iLineAbsolute = m_pExternalEnvironment->iGetNumberOfLines() - iLine;
+	}
+	if(iCharacterRelative < 0)
+	{
+		iCharacterAbsolute = - iCharacterRelative - m_Client->iGetCharacter();
+	}
+	else
+	{
+		iCharacterAbsolute = m_pExternalEnvironment->iGetLengthOfLine(iLine) - iCharacter;
+	}
+	
+	std::map< DiED::clientid_t, boost::shared_ptr< DiED::Client > >::iterator iClient(m_Clients.begin());
+	DiED::messageid_t EventCounter(m_Client->GetNextEventCounter());
+	
+	while(iClient != m_Clients.end())
+	{
+		if(iClient->first != m_Client->GetID())
+		{
+			iClient->second->vDelete(iLineRelative, iCharacterRelative, iLineAbsolute, iCharacterAbsolute, EventCounter);
+		}
+		++iClient;
+	}
+	vDelete(**m_Client, iLine - m_Client->iGetLine(), iCharacter - m_Client->iGetCharacter(), false);
+}
+
+void DiED::System::vDelete(DiED::User & User, int iLineRelative, int iCharacterRelative, bool bForwardToEnvironment)
+{
+	int iLine(User.iGetLine());
+	int iCharacter(User.iGetCharacter());
+	
+	if(bForwardToEnvironment == true)
+	{
+		m_pExternalEnvironment->vDelete(User.iGetLine(), User.iGetCharacter(), User.iGetLine() + iLineRelative, User.iGetCharacter() + iCharacterRelative);
+	}
+	
+	std::map< DiED::clientid_t, boost::shared_ptr< DiED::Client > >::iterator iClient(m_Clients.begin());
+	
+	while(iClient != m_Clients.end())
+	{
+		DiED::User & OtherUser = *(iClient->second);
+		
+		// TODO
+		
 		++iClient;
 	}
 }
@@ -729,8 +748,7 @@ void DiED::System::vHandleDelete(DiED::User & User, int iLineRelative, int iChar
 //~ 			// TODO change iCharacterRelative
 //~ 		}
 //~ 	}
-	m_pExternalEnvironment->vDelete(User.iGetLine(), User.iGetCharacter(), User.iGetLine() + iLineRelative, User.iGetCharacter() + iCharacterRelative);
-	User.vModifyCaretPosition(iLineRelative, iCharacterRelative);
+	vDelete(User, iLineRelative, iCharacterRelative, true);
 	LOG(Debug, "DiED/System", "           Delete message from " << User.GetID() << '\n');
 }
 
