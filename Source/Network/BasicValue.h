@@ -27,13 +27,9 @@ namespace Network
 			return m_bReady;
 		}
 		
-		virtual Glib::ustring sGetString(void) const
-		{
-			return "undefined";
-		}
-		
 		virtual void vReadFrom(boost::shared_ptr< Network::BasicReader > Reader) = 0;
 		virtual void vWriteTo(boost::shared_ptr< Network::BasicWriter > Writer) const = 0;
+		virtual std::ostream & operator<<(std::ostream & OStream);
 		
 		sigc::signal< void > Ready;
 	protected:
