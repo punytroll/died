@@ -274,8 +274,9 @@ void DiED::System::vKnownClients(DiED::User & User, const DiED::messageid_t & Me
 			std::cout << "VERY BAD: " << __FILE__ << ':' << __LINE__ << ": ClientID = " << *iClient << std::endl;
 		}
 		// RegisterClient will give a client that is Disconnected to ALL clients.
-		Client->vSetStatus(User.GetClientID(), DiED::Client::Connected);
-		User.vSetStatus(*iClient, DiED::Client::Connected);
+		vSetStatus(User.GetClientID(), Client->GetClientID(), DiED::User::Connected);
+//~ 		Client->vSetStatus(User.GetClientID(), DiED::Client::Connected);
+//~ 		User.vSetStatus(*iClient, DiED::Client::Connected);
 		++iClient;
 	}
 	iClient = DisconnectedClientIDs.begin();
@@ -309,8 +310,9 @@ void DiED::System::vKnownClients(DiED::User & User, const DiED::messageid_t & Me
 	else
 	{
 		Client->operator<<(boost::shared_ptr< DiED::BasicMessage >(new ClientsRegisteredMessage(MessageID)));
-		Client->vSetStatus(m_Client->GetClientID(), DiED::User::Connected);
-		m_Client->vSetStatus(User.GetClientID(), DiED::User::Connected);
+		vSetStatus(User.GetClientID(), m_Client->GetClientID(), DiED::User::Connected);
+//~ 		Client->vSetStatus(m_Client->GetClientID(), DiED::User::Connected);
+//~ 		m_Client->vSetStatus(User.GetClientID(), DiED::User::Connected);
 		
 		std::multimap< DiED::clientid_t, boost::shared_ptr< DiED::Client > >::iterator iClient(m_Clients.begin());
 		
@@ -333,8 +335,9 @@ void DiED::System::vKnownClients(DiED::User & User, const DiED::messageid_t & Me
 void DiED::System::vClientsRegistered(DiED::User & User, const DiED::messageid_t & MessageID)
 {
 //~ 	std::cout << "Executing ClientsRegisteredMessage(" << MessageID << ") from " << User.GetClientID() << std::endl;
-	m_Client->vSetStatus(User.GetClientID(), DiED::Client::Connected);
-	User.vSetStatus(m_Client->GetClientID(), DiED::Client::Connected);
+	vSetStatus(User.GetClientID(), m_Client->GetClientID(), DiED::User::Connected);
+//~ 	m_Client->vSetStatus(User.GetClientID(), DiED::Client::Connected);
+//~ 	User.vSetStatus(m_Client->GetClientID(), DiED::Client::Connected);
 	
 	boost::shared_ptr< DiED::Client > Client(m_Clients.find(User.GetClientID())->second);
 	std::map< DiED::clientid_t, boost::shared_ptr< DiED::Client > >::iterator iClient(m_Clients.begin());
@@ -372,8 +375,9 @@ void DiED::System::vConnectionEstablished(DiED::User & User, const DiED::clienti
 		Client = iClient->second;
 		std::cout << "TODO: " << __FILE__ << ':' << __LINE__ << std::endl;
 	}
-	Client->vSetStatus(User.GetClientID(), DiED::Client::Connected);
-	User.vSetStatus(Client->GetClientID(), DiED::Client::Connected);
+	vSetStatus(User.GetClientID(), Client->GetClientID(), DiED::Client::Connected);
+//~ 	Client->vSetStatus(User.GetClientID(), DiED::Client::Connected);
+//~ 	User.vSetStatus(Client->GetClientID(), DiED::Client::Connected);
 	// "Client" is set to an existing client with the client ID "ClientID"
 	if(m_Client->GetStatus(ClientID) == DiED::Client::Disconnected)
 	{
@@ -445,6 +449,61 @@ DiED::User::Status DiED::System::GetStatus(const DiED::clientid_t & ClientID1, c
 	}
 	
 	return Client2->GetStatus(ClientID1);
+}
+
+/**
+ * @brief The working horse for the Status relation.
+ * @param ClientID1 The ID of one of the two related clients.
+ * @param ClientID2 The ID of the other one of the two related clients.
+ * @param Status The Status to be set between the two clients.
+ *
+ * This function will set the Status relation between the two clients identified by @a ClientID1 and @a ClientID2.
+ *
+ * You can pass '0' in order to identify the local client in any of the two client ID parameters but only one is useful.
+ *
+ * Since the Status relation is defined to be symmetric this call will result in two symmetric calls of DiED::Client::vSetStatus on the appropriate client objects.
+ *
+ * Since the Status relation is defined to be not reflexive, passing two identical client IDs or, in any case, two client IDs which represent the same client object, will result in no setting action. However keep in mind that the function needs time ( O(log(n)) ) to compute the client objects from the client IDs.
+ **/
+void DiED::System::vSetStatus(const DiED::clientid_t & ClientID1, const DiED::clientid_t & ClientID2, const DiED::User::Status & Status)
+{
+	boost::shared_ptr< DiED::Client > Client1;
+	boost::shared_ptr< DiED::Client > Client2;
+	
+	if(ClientID1 == 0)
+	{
+		Client1 = m_Client;
+	}
+	else
+	{
+		std::map< DiED::clientid_t, boost::shared_ptr< DiED::Client > >::iterator iClient(m_Clients.find(ClientID1));
+		
+		if(iClient == m_Clients.end())
+		{
+			return;
+		}
+		Client1 = iClient->second;
+	}
+	if(ClientID2 == 0)
+	{
+		Client2 = m_Client;
+	}
+	else
+	{
+		std::map< DiED::clientid_t, boost::shared_ptr< DiED::Client > >::iterator iClient(m_Clients.find(ClientID2));
+		
+		if(iClient == m_Clients.end())
+		{
+			return;
+		}
+		Client2 = iClient->second;
+	}
+	if(Client1 == Client2)
+	{
+		return;
+	}
+	Client1->vSetStatus(ClientID2, Status);
+	Client2->vSetStatus(ClientID1, Status);
 }
 
 void DiED::System::vSendMessage(boost::shared_ptr< DiED::BasicMessage > Message)
@@ -567,6 +626,7 @@ boost::shared_ptr< DiED::Client > DiED::System::RegisterClient(boost::shared_ptr
 	
 	while(iClient != m_Clients.end())
 	{
+		// curerntly we cannot use the vSetStatus function of the system as the new client is not yet in the client list
 		iClient->second->vSetStatus(ClientID, DiED::User::Disconnected);
 		Client->vSetStatus(iClient->first, DiED::User::Disconnected);
 		++iClient;

@@ -38,6 +38,7 @@ namespace DiED
 		virtual std::vector< DiED::clientid_t > GetConnectedClientIDs(void);
 		virtual std::vector< DiED::clientid_t > GetDisconnectedClientIDs(void);
 		virtual DiED::User::Status GetStatus(const DiED::clientid_t & ClientID1, const DiED::clientid_t & ClientID2);
+		virtual void vSetStatus(const DiED::clientid_t & ClientID1, const DiED::clientid_t & ClientID2, const DiED::User::Status & Status);
 		
 		// signals
 		sigc::signal< void, DiED::Client & > ClientConnected;
