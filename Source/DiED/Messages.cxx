@@ -201,7 +201,7 @@ DiED::TestMessage::TestMessage(void) :
 
 bool DiED::TestMessage::bIsReady(void) const
 {
-	return true;
+	return m_Values.bIsReady();
 }
 
 void DiED::TestMessage::vReadFrom(Network::Stream & Stream)
