@@ -27,9 +27,9 @@ Network::MessageStream & Network::MessageStream::operator>>(boost::shared_ptr< N
 {
 	push_back(Message);
 	MessageBegin();
-	std::cout << "-> ReadFrom" << std::endl;
+//~ 	std::cout << "-> ReadFrom" << std::endl;
 	Message->vReadFrom(*this);
-	std::cout << "<- ReadFrom" << std::endl;
+//~ 	std::cout << "<- ReadFrom" << std::endl;
 	
 	return *this;
 }
