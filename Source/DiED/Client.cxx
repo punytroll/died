@@ -60,47 +60,57 @@ void DiED::Client::vSetPort(const Network::port_t & Port)
 
 void DiED::Client::vHandleInsertText(const Glib::ustring & sString)
 {
+	vHandleAnswer();
 	m_InternalEnvironment.vInsertText(*this, sString);
 }
 
 void DiED::Client::vHandleConnectionRequest(const DiED::clientid_t & ClientID, const Network::port_t & Port)
 {
+	vHandleAnswer();
 	m_Port = Port;
 	m_InternalEnvironment.vConnectionRequest(*this, ClientID);
 }
 
 void DiED::Client::vHandleConnectionAccept(const DiED::clientid_t & LocalClientID, const DiED::clientid_t & RemoteClientID)
 {
+	vHandleAnswer();
 	m_InternalEnvironment.vConnectionAccept(*this, LocalClientID, RemoteClientID);
 }
 
 void DiED::Client::vHandleKnownClients(const DiED::messageid_t & MessageID, const std::vector< DiED::clientid_t > & ConnectedClientIDs, const std::vector< DiED::clientid_t > & DisconnectedClientIDs)
 {
+	vHandleAnswer();
 	m_InternalEnvironment.vKnownClients(*this, MessageID, ConnectedClientIDs, DisconnectedClientIDs);
 }
 
 void DiED::Client::vHandleClientsRegistered(const DiED::messageid_t & MessageID)
 {
+	vHandleAnswer();
 	m_InternalEnvironment.vClientsRegistered(*this, MessageID);
 }
 
 void DiED::Client::vHandleConnectionEstablished(const DiED::clientid_t & ClientID, const Network::address_t & ClientAddress, const Network::port_t & ClientPort)
 {
+	vHandleAnswer();
 	m_InternalEnvironment.vConnectionEstablished(*this, ClientID, ClientAddress, ClientPort);
 }
 
 void DiED::Client::vHandleConnectionLost(const DiED::clientid_t & ClientID, const Network::address_t & ClientAddress, const Network::port_t & ClientPort)
 {
+	vHandleAnswer();
 	m_InternalEnvironment.vConnectionLost(*this, ClientID, ClientAddress, ClientPort);
 }
 
 void DiED::Client::vHandlePing(const DiED::messageid_t & PingID)
 {
+	vHandleAnswer();
 	vSend(boost::shared_ptr< DiED::BasicMessage >(new DiED::PongMessage(PingID)));
 }
 
 void DiED::Client::vHandlePong(const DiED::messageid_t & PingID)
 {
+	vHandleAnswer();
+	
 	std::map< DiED::messageid_t, boost::shared_ptr< sigc::signal< void > > >::iterator iPongSignal(m_PongSignals.find(PingID));
 	
 //~ 	std::cout << "Pong message with ID " << PingID << " dropped in. Calling the signals." << std::endl;
@@ -121,9 +131,27 @@ void DiED::Client::vHandleEvent(const DiED::clientid_t & CreatorID, const DiED::
 void DiED::Client::vHandleEventReceived(const DiED::clientid_t & CreatorID, const DiED::messageid_t & EventID)
 {
 	// TODO: not specified yet, but I'm taking an educated guess
-	std::deque< boost::shared_ptr< DiED::BasicMessage > >::iterator iMessage(m_AwaitingConfirmationQueue.begin());
+	vHandleAnswer();
+}
+
+void DiED::Client::vHandleAnswer(void)
+{
+	if(m_AwaitingConfirmationQueue.size() == 0)
+	{
+		return;
+	}
+	
+	std::cout << "HandleAnswers: " << m_AwaitingConfirmationQueue.size() << " elements in the confirmation queue." << std::endl;
+	
 	// TODO: this front() does not look good
 	boost::shared_ptr< DiED::ConfirmationParameters > ConfirmationParameters(boost::dynamic_pointer_cast< DiED::BasicMessage >(m_MessageStream->front())->GetConfirmationParameters());
+	
+	if(ConfirmationParameters.get() == 0)
+	{
+		return;
+	}
+	
+	std::deque< boost::shared_ptr< DiED::BasicMessage > >::iterator iMessage(m_AwaitingConfirmationQueue.begin());
 	
 	while(iMessage != m_AwaitingConfirmationQueue.end())
 	{
@@ -135,6 +163,7 @@ void DiED::Client::vHandleEventReceived(const DiED::clientid_t & CreatorID, cons
 		}
 		++iMessage;
 	}
+	std::cout << "             : " << m_AwaitingConfirmationQueue.size() << " elements in the confirmation queue." << std::endl;
 }
 
 void DiED::Client::vOnMessageReady(void)
