@@ -74,6 +74,20 @@ bool DiED::ConnectionRequestMessage::bIsConfirmedBy(boost::shared_ptr< DiED::Con
 	return true;
 }
 
+bool DiED::ConnectionRequestMessage::bOnTimeout(DiED::MessageTarget * pMessageTarget)
+{
+	if(pMessageTarget != 0)
+	{
+		boost::shared_ptr< DiED::ConfirmationParameters > ConfirmationParameters(new DiED::ConfirmationParameters());
+		
+		ConfirmationParameters->insert(std::make_pair("Type", boost::any(static_cast< Network::BasicMessage::type_t >(DiED::_ConnectionAcceptMessage))));
+		
+		pMessageTarget->vHandleConnectionRequestConfirmationTimeout(ConfirmationParameters);
+	}
+	
+	return false;
+}
+
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 ///                                   ConnectionAcceptMessage                                   ///
@@ -203,11 +217,32 @@ bool DiED::KnownClientsMessage::bIsConfirmedBy(boost::shared_ptr< DiED::Confirma
 	return true;
 }
 
+bool DiED::KnownClientsMessage::bOnTimeout(DiED::MessageTarget * pMessageTarget)
+{
+	if(pMessageTarget != 0)
+	{
+		boost::shared_ptr< DiED::ConfirmationParameters > ConfirmationParameters(new DiED::ConfirmationParameters());
+		
+		if(m_MessageID == 0)
+		{
+			ConfirmationParameters->insert(std::make_pair("Type", boost::any(static_cast< Network::BasicMessage::type_t >(DiED::_KnownClientsMessage))));
+		}
+		else
+		{
+			ConfirmationParameters->insert(std::make_pair("Type", boost::any(static_cast< Network::BasicMessage::type_t >(DiED::_ClientsRegisteredMessage))));
+			ConfirmationParameters->insert(std::make_pair("MassageID", boost::any(static_cast< DiED::messageid_t >(m_MessageID))));
+		}
+		pMessageTarget->vHandleKnownClientsConfirmationTimeout(ConfirmationParameters);
+	}
+	
+	return false;
+}
+
 boost::shared_ptr< DiED::ConfirmationParameters > DiED::KnownClientsMessage::GetConfirmationParameters(void)
 {
 	boost::shared_ptr< DiED::ConfirmationParameters > ConfirmationParameters(new DiED::ConfirmationParameters());
 	
-	ConfirmationParameters->insert(std::make_pair("Type", boost::any(static_cast< Network::BasicMessage::type_t >(GetType()))));
+	ConfirmationParameters->insert(std::make_pair("Type", boost::any(static_cast< Network::BasicMessage::type_t >(DiED::_KnownClientsMessage))));
 	
 	return ConfirmationParameters;
 }
@@ -333,6 +368,21 @@ Glib::ustring DiED::ConnectionEstablishedMessage::sGetString(void)
 	return ssString.str();
 }
 
+bool DiED::ConnectionEstablishedMessage::bOnTimeout(DiED::MessageTarget * pMessageTarget)
+{
+	if(pMessageTarget != 0)
+	{
+		boost::shared_ptr< DiED::ConfirmationParameters > ConfirmationParameters(new DiED::ConfirmationParameters());
+		
+		ConfirmationParameters->insert(std::make_pair("Type", boost::any(static_cast< Network::BasicMessage::type_t >(DiED::_StatusConfirmMessage))));
+		ConfirmationParameters->insert(std::make_pair("MessageID", boost::any(static_cast< DiED::messageid_t >(m_MessageID))));
+		
+		pMessageTarget->vHandleConnectionEstablishedConfirmationTimeout(ConfirmationParameters);
+	}
+	
+	return false;
+}
+
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 ///                                    ConnectionLostMessage                                    ///
@@ -399,6 +449,21 @@ Glib::ustring DiED::ConnectionLostMessage::sGetString(void)
 	ssString << "ConnectionLost [MessageID = " << m_MessageID << " ; ClientID = " << m_ClientID << " ; ClientAddress = " << m_ClientAddress.Get() << " ; ClientPort = " << m_ClientPort << "]";
 	
 	return ssString.str();
+}
+
+bool DiED::ConnectionLostMessage::bOnTimeout(DiED::MessageTarget * pMessageTarget)
+{
+	if(pMessageTarget != 0)
+	{
+		boost::shared_ptr< DiED::ConfirmationParameters > ConfirmationParameters(new DiED::ConfirmationParameters());
+		
+		ConfirmationParameters->insert(std::make_pair("Type", boost::any(static_cast< Network::BasicMessage::type_t >(DiED::_StatusConfirmMessage))));
+		ConfirmationParameters->insert(std::make_pair("MessageID", boost::any(static_cast< DiED::messageid_t >(m_MessageID))));
+		
+		pMessageTarget->vHandleConnectionLostConfirmationTimeout(ConfirmationParameters);
+	}
+	
+	return false;
 }
 
 

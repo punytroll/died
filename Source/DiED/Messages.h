@@ -42,6 +42,7 @@ namespace DiED
 		virtual bool bRequiresConfirmation(void);
 		virtual bool bIsConfirmedBy(boost::shared_ptr< DiED::ConfirmationParameters > ConfirmationParameters);
 		virtual Glib::ustring sGetString(void);
+		virtual bool bOnTimeout(DiED::MessageTarget * pMessageTarget);
 	private:
 		Network::Value< DiED::clientid_t > m_ClientID;
 		Network::Value< Network::port_t > m_Port;
@@ -71,6 +72,7 @@ namespace DiED
 		virtual bool bIsConfirmedBy(boost::shared_ptr< DiED::ConfirmationParameters > ConfirmationParameters);
 		virtual boost::shared_ptr< DiED::ConfirmationParameters > GetConfirmationParameters(void);
 		virtual Glib::ustring sGetString(void);
+		virtual bool bOnTimeout(DiED::MessageTarget * pMessageTarget);
 	private:
 		Network::Value< u_int32_t > m_MessageID;
 		Network::VectorValue< DiED::clientid_t > m_ConnectedClientIDs;
@@ -98,6 +100,7 @@ namespace DiED
 		virtual bool bRequiresConfirmation(void);
 		virtual bool bIsConfirmedBy(boost::shared_ptr< DiED::ConfirmationParameters > ConfirmationParameters);
 		virtual Glib::ustring sGetString(void);
+		virtual bool bOnTimeout(DiED::MessageTarget * pMessageTarget);
 	private:
 		Network::Value< DiED::messageid_t > m_MessageID;
 		Network::Value< DiED::clientid_t > m_ClientID;
@@ -114,6 +117,7 @@ namespace DiED
 		virtual bool bRequiresConfirmation(void);
 		virtual bool bIsConfirmedBy(boost::shared_ptr< DiED::ConfirmationParameters > ConfirmationParameters);
 		virtual Glib::ustring sGetString(void);
+		virtual bool bOnTimeout(DiED::MessageTarget * pMessageTarget);
 	private:
 		Network::Value< DiED::messageid_t > m_MessageID;
 		Network::Value< DiED::clientid_t > m_ClientID;
