@@ -108,7 +108,16 @@ void GUI::MainWindow::vInsertText(const Glib::ustring & sString, int iLine, int 
 
 void GUI::MainWindow::vClientStatusChanged(const DiED::clientid_t & ClientID, const DiED::User::Status & Status, boost::reference_wrapper< DiED::Client > Client)
 {
-	GUI::Client * pClient(dynamic_cast< GUI::Client * >(m_System.pGetClient(ClientID)));
+	DiED::Client * pDiEDClient(m_System.pGetClient(ClientID));
+	
+	if(pDiEDClient == 0)
+	{
+		// this can happen quite often during client registration.
+		//  => The local client is set to Disconnected to the new client during registration but the client is not yet in the list.
+		return;
+	}
+	
+	GUI::Client * pClient(dynamic_cast< GUI::Client * >(pDiEDClient));
 	
 	if(pClient == 0)
 	{
