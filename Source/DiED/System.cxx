@@ -229,9 +229,10 @@ void DiED::System::vConnectionRequest(DiED::User & User, const DiED::clientid_t 
 	}
 	else
 	{
+		std::cout << "TODO: test connection with ping." << std::endl;
 		// => the local client is known in the network it is connecting to
 		iClient->second->vSetMessageStream(Client->GetMessageStream());
-		iClient->second->vConnectionAccept(m_Client->GetID(), ClientID);
+		iClient->second->vConnectionAccept(ClientID, m_Client->GetID());
 		Client->vSetMessageStream(boost::shared_ptr< Network::MessageStream >());
 		// TODO: what to do with the iPreliminaryClient ... it is invalid and emtpy (no socket) but MUST NOT be deleted from here
 	}
