@@ -10,6 +10,8 @@ namespace DiED
 	public:
 		Client(Network::MessageFactory & MessageFactory);
 		Client(int iSocket, Network::MessageFactory & MessageFactory);
+	protected:
+		virtual void vMessageReady(void);
 	};
 }
 

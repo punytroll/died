@@ -13,3 +13,10 @@ DiED::Client::Client(int iSocket, Network::MessageFactory & MessageFactory) :
 {
 	std::cout << "[Client]: Created new Client from socket." << std::endl;
 }
+
+void DiED::Client::vMessageReady(void)
+{
+	boost::shared_ptr< Network::BasicMessage > Message(PopMessage());
+	
+	std::cout << "[Client]: Retrieved message with type " << Message->u32GetType() << '.' << std::endl;
+}

@@ -7,6 +7,7 @@ AC_PROG_CXX
 AC_PROG_LIBTOOL
 
 PKG_CHECK_MODULES(GLIBMM, glibmm-2.4)
+PKG_CHECK_MODULES(GTKMM, gtkmm-2.4)
 
-AC_CONFIG_FILES([Makefile Source/Makefile Source/DiED/Makefile Source/Network/Makefile])
+AC_CONFIG_FILES([Makefile Source/Makefile Source/DiED/Makefile Source/GUI/Makefile Source/Network/Makefile])
 AC_OUTPUT

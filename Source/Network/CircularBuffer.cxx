@@ -48,7 +48,7 @@ size_t Network::CircularBuffer::stRead(u_int8_t * pu8Memory, size_t stSize)
 	{
 		size_t stReturn = stGetSize() <? stSize;
 		
-		std::cout << "\t[Read]: DataBegin <= DataEnd [" << stReturn << "]." << std::endl;
+//~ 		std::cout << "\t[Read]: DataBegin <= DataEnd [" << stReturn << "]." << std::endl;
 		memcpy(pu8Memory, m_pu8DataBegin, stReturn);
 		m_pu8DataBegin += stReturn;
 		
@@ -81,21 +81,21 @@ void Network::CircularBuffer::vWrite(const u_int8_t * pu8Memory, size_t stSize)
 	// we need a buffer size + 1 because Begin may only be equal End if the buffer is empty.
 	if(stSize >= stGetFree())
 	{
-		std::cout << "\t[Write]: TODO: Enlarge buffer." << std::endl;
+//~ 		std::cout << "\t[Write]: TODO: Enlarge buffer." << std::endl;
 		// TODO: enlarge buffer
 	}
 	if(m_pu8DataBegin <= m_pu8DataEnd)
 	{
-		std::cout << "\t[Write]: DataBegin <= DataEnd" << std::endl;
+//~ 		std::cout << "\t[Write]: DataBegin <= DataEnd" << std::endl;
 		if((m_pu8StorageEnd - m_pu8DataEnd) >= stSize)
 		{
-			std::cout << "\t[Write]: New data fits." << std::endl;
+//~ 			std::cout << "\t[Write]: New data fits." << std::endl;
 			memcpy(m_pu8DataEnd, pu8Memory, stSize);
 			m_pu8DataEnd += stSize;
 		}
 		else
 		{
-			std::cout << "\t[Write]: New data overlaps the storage end." << std::endl;
+//~ 			std::cout << "\t[Write]: New data overlaps the storage end." << std::endl;
 			memcpy(m_pu8DataEnd, pu8Memory, m_pu8StorageEnd - m_pu8DataEnd);
 			stSize -= (m_pu8StorageEnd - m_pu8DataEnd);
 			memcpy(m_pu8StorageBegin, pu8Memory + (m_pu8StorageEnd - m_pu8DataEnd), stSize);
@@ -104,7 +104,7 @@ void Network::CircularBuffer::vWrite(const u_int8_t * pu8Memory, size_t stSize)
 	}
 	else
 	{
-		std::cout << "\t[Write]: DataBegin > DataEnd" << std::endl;
+//~ 		std::cout << "\t[Write]: DataBegin > DataEnd" << std::endl;
 		memcpy(m_pu8DataEnd, pu8Memory, stSize);
 		m_pu8DataEnd += stSize;
 	}

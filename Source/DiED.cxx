@@ -1,8 +1,11 @@
 #include <iostream>
 #include <sstream>
 
+#include <gtkmm/main.h>
+
 #include "Common.h"
 #include "DiED/System.h"
+#include "GUI/MainWindow.h"
 
 bool g_bDone = false;
 
@@ -48,8 +51,9 @@ int main(int argc, char ** argv)
 	{
 		DiEDSystem.bConnectTo(sConnectAddress, u16ConnectPort);
 	}
-	while(g_bDone == false)
-	{
-		Glib::MainContext::get_default()->iteration(true);
-	}
+	
+	Gtk::Main Main(argc, argv);
+	GUI::MainWindow MainWindow;
+	
+	Main.run(MainWindow);
 }

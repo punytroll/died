@@ -1,7 +1,7 @@
 #include "BasicMessage.h"
 
-Network::BasicMessage::BasicMessage(u_int32_t u32MessageID, bool bForSending) :
-	m_MessageID(u32MessageID),
+Network::BasicMessage::BasicMessage(u_int32_t u32Type, bool bForSending) :
+	m_Type(u32Type),
 	m_bForSending(bForSending)
 {
 }
@@ -17,7 +17,7 @@ bool Network::BasicMessage::bIsForSending(void) const
 
 void Network::BasicMessage::vWriteTo(Network::Stream & Stream) const
 {
-	Stream << m_MessageID;
+	Stream << m_Type;
 	vWriteToInternal(Stream);
 }
 
@@ -34,7 +34,7 @@ void Network::BasicMessage::vNotifyValueReady(void)
 	}
 }
 
-u_int32_t Network::BasicMessage::u32GetMessageID(void)
+u_int32_t Network::BasicMessage::u32GetType(void)
 {
-	return m_MessageID;
+	return m_Type;
 }
