@@ -1,40 +1,45 @@
-#! /bin/sh
+#!/bin/sh
+cd `dirname "$0"`
 
-rm -f config.cache
+echo -e "Welcome ...
+This is the autogen.sh script to help you build \"died\" from CVS sources."
+echo
 
-echo aclocal...
-(aclocal --version) < /dev/null > /dev/null 2>&1 || {
-    echo aclocal not found
-    exit 1
-}
-
-libtoolize --force --copy
-
-aclocal $ACLOCAL_FLAGS
-
-echo autoheader...
-(autoheader --version) < /dev/null > /dev/null 2>&1 || {
-    echo autoheader not found
-    exit 1
-}    
-
+echo "Running autoheader ..."
 autoheader
+echo "Done. [Return = $?]"
+echo
 
-echo automake...
-(automake --version) < /dev/null > /dev/null 2>&1 || {
-    echo automake not found
-    exit 1
-}
+echo "Running aclocal ..."
+WANT_AUTOMAKE="1.8" aclocal
+echo "Done. [Return = $?]"
+echo
 
-automake --add-missing --copy --gnu
-
-echo autoconf...
-(autoconf --version) < /dev/null > /dev/null 2>&1 || {
-    echo autoconf not found
-    exit 1
-}
-
+echo "Running autoconf ..."
 autoconf
+echo "Done. [Return = $?]"
+echo
 
+echo "Running libtoolize ..."
+echo -e "\tOptions are:"
+echo -e "\t\t--copy\tto create real files and not symbolic links"
+libtoolize --copy
+echo "Done. [Return = $?]"
+echo
 
-exit 0
+echo "Running automake ..."
+echo -e "\tOptions are:"
+echo -e "\t\t--copy\t\tto create real files and not symbolic links"
+echo -e "\t\t--add-missing\tto create the files install-sh mkinstalldirs and missing"
+automake --copy --add-missing
+echo "Done. [Return = $?]"
+echo
+
+echo "Running" ./configure
+echo -e "\tOptions are:"
+echo -e "\t\t" "$@"
+./configure "$@"
+echo "Done. [Return = $?]"
+echo
+
+exit
