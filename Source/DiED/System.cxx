@@ -480,6 +480,7 @@ void DiED::System::vConnectionLost(DiED::User & User, const DiED::clientid_t & C
 				{
 					Client->vSetMessageStream(MessageStream);
 					Client->vSetPort(ClientPort);
+					vSetStatus(m_Client->GetID(), Client->GetID(), DiED::User::Connecting);
 					Client->vConnectionRequest(m_Client->GetID(), m_ServicePort);
 				}
 			}
