@@ -483,7 +483,13 @@ bool DiED::PingMessage::bIsConfirmedBy(boost::shared_ptr< DiED::ConfirmationPara
 
 bool DiED::PingMessage::bOnTimeout(DiED::MessageTarget * pMessageTarget)
 {
-	std::cout << "WE GOT A PING TIMEOUT. EEEEEEK." << std::endl;
+	if(pMessageTarget != 0)
+	{
+		boost::shared_ptr< DiED::ConfirmationParameters > ConfirmationParameters(new DiED::ConfirmationParameters());
+		
+		ConfirmationParameters->insert(std::make_pair("PingID", boost::any(static_cast< DiED::messageid_t >(m_PingID))));
+		pMessageTarget->vHandlePingConfirmationTimeout(ConfirmationParameters);
+	}
 	
 	return false;
 }

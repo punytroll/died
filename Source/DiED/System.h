@@ -48,6 +48,8 @@ namespace DiED
 		void vSendMessage(boost::shared_ptr< DiED::BasicMessage > Message, bool bSendOnlyToConnected = false);
 		void vInsertText(DiED::User & User, const Glib::ustring & sString, bool bWriteToEnvironment);
 		virtual void vAccepted(boost::shared_ptr< Network::MessageStream > MessageStream);
+		void vClientStatusChanged(const DiED::clientid_t & ClientID, const DiED::User::Status & Status);
+		bool bTryReconnect(const DiED::clientid_t & ClientID);
 	private:
 		virtual void vSetStatus(const DiED::clientid_t & ClientID1, const DiED::clientid_t & ClientID2, const DiED::User::Status & Status);
 		

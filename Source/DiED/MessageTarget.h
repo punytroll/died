@@ -1,8 +1,6 @@
 #ifndef DIED_MESSAGETARGET_H
 #define DIED_MESSAGETARGET_H
 
-#include <glibmm/ustring.h>
-
 #include <Common.h>
 
 #include "User.h"
@@ -24,6 +22,8 @@ namespace DiED
 		virtual void vHandlePong(const DiED::messageid_t & PingID) = 0;
 		virtual void vHandleEvent(const DiED::clientid_t & CreatorID, const DiED::messageid_t & EventID, const DiED::clientid_t & LostClientID) = 0;
 		virtual void vHandleEventReceived(const DiED::clientid_t & CreatorID, const DiED::messageid_t & EventID) = 0;
+		
+		virtual void vHandlePingConfirmationTimeout(boost::shared_ptr< DiED::ConfirmationParameters > ConfirmationParameters) = 0;
 	};
 }
 

@@ -40,6 +40,7 @@ namespace DiED
 		void vConnectionEstablished(const DiED::clientid_t & ClientID, const Network::address_t & ClientAddress, const Network::port_t & ClientPort);
 		void vConnectionLost(const DiED::clientid_t & ClientID, const Network::address_t & ClientAddress, const Network::port_t & ClientPort);
 		void vPing(sigc::slot< void > PongTimeoutSlot);
+		void vPing(void);
 		virtual void vExecuteTopMessage(void);
 		
 		//signals
@@ -66,6 +67,7 @@ namespace DiED
 		virtual void vHandlePong(const DiED::messageid_t & PingID);
 		virtual void vHandleEvent(const DiED::clientid_t & CreatorID, const DiED::messageid_t & EventID, const DiED::clientid_t & LostClientID);
 		virtual void vHandleEventReceived(const DiED::clientid_t & CreatorID, const DiED::messageid_t & EventID);
+		virtual void vHandlePingConfirmationTimeout(boost::shared_ptr< DiED::ConfirmationParameters > ConfirmationParameters);
 	private:
 		DiED::InternalEnvironment & m_InternalEnvironment;
 	protected:
@@ -82,11 +84,18 @@ namespace DiED
 		DiED::messageid_t m_StatusMessageCounter;
 		size_t m_stBytesSent;
 		
+		struct WaitingMessage
+		{
+			boost::shared_ptr< DiED::BasicMessage > m_Message;
+			boost::shared_ptr< sigc::signal< void > > m_TimeoutSignal;
+		};
+		
+		DiED::Client::WaitingMessage RemoveWaitingMessage(boost::shared_ptr< DiED::ConfirmationParameters > ConfirmationParameters);
+		
 		// message queues
-		std::deque< boost::shared_ptr< DiED::BasicMessage > > m_AwaitingConfirmationQueue;
+		std::deque< WaitingMessage > m_AwaitingConfirmationQueue;
 		std::deque< boost::shared_ptr< DiED::EventMessage > > m_EventQueue;
 		std::deque< boost::shared_ptr< DiED::BasicMessage > > m_QueuedQueue;
-		std::map< DiED::messageid_t, boost::shared_ptr< sigc::signal< void > > > m_PongTimeoutSignals;
 	};
 }
 
