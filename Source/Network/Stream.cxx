@@ -165,6 +165,10 @@ void Network::Stream::vOnOut(void)
 	if(stSentSize == -1)
 	{
 		vGetError();
+		if(m_iError == EBADF)
+		{
+			vClose();
+		}
 		std::cout << "[Network/Stream]: " << __FILE__ << ':' << __LINE__ << ": " << sErrorCodeToString(m_iError) << std::endl;
 		
 		return;
