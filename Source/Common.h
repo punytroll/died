@@ -21,9 +21,10 @@ namespace DiED
 	typedef u_int32_t messageid_t;
 	typedef u_int32_t clientid_t;
 	typedef std::map< Glib::ustring, boost::any > ConfirmationParameters;
+	
+	std::string sStatusToString(const DiED::clientstatus_t & iStatus);
 }
 
 std::string sErrorCodeToString(int iError);
-std::string sStatusToString(int iStatus);
 
 #endif
