@@ -1,6 +1,7 @@
 #ifndef MESSAGES_H
 #define MESSAGES_H
 
+#include <Network/StringValue.h>
 #include <Network/VectorValue.h>
 
 #include "BasicMessage.h"
@@ -16,6 +17,7 @@ namespace DiED
 		_ClientsRegisteredMessage,
 		_ConnectionEstablishedMessage,
 		_ConnectionLostMessage,
+		_StatusConfirmMessage,
 		_PingMessage,
 		_PongMessage,
 		_EventReceivedMessage,
@@ -89,12 +91,15 @@ namespace DiED
 	{
 	public:
 		ConnectionEstablishedMessage(void);
-		ConnectionEstablishedMessage(const DiED::clientid_t & ClientID, const Network::address_t & ClientAddress, const Network::port_t & ClientPort);
+		ConnectionEstablishedMessage(const DiED::messageid_t & MessageID, const DiED::clientid_t & ClientID, const Network::address_t & ClientAddress, const Network::port_t & ClientPort);
 		virtual void vExecute(DiED::MessageTarget & MessageTarget);
+		virtual bool bRequiresConfirmation(void);
+		virtual bool bIsConfirmedBy(boost::shared_ptr< DiED::ConfirmationParameters > ConfirmationParameters);
 		virtual Glib::ustring sGetString(void);
 	private:
+		Network::Value< DiED::messageid_t > m_MessageID;
 		Network::Value< DiED::clientid_t > m_ClientID;
-		Network::Value< Network::address_t > m_ClientAddress;
+		Network::StringValue m_ClientAddress;
 		Network::Value< Network::port_t > m_ClientPort;
 	};
 	
@@ -102,13 +107,28 @@ namespace DiED
 	{
 	public:
 		ConnectionLostMessage(void);
-		ConnectionLostMessage(const DiED::clientid_t & ClientID, const Network::address_t & ClientAddress, const Network::port_t & ClientPort);
+		ConnectionLostMessage(const DiED::messageid_t & MessageID, const DiED::clientid_t & ClientID, const Network::address_t & ClientAddress, const Network::port_t & ClientPort);
 		virtual void vExecute(DiED::MessageTarget & MessageTarget);
+		virtual bool bRequiresConfirmation(void);
+		virtual bool bIsConfirmedBy(boost::shared_ptr< DiED::ConfirmationParameters > ConfirmationParameters);
 		virtual Glib::ustring sGetString(void);
 	private:
+		Network::Value< DiED::messageid_t > m_MessageID;
 		Network::Value< DiED::clientid_t > m_ClientID;
-		Network::Value< Network::address_t > m_ClientAddress;
+		Network::StringValue m_ClientAddress;
 		Network::Value< Network::port_t > m_ClientPort;
+	};
+	
+	class StatusConfirmMessage : public DiED::BasicMessage
+	{
+	public:
+		StatusConfirmMessage(void);
+		StatusConfirmMessage(const DiED::messageid_t & MessageID);
+		virtual void vExecute(DiED::MessageTarget & MessageTarget);
+		virtual boost::shared_ptr< DiED::ConfirmationParameters > GetConfirmationParameters(void);
+		virtual Glib::ustring sGetString(void);
+	private:
+		Network::Value< DiED::messageid_t > m_MessageID;
 	};
 	
 	class PingMessage : public DiED::BasicMessage
@@ -176,7 +196,7 @@ namespace DiED
 	protected:
 		virtual void vExecuteEvent(DiED::MessageTarget & MessageTarget);
 	private:
-		Network::Value< Glib::ustring > m_Text;
+		Network::StringValue m_Text;
 	};
 }
 

@@ -261,17 +261,20 @@ Glib::ustring DiED::ClientsRegisteredMessage::sGetString(void)
 DiED::ConnectionEstablishedMessage::ConnectionEstablishedMessage(void) :
 	DiED::BasicMessage(DiED::_ConnectionEstablishedMessage)
 {
+	vRegisterValue(m_MessageID);
 	vRegisterValue(m_ClientID);
 	vRegisterValue(m_ClientAddress);
 	vRegisterValue(m_ClientPort);
 }
 
-DiED::ConnectionEstablishedMessage::ConnectionEstablishedMessage(const DiED::clientid_t & ClientID, const Network::address_t & ClientAddress, const Network::port_t & ClientPort) :
+DiED::ConnectionEstablishedMessage::ConnectionEstablishedMessage(const DiED::messageid_t & MessageID, const DiED::clientid_t & ClientID, const Network::address_t & ClientAddress, const Network::port_t & ClientPort) :
 	DiED::BasicMessage(DiED::_ConnectionEstablishedMessage),
+	m_MessageID(MessageID),
 	m_ClientID(ClientID),
 	m_ClientAddress(ClientAddress),
 	m_ClientPort(ClientPort)
 {
+	vRegisterValue(m_MessageID);
 	vRegisterValue(m_ClientID);
 	vRegisterValue(m_ClientAddress);
 	vRegisterValue(m_ClientPort);
@@ -280,14 +283,41 @@ DiED::ConnectionEstablishedMessage::ConnectionEstablishedMessage(const DiED::cli
 void DiED::ConnectionEstablishedMessage::vExecute(DiED::MessageTarget & MessageTarget)
 {
 //~ 	std::cout << "Executing a ConnectionEstablished message with parameters:\n\tClientID = " << m_ClientID << "\n\tClientAddress = " << m_ClientAddress << "\n\tClientPort = " << m_ClientPort << std::endl;
-	MessageTarget.vHandleConnectionEstablished(m_ClientID, m_ClientAddress, m_ClientPort);
+	MessageTarget.vHandleConnectionEstablished(m_MessageID, m_ClientID, m_ClientAddress, m_ClientPort);
+}
+
+bool DiED::ConnectionEstablishedMessage::bRequiresConfirmation(void)
+{
+	return true;
+}
+
+bool DiED::ConnectionEstablishedMessage::bIsConfirmedBy(boost::shared_ptr< DiED::ConfirmationParameters > ConfirmationParameters)
+{
+	if(ConfirmationParameters->size() != 2)
+	{
+		return false;
+	}
+	
+	DiED::ConfirmationParameters::iterator iParameter(ConfirmationParameters->find("Type"));
+	
+	if((iParameter == ConfirmationParameters->end()) || (boost::any_cast< Network::BasicMessage::type_t >(iParameter->second) != DiED::_StatusConfirmMessage))
+	{
+		return false;
+	}
+	iParameter = ConfirmationParameters->find("MessageID");
+	if((iParameter == ConfirmationParameters->end()) || (boost::any_cast< DiED::messageid_t >(iParameter->second) != m_MessageID))
+	{
+		return false;
+	}
+	
+	return true;
 }
 
 Glib::ustring DiED::ConnectionEstablishedMessage::sGetString(void)
 {
 	std::stringstream ssString;
 	
-	ssString << "ConnectionEstablished [ClientID = " << m_ClientID << " ;  ClientAddress = " << m_ClientAddress << " ;  ClientPort = " << m_ClientPort << "]";
+	ssString << "ConnectionEstablished [MessageID = " << m_MessageID << " ; ClientID = " << m_ClientID << " ; ClientAddress = " << m_ClientAddress.Get() << " ;  ClientPort = " << m_ClientPort << "]";
 	
 	return ssString.str();
 }
@@ -300,17 +330,20 @@ Glib::ustring DiED::ConnectionEstablishedMessage::sGetString(void)
 DiED::ConnectionLostMessage::ConnectionLostMessage(void) :
 	DiED::BasicMessage(DiED::_ConnectionLostMessage)
 {
+	vRegisterValue(m_MessageID);
 	vRegisterValue(m_ClientID);
 	vRegisterValue(m_ClientAddress);
 	vRegisterValue(m_ClientPort);
 }
 
-DiED::ConnectionLostMessage::ConnectionLostMessage(const DiED::clientid_t & ClientID, const Network::address_t & ClientAddress, const Network::port_t & ClientPort) :
+DiED::ConnectionLostMessage::ConnectionLostMessage(const DiED::messageid_t & MessageID, const DiED::clientid_t & ClientID, const Network::address_t & ClientAddress, const Network::port_t & ClientPort) :
 	DiED::BasicMessage(DiED::_ConnectionLostMessage),
+	m_MessageID(MessageID),
 	m_ClientID(ClientID),
 	m_ClientAddress(ClientAddress),
 	m_ClientPort(ClientPort)
 {
+	vRegisterValue(m_MessageID);
 	vRegisterValue(m_ClientID);
 	vRegisterValue(m_ClientAddress);
 	vRegisterValue(m_ClientPort);
@@ -318,14 +351,83 @@ DiED::ConnectionLostMessage::ConnectionLostMessage(const DiED::clientid_t & Clie
 
 void DiED::ConnectionLostMessage::vExecute(DiED::MessageTarget & MessageTarget)
 {
-	MessageTarget.vHandleConnectionLost(m_ClientID, m_ClientAddress, m_ClientPort);
+	MessageTarget.vHandleConnectionLost(m_MessageID, m_ClientID, m_ClientAddress, m_ClientPort);
+}
+
+bool DiED::ConnectionLostMessage::bRequiresConfirmation(void)
+{
+	return true;
+}
+
+bool DiED::ConnectionLostMessage::bIsConfirmedBy(boost::shared_ptr< DiED::ConfirmationParameters > ConfirmationParameters)
+{
+	if(ConfirmationParameters->size() != 2)
+	{
+		return false;
+	}
+	
+	DiED::ConfirmationParameters::iterator iParameter(ConfirmationParameters->find("Type"));
+	
+	if((iParameter == ConfirmationParameters->end()) || (boost::any_cast< Network::BasicMessage::type_t >(iParameter->second) != DiED::_StatusConfirmMessage))
+	{
+		return false;
+	}
+	iParameter = ConfirmationParameters->find("MessageID");
+	if((iParameter == ConfirmationParameters->end()) || (boost::any_cast< DiED::messageid_t >(iParameter->second) != m_MessageID))
+	{
+		return false;
+	}
+	
+	return true;
 }
 
 Glib::ustring DiED::ConnectionLostMessage::sGetString(void)
 {
 	std::stringstream ssString;
 	
-	ssString << "ConnectionLost [ClientID = " << m_ClientID << " ; ClientAddress = " << m_ClientAddress << " ; ClientPort = " << m_ClientPort << "]";
+	ssString << "ConnectionLost [MessageID = " << m_MessageID << " ; ClientID = " << m_ClientID << " ; ClientAddress = " << m_ClientAddress.Get() << " ; ClientPort = " << m_ClientPort << "]";
+	
+	return ssString.str();
+}
+
+
+///////////////////////////////////////////////////////////////////////////////////////////////////
+///                                     StatusConfirmMessage                                    ///
+///////////////////////////////////////////////////////////////////////////////////////////////////
+
+DiED::StatusConfirmMessage::StatusConfirmMessage(void) :
+	DiED::BasicMessage(DiED::_StatusConfirmMessage)
+{
+	vRegisterValue(m_MessageID);
+}
+
+DiED::StatusConfirmMessage::StatusConfirmMessage(const DiED::messageid_t & MessageID) :
+	DiED::BasicMessage(DiED::_StatusConfirmMessage),
+	m_MessageID(MessageID)
+{
+	vRegisterValue(m_MessageID);
+}
+
+void DiED::StatusConfirmMessage::vExecute(DiED::MessageTarget & MessageTarget)
+{
+	MessageTarget.vHandleStatusConfirm(m_MessageID);
+}
+
+boost::shared_ptr< DiED::ConfirmationParameters > DiED::StatusConfirmMessage::GetConfirmationParameters(void)
+{
+	boost::shared_ptr< DiED::ConfirmationParameters > ConfirmationParameters(new DiED::ConfirmationParameters());
+	
+	ConfirmationParameters->insert(std::make_pair("Type", boost::any(static_cast< Network::BasicMessage::type_t >(GetType()))));
+	ConfirmationParameters->insert(std::make_pair("MessageID", boost::any(static_cast< DiED::messageid_t >(m_MessageID))));
+	
+	return ConfirmationParameters;
+}
+
+Glib::ustring DiED::StatusConfirmMessage::sGetString(void)
+{
+	std::stringstream ssString;
+	
+	ssString << "StatusConfirm [MessageID = " << m_MessageID << "]";
 	
 	return ssString.str();
 }
@@ -558,7 +660,7 @@ Glib::ustring DiED::InputMessage::sGetString(void)
 {
 	std::stringstream ssString;
 	
-	ssString << "Input [ Event = " << DiED::EventMessage::sGetString() << " ; Text = " << m_Text << " ]";
+	ssString << "Input [ Event = " << DiED::EventMessage::sGetString() << " ; Text = " << m_Text.Get() << " ]";
 	
 	return ssString.str();
 }

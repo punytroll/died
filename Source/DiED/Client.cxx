@@ -9,7 +9,9 @@
 DiED::Client::Client(DiED::InternalEnvironment & InternalEnvironment) :
 	m_InternalEnvironment(InternalEnvironment),
 	m_Address("localhost"),
-	m_Port(0)
+	m_Port(0),
+	m_StatusMessageCounter(0),
+	m_stBytesSent(0)
 {
 //~ 	std::cout << "[DiED/Client]: Created new Client." << std::endl;
 }
@@ -21,7 +23,7 @@ DiED::Client::~Client(void)
 
 void DiED::Client::vSetMessageStream(boost::shared_ptr< Network::MessageStream > MessageStream)
 {
-	std::cout << "Setting the MessageStream for " << GetID() << " to " << MessageStream.get() << std::endl;
+//~ 	std::cout << "Setting the MessageStream for " << GetID() << " to " << MessageStream.get() << std::endl;
 	// disconnect old relations to the current MessageStream
 	m_BytesSentConnection.disconnect();
 	m_MessageBeginConnection.disconnect();
@@ -95,7 +97,7 @@ void DiED::Client::vHandleClientsRegistered(const DiED::messageid_t & MessageID)
 	m_InternalEnvironment.vClientsRegistered(*this, MessageID);
 }
 
-void DiED::Client::vHandleConnectionEstablished(const DiED::clientid_t & ClientID, const Network::address_t & _ClientAddress, const Network::port_t & ClientPort)
+void DiED::Client::vHandleConnectionEstablished(const DiED::messageid_t & MessageID, const DiED::clientid_t & ClientID, const Network::address_t & _ClientAddress, const Network::port_t & ClientPort)
 {
 	vHandleAnswer();
 	
@@ -108,12 +110,19 @@ void DiED::Client::vHandleConnectionEstablished(const DiED::clientid_t & ClientI
 		ClientAddress = ThisClientAddress;
 	}
 	m_InternalEnvironment.vConnectionEstablished(*this, ClientID, ClientAddress, ClientPort);
+	vSend(boost::shared_ptr< DiED::BasicMessage >(new DiED::StatusConfirmMessage(MessageID)));
 }
 
-void DiED::Client::vHandleConnectionLost(const DiED::clientid_t & ClientID, const Network::address_t & ClientAddress, const Network::port_t & ClientPort)
+void DiED::Client::vHandleConnectionLost(const DiED::messageid_t & MessageID, const DiED::clientid_t & ClientID, const Network::address_t & ClientAddress, const Network::port_t & ClientPort)
 {
 	vHandleAnswer();
 	m_InternalEnvironment.vConnectionLost(*this, ClientID, ClientAddress, ClientPort);
+	vSend(boost::shared_ptr< DiED::BasicMessage >(new DiED::StatusConfirmMessage(MessageID)));
+}
+
+void DiED::Client::vHandleStatusConfirm(const DiED::messageid_t & MessageID)
+{
+	vHandleAnswer();
 }
 
 void DiED::Client::vHandlePing(const DiED::messageid_t & PingID)
@@ -154,7 +163,7 @@ void DiED::Client::vHandleAnswer(void)
 		return;
 	}
 	
-	std::cout << "ClientID = " << m_InternalEnvironment.pGetClient(0)->GetID() << std::endl;
+//~ 	std::cout << "ClientID = " << m_InternalEnvironment.pGetClient(0)->GetID() << std::endl;
 	std::cout << "HandleAnswers: " << m_AwaitingConfirmationQueue.size() << " elements waiting for confirmation from " << GetID() << "." << std::endl;
 	std::deque< boost::shared_ptr< DiED::BasicMessage > >::iterator iDebugMessage(m_AwaitingConfirmationQueue.begin());
 	
@@ -326,12 +335,12 @@ void DiED::Client::vClientsRegistered(const DiED::messageid_t & MessageID)
 
 void DiED::Client::vConnectionEstablished(const DiED::clientid_t & ClientID, const Network::address_t & ClientAddress, const Network::port_t & ClientPort)
 {
-	vSend(boost::shared_ptr< DiED::BasicMessage >(new DiED::ConnectionEstablishedMessage(ClientID, ClientAddress, ClientPort)));
+	vSend(boost::shared_ptr< DiED::BasicMessage >(new DiED::ConnectionEstablishedMessage(++m_StatusMessageCounter, ClientID, ClientAddress, ClientPort)));
 }
 
 void DiED::Client::vConnectionLost(const DiED::clientid_t & ClientID, const Network::address_t & ClientAddress, const Network::port_t & ClientPort)
 {
-	vSend(boost::shared_ptr< DiED::BasicMessage >(new DiED::ConnectionLostMessage(ClientID, ClientAddress, ClientPort)));
+	vSend(boost::shared_ptr< DiED::BasicMessage >(new DiED::ConnectionLostMessage(++m_StatusMessageCounter, ClientID, ClientAddress, ClientPort)));
 }
 
 void DiED::Client::vPing(sigc::slot< void > PongSlot)
@@ -349,17 +358,24 @@ void DiED::Client::vPing(sigc::slot< void > PongSlot)
 
 void DiED::Client::vBytesSent(size_t stSize)
 {
+	m_stBytesSent += stSize;
+//~ 	std::cout << "Client " << GetID() << " sent " << stSize << " bytes over the socket." << std::endl;
+	
 	std::deque< boost::shared_ptr< DiED::BasicMessage > >::iterator iMessage(m_QueuedQueue.begin());
 	
 	while(iMessage != m_QueuedQueue.end())
 	{
 		size_t stMessageSize((*iMessage)->stGetSize());
 		
-		if(stSize < stMessageSize)
+//~ 		std::cout << "\tMessage " << (*iMessage)->sGetString() << " has size " << stMessageSize << "." << std::endl;
+		if(m_stBytesSent < stMessageSize)
 		{
+//~ 			std::cout << "\tabort." << std::endl;
+			
 			return;
 		}
-		stSize -= stMessageSize;
+		m_stBytesSent -= stMessageSize;
+//~ 		std::cout << "\t" << m_stBytesSent << " bytes remaining." << std::endl;
 		MessageSent(*iMessage);
 		m_QueuedQueue.erase(iMessage);
 		iMessage = m_QueuedQueue.begin();

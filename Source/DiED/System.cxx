@@ -417,7 +417,16 @@ void DiED::System::vConnectionEstablished(DiED::User & User, const DiED::clienti
 		{
 			if(ClientPort == 0)
 			{
-				vSendMessage(boost::shared_ptr< DiED::BasicMessage >(new ConnectionLostMessage(Client->GetID(), ClientAddress, ClientPort)), true);
+				std::map< DiED::clientid_t, boost::shared_ptr< DiED::Client > >::iterator iClient(m_Clients.begin());
+				
+				while(iClient != m_Clients.end())
+				{
+					if((iClient->second != m_Client) && (m_Client->GetStatus(iClient->first) == DiED::User::Connected))
+					{
+						iClient->second->vConnectionLost(Client->GetID(), ClientAddress, ClientPort);
+					}
+					++iClient;
+				}
 			}
 			else
 			{
@@ -426,7 +435,16 @@ void DiED::System::vConnectionEstablished(DiED::User & User, const DiED::clienti
 				MessageStream->vOpen(ClientAddress, ClientPort);
 				if(MessageStream->bIsOpen() == false)
 				{
-					vSendMessage(boost::shared_ptr< DiED::BasicMessage >(new ConnectionLostMessage(Client->GetID(), ClientAddress, ClientPort)), true);
+					std::map< DiED::clientid_t, boost::shared_ptr< DiED::Client > >::iterator iClient(m_Clients.begin());
+					
+					while(iClient != m_Clients.end())
+					{
+						if((iClient->second != m_Client) && (m_Client->GetStatus(iClient->first) == DiED::User::Connected))
+						{
+							iClient->second->vConnectionLost(Client->GetID(), ClientAddress, ClientPort);
+						}
+						++iClient;
+					}
 				}
 				else
 				{
@@ -474,7 +492,17 @@ void DiED::System::vConnectionLost(DiED::User & User, const DiED::clientid_t & C
 				if(MessageStream->bIsOpen() == false)
 				{
 					std::cout << "[Client]: Connecting to " << ClientAddress << ':' << ClientPort << " failed. " << __FILE__ << __LINE__ << std::endl;
-					vSendMessage(boost::shared_ptr< DiED::BasicMessage >(new DiED::ConnectionLostMessage(Client->GetID(), ClientAddress, ClientPort)), true);
+					
+					std::map< DiED::clientid_t, boost::shared_ptr< DiED::Client > >::iterator iClient(m_Clients.begin());
+					
+					while(iClient != m_Clients.end())
+					{
+						if((iClient->second != m_Client) && (m_Client->GetStatus(iClient->first) == DiED::User::Connected))
+						{
+							iClient->second->vConnectionLost(Client->GetID(), ClientAddress, ClientPort);
+						}
+						++iClient;
+					}
 				}
 				else
 				{

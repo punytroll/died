@@ -59,8 +59,9 @@ namespace DiED
 		virtual void vHandleConnectionAccept(const DiED::clientid_t & AccepterClientID, const DiED::clientid_t & RequesterClientID);
 		virtual void vHandleKnownClients(const DiED::messageid_t & MessageID, const std::vector< DiED::clientid_t > & ConnectedClientIDs, const std::vector< DiED::clientid_t > & DisconnectedClientIDs);
 		virtual void vHandleClientsRegistered(const DiED::messageid_t & MessageID);
-		virtual void vHandleConnectionEstablished(const DiED::clientid_t & ClientID, const Network::address_t & ClientAddress, const Network::port_t & ClientPort);
-		virtual void vHandleConnectionLost(const DiED::clientid_t & ClientID, const Network::address_t & ClientAddress, const Network::port_t & ClientPort);
+		virtual void vHandleConnectionEstablished(const DiED::messageid_t & MessageID, const DiED::clientid_t & ClientID, const Network::address_t & ClientAddress, const Network::port_t & ClientPort);
+		virtual void vHandleConnectionLost(const DiED::messageid_t & MessageID, const DiED::clientid_t & ClientID, const Network::address_t & ClientAddress, const Network::port_t & ClientPort);
+		virtual void vHandleStatusConfirm(const DiED::messageid_t & MessageID);
 		virtual void vHandlePing(const DiED::messageid_t & PingID);
 		virtual void vHandlePong(const DiED::messageid_t & PingID);
 		virtual void vHandleEvent(const DiED::clientid_t & CreatorID, const DiED::messageid_t & EventID, const DiED::clientid_t & LostClientID);
@@ -78,6 +79,8 @@ namespace DiED
 		sigc::connection m_MessageBeginConnection;
 		sigc::connection m_MessageReadyConnection;
 		sigc::connection m_OnDisconnectedConnection;
+		DiED::messageid_t m_StatusMessageCounter;
+		size_t m_stBytesSent;
 		
 		// message queues
 		std::deque< boost::shared_ptr< DiED::BasicMessage > > m_AwaitingConfirmationQueue;
