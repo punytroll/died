@@ -61,17 +61,17 @@ std::string sErrorCodeToString(int iError)
 	}
 }
 
-std::string sStatusToString(int iStatus)
+std::string sStatusToString(const DiED::clientstatus_t & Status)
 {
-	switch(iStatus)
+	switch(Status)
 	{
-	case DiED::User::Connected:
+	case DiED::Connected:
 		return "Connected";
-	case DiED::User::Disconnected:
+	case DiED::Disconnected:
 		return "Disconnected";
-	case DiED::User::Connecting:
+	case DiED::Connecting:
 		return "Connecting";
-	case DiED::User::Deleted:
+	case DiED::Deleted:
 		return "Deleted";
 	default:
 		return "Unknown";
