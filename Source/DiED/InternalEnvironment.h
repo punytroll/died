@@ -15,13 +15,15 @@ namespace DiED
 	{
 	public:
 		virtual boost::shared_ptr< Network::MessageFactory > GetMessageFactory(void) = 0;
-		virtual void vInsertText(DiED::User & User, const Glib::ustring & sString) = 0;
-		virtual void vConnectionRequest(DiED::User & User, const DiED::clientid_t & ClientID, const Network::port_t & Port) = 0;
-		virtual void vConnectionAccept(DiED::User & User, const DiED::clientid_t & AccepterClientID, const DiED::clientid_t & RequesterClientID) = 0;
-		virtual void vKnownClients(DiED::User & User, const DiED::messageid_t & MessageID, const std::vector< ClientInfo > & ClientInfos) = 0;
-		virtual void vClientsRegistered(DiED::User & User, const DiED::messageid_t & MessageID) = 0;
-		virtual void vConnectionEstablished(DiED::User & User, const DiED::clientid_t & ClientID, const Network::address_t & ClientAddress, const Network::port_t & ClientPort) = 0;
-		virtual void vConnectionLost(DiED::User & User, const DiED::clientid_t & ClientID, const Network::address_t & ClientAddress, const Network::port_t & ClientPort) = 0;
+		
+		// messages and events for the environment
+		virtual void vHandleConnectionRequest(DiED::User & User, const DiED::clientid_t & ClientID, const Network::port_t & Port) = 0;
+		virtual void vHandleConnectionAccept(DiED::User & User, const DiED::clientid_t & AccepterClientID, const DiED::clientid_t & RequesterClientID) = 0;
+		virtual void vHandleKnownClients(DiED::User & User, const DiED::messageid_t & MessageID, const std::vector< ClientInfo > & ClientInfos) = 0;
+		virtual void vHandleClientsRegistered(DiED::User & User, const DiED::messageid_t & MessageID) = 0;
+		virtual void vHandleConnectionEstablished(DiED::User & User, const DiED::clientid_t & ClientID, const Network::address_t & ClientAddress, const Network::port_t & ClientPort) = 0;
+		virtual void vHandleConnectionLost(DiED::User & User, const DiED::clientid_t & ClientID, const Network::address_t & ClientAddress, const Network::port_t & ClientPort) = 0;
+		virtual void vHandleInsertText(DiED::User & User, const Glib::ustring & sString) = 0;
 		
 		// helper functions
 		virtual std::set< DiED::clientid_t > GetConnectedClientIDs(void) = 0;

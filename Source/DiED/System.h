@@ -27,15 +27,6 @@ namespace DiED
 		// functions which will send messages to the connected clients
 		void vInput(const Glib::ustring & sString);
 		
-		// implementation of the InternalEnvironment interface
-		virtual void vConnectionRequest(DiED::User & User, const DiED::clientid_t & ClientID, const Network::port_t & Port);
-		virtual void vConnectionAccept(DiED::User & User, const DiED::clientid_t & AccepterClientID, const DiED::clientid_t & RequesterClientID);
-		virtual void vKnownClients(DiED::User & User, const DiED::messageid_t & MessageID, const std::vector< ClientInfo > & ClientInfos);
-		virtual void vClientsRegistered(DiED::User & User, const DiED::messageid_t & MessageID);
-		virtual void vConnectionEstablished(DiED::User & User, const DiED::clientid_t & ClientID, const Network::address_t & ClientAddress, const Network::port_t & ClientPort);
-		virtual void vConnectionLost(DiED::User & User, const DiED::clientid_t & ClientID, const Network::address_t & ClientAddress, const Network::port_t & ClientPort);
-		virtual void vInsertText(DiED::User & User, const Glib::ustring & sString);
-		
 		// helper functions
 		virtual std::set< DiED::clientid_t > GetConnectedClientIDs(void);
 		virtual std::set< DiED::clientid_t > GetDisconnectedClientIDs(void);
@@ -56,6 +47,16 @@ namespace DiED
 		void vClientStatusChanged(const DiED::clientid_t & ClientID, const DiED::clientstatus_t & Status);
 		bool bTryReconnect(const DiED::clientid_t & ClientID);
 	private:
+		// implementation of the InternalEnvironment interface
+		virtual void vHandleConnectionRequest(DiED::User & User, const DiED::clientid_t & ClientID, const Network::port_t & Port);
+		virtual void vHandleConnectionAccept(DiED::User & User, const DiED::clientid_t & AccepterClientID, const DiED::clientid_t & RequesterClientID);
+		virtual void vHandleKnownClients(DiED::User & User, const DiED::messageid_t & MessageID, const std::vector< ClientInfo > & ClientInfos);
+		virtual void vHandleClientsRegistered(DiED::User & User, const DiED::messageid_t & MessageID);
+		virtual void vHandleConnectionEstablished(DiED::User & User, const DiED::clientid_t & ClientID, const Network::address_t & ClientAddress, const Network::port_t & ClientPort);
+		virtual void vHandleConnectionLost(DiED::User & User, const DiED::clientid_t & ClientID, const Network::address_t & ClientAddress, const Network::port_t & ClientPort);
+		virtual void vHandleInsertText(DiED::User & User, const Glib::ustring & sString);
+		
+		// status manipulation ... TODO@ replace this with a symmetric map of references.
 		virtual void vSetStatus(const DiED::clientid_t & ClientID1, const DiED::clientid_t & ClientID2, const DiED::clientstatus_t & Status);
 		
 		boost::shared_ptr< DiED::Client > GetNewPreliminaryClient(void);
