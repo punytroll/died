@@ -12,8 +12,10 @@ bool g_bDone = false;
 
 int main(int argc, char ** argv)
 {
+#ifndef NODEBUG
 	g_bLogLevels[DebugCurrent] = true;
 	g_bLogLevels[TODO] = true;
+#endif
 	srand(time(0));
 	
 	Network::port_t ServerPort = 5867;

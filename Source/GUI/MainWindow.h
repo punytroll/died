@@ -51,8 +51,10 @@ namespace GUI
 		void vRowInsertedForClient(const Gtk::TreePath & Path, const Gtk::TreeIter & Iterator, Gtk::TreeView * pTreeView);
 	private:
 		DiED::System & m_System;
+#ifndef NODEBUG
 		Gtk::VPaned m_Pane;
 		Gtk::Notebook m_Notebook;
+#endif
 		Gtk::TextView m_TextView;
 		Glib::RefPtr< Gtk::TextBuffer > m_TextBuffer;
 		sigc::connection m_KeyPressedConnection;
