@@ -138,7 +138,7 @@ void DiED::System::vInsertText(DiED::User & User, const Glib::ustring & sString,
 
 void DiED::System::vConnectionRequest(DiED::User & User, const DiED::clientid_t & ClientID)
 {
-	// first of all: if we have no ID (not connected to a network) and somebody connects to us we have to make an ID ourself
+	// first of all: if we have no ID yet (not connected to a network) and somebody connects to us we have to generate an ID ourself
 	if(m_Client->GetClientID() == 0)
 	{
 		vAssignClientID(*m_Client, rand());
