@@ -44,6 +44,8 @@ namespace DiED
 		
 		//signals
 		sigc::signal< void > MessageStreamSet;
+		sigc::signal< void, boost::weak_ptr< DiED::BasicMessage > > MessageQueued;
+		sigc::signal< void, boost::weak_ptr< DiED::BasicMessage > > MessageSent;
 	protected:
 		virtual void vOnMessageReady(void);
 		virtual void vOnMessageBegin(void);
@@ -81,6 +83,7 @@ namespace DiED
 		// message queues
 		std::deque< boost::shared_ptr< DiED::BasicMessage > > m_AwaitingConfirmationQueue;
 		std::deque< boost::shared_ptr< DiED::EventMessage > > m_EventQueue;
+		std::deque< boost::shared_ptr< DiED::BasicMessage > > m_QueuedQueue;
 		std::map< DiED::messageid_t, boost::shared_ptr< sigc::signal< void > > > m_PongTimeoutSignals;
 	};
 }
