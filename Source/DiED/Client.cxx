@@ -28,21 +28,29 @@ void DiED::Client::vInsertText(const Glib::ustring & sString)
 	m_InternalEnvironment.vInsertText(*this, sString);
 }
 
-void DiED::Client::vMessageReady(void)
+void DiED::Client::vOnMessageReady(void)
 {
-	boost::shared_ptr< Network::BasicMessage > Message(rbegin());
-	
 //~ 	std::cout << "[DiED/Client]: Retrieved message with type " << Message->u32GetType() << '.' << std::endl;
 	vExecuteTopMessage();
 }
 
+void DiED::Client::vOnMessageBegin(void)
+{
+}
+
+void DiED::Client::vOnMessageExecuted(void)
+{
+}
+
 void DiED::Client::vExecuteTopMessage(void)
 {
-	boost::shared_ptr< Network::BasicMessage > Message(PopMessage());
+	boost::shared_ptr< Network::BasicMessage > Message(front());
 	
 //~ 	std::cout << "[DiED/Client]: Executing message with type " << Message->u32GetType() << '.' << std::endl;
 	
 	DiED::BasicMessage & DiEDMessage = dynamic_cast< DiED::BasicMessage & >(*Message);
 	
 	DiEDMessage.vExecute(*this);
+	vOnMessageExecuted();
+	pop_front();
 }

@@ -15,7 +15,11 @@ namespace DiED
 		virtual ~Client(void);
 		void vInsertText(const Glib::ustring & sString);
 	protected:
-		virtual void vMessageReady(void);
+		// callbacks from template pattern
+		virtual void vOnMessageReady(void);
+		virtual void vOnMessageBegin(void);
+		virtual void vOnMessageExecuted(void);
+		// operations
 		virtual void vExecuteTopMessage(void);
 	private:
 		DiED::InternalEnvironment & m_InternalEnvironment;
