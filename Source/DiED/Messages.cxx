@@ -716,7 +716,7 @@ Glib::ustring DiED::EventMessage::sGetString(void)
 {
 	std::stringstream ssString;
 	
-	ssString << "Event [ CreatorID = " << m_CreatorID << " ; EventID = " << m_EventID << " ; LostClientIO = " << m_LostClientID << " ]";
+	ssString << "Event [ CreatorID = " << m_CreatorID << " ; EventID = " << m_EventID << " ; LostClientID = " << m_LostClientID << " ]";
 	
 	return ssString.str();
 }
