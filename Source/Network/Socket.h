@@ -21,6 +21,7 @@ namespace Network
 		bool bIsOpen(void) const;
 		int iGetError(void) const;
 		void vClose(void);
+		void vSetSocket(int iSocket);
 	protected:
 		void vMonitor(void);
 		void vRequestOnOut(void);
