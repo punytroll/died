@@ -5,6 +5,7 @@
 
 #include "Common.h"
 #include "DiED/System.h"
+#include "GUI/ClientFactory.h"
 #include "GUI/MainWindow.h"
 
 bool g_bDone = false;
@@ -44,16 +45,18 @@ int main(int argc, char ** argv)
 		++iI;
 	}
 	
+	Gtk::Main Main(argc, argv);
 	DiED::System DiEDSystem;
+	boost::shared_ptr< GUI::ClientFactory > ClientFactory(new GUI::ClientFactory(DiEDSystem));
 	
+	DiEDSystem.vSetClientFactory(ClientFactory);
 	DiEDSystem.bListen(u16ServerPort);
 	if(sConnectAddress != "")
 	{
 		DiEDSystem.bConnectTo(sConnectAddress, u16ConnectPort);
 	}
 	
-	Gtk::Main Main(argc, argv);
-	GUI::MainWindow MainWindow;
+	GUI::MainWindow MainWindow(DiEDSystem);
 	
 	Main.run(MainWindow);
 }

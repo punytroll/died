@@ -2,25 +2,35 @@
 #define DIED_SYSTEM_H
 
 #include "ClientFactory.h"
+#include "ExternalEnvironment.h"
 #include "MessageFactory.h"
 #include "Server.h"
 
 namespace DiED
 {
-	class System
+	class System : public DiED::InternalEnvironment
 	{
 	public:
 		System(void);
 		virtual ~System(void);
+		void vSetClientFactory(boost::shared_ptr< DiED::ClientFactory > ClientFactory);
+		void vSetExternalEnvironment(DiED::ExternalEnvironment * pExternalEnvironment);
+		// functions which will setup the server or the connection to a network
 		bool bListen(u_int16_t u16ServicePort);
 		bool bConnectTo(const std::string & sConnectAddress, u_int16_t u16ConnectPort);
+		// functions which will send messages to the connected clients
+		void vInput(const Glib::ustring & sString);
+		// implementation of the InternalEnvironment interface
+		virtual void vInsertText(const Glib::ustring & sString, int iLine, int iCharacter);
 	protected:
+		void vSendMessage(Network::BasicMessage & Message);
 		virtual void vAccepted(boost::shared_ptr< Network::Socket > Client);
 	private:
-		DiED::MessageFactory m_MessageFactory;
-		DiED::ClientFactory m_ClientFactory;
+		boost::shared_ptr< DiED::MessageFactory > m_MessageFactory;
+		boost::shared_ptr< DiED::ClientFactory > m_ClientFactory;
 		DiED::Server m_Server;
 		std::vector< boost::shared_ptr< Network::Socket > > m_Clients;
+		DiED::ExternalEnvironment * m_pExternalEnvironment;
 	};
 }
 

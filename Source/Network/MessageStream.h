@@ -13,11 +13,12 @@ namespace Network
 	class MessageStream : public Network::Stream
 	{
 	public:
-		MessageStream(Network::MessageFactory & MessageFactory);
-		MessageStream(int iSocket, Network::MessageFactory & MessageFactory);
+		MessageStream(boost::shared_ptr< Network::MessageFactory > MessageFactory);
+		MessageStream(int iSocket, boost::shared_ptr< Network::MessageFactory > MessageFactory);
 		MessageStream & operator>>(boost::shared_ptr< Network::BasicMessage > Message);
 		MessageStream & operator<<(const Network::BasicMessage & Message);
 		
+		boost::shared_ptr< Network::BasicMessage > rbegin(void);
 		boost::shared_ptr< Network::BasicMessage > PopMessage(void);
 	protected:
 		virtual void vMessageReady(void) = 0;
@@ -28,7 +29,7 @@ namespace Network
 		
 		void vMessageTypeReady(void);
 		
-		Network::MessageFactory & m_MessageFactory;
+		boost::shared_ptr< Network::MessageFactory > m_MessageFactory;
 		Value< u_int32_t > m_MessageType;
 		Network::NotifyValue m_NotifyValue;
 		std::deque< boost::shared_ptr< Network::BasicMessage > > m_Messages;

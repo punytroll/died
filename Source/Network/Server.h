@@ -9,13 +9,14 @@ namespace Network
 	class Server : public Socket
 	{
 	public:
-		Server(SocketFactory & SocketFactory);
+		Server(void);
+		void vSetSocketFactory(boost::shared_ptr< Network::SocketFactory > SocketFactory);
 		void vOpen(u_int16_t u16ServicePort);
 		sigc::signal< void, boost::shared_ptr< Network::Socket > > Accepted;
 	protected:
 		virtual void vOnIn(void);
 	private:
-		SocketFactory & m_SocketFactory;
+		boost::shared_ptr< Network::SocketFactory > m_SocketFactory;
 	};
 }
 

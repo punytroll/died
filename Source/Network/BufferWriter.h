@@ -17,7 +17,7 @@ namespace Network
 		virtual bool bWrite(const int16_t & s16Value);
 		virtual bool bWrite(const u_int32_t & u32Value);
 		virtual bool bWrite(const int32_t & s32Value);
-		virtual bool bWrite(const std::string & sValue);
+		virtual bool bWrite(const Glib::ustring & sValue);
 	private:
 		Network::BasicBuffer & m_Buffer;
 	};
