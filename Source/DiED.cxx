@@ -47,6 +47,7 @@ int main(int argc, char ** argv)
 	
 	Gtk::Main Main(argc, argv);
 	DiED::System DiEDSystem;
+	GUI::MainWindow MainWindow(DiEDSystem);
 	boost::shared_ptr< DiED::ClientFactory > DummyFactoryFactory(new DiED::ClientFactory(DiEDSystem));
 	boost::shared_ptr< GUI::ClientFactory > ClientFactory(new GUI::ClientFactory(DiEDSystem));
 	
@@ -56,8 +57,6 @@ int main(int argc, char ** argv)
 	{
 		DiEDSystem.bConnectTo(ConnectAddress, ConnectPort);
 	}
-	
-	GUI::MainWindow MainWindow(DiEDSystem);
 	
 	Main.run(MainWindow);
 }
