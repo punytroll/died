@@ -1,6 +1,8 @@
 #ifndef VALUE_H
 #define VALUE_H
 
+#include <Common.h>
+
 #include "BasicValue.h"
 
 namespace Network
@@ -21,7 +23,7 @@ namespace Network
 		
 		virtual size_t stGetSize(void) const
 		{
-			LOG(Verbose, "Network/Value", typeid(Type).name() << ": " << sizeof(Type));
+			LOG(Verbose, "Network/Value", std::string(typeid(Type).name()) << ": " << sizeof(Type));
 			
 			return sizeof(Type);
 		}
