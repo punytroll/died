@@ -14,6 +14,8 @@ int main(int argc, char ** argv)
 {
 #ifndef NODEBUG
 	g_bLogLevels[DebugCurrent] = true;
+	g_bLogLevels[Info] = true;
+	g_bLogLevels[Error] = true;
 	g_bLogLevels[TODO] = true;
 	bool bDebugWindow = false;
 #endif
