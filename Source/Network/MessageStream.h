@@ -19,15 +19,15 @@ namespace Network
 		MessageStream(int iSocket, boost::shared_ptr< Network::MessageFactory > MessageFactory);
 		MessageStream & operator>>(boost::shared_ptr< Network::BasicMessage > Message);
 		MessageStream & operator<<(const Network::BasicMessage & Message);
-	protected:
-		virtual void vOnMessageReady(void) = 0;
-		virtual void vOnMessageBegin(void) = 0;
+		sigc::signal< void > MessageBegin;
+		sigc::signal< void > MessageReady;
 	private:
 		// no copy and assignment for streams
 		MessageStream(const MessageStream & MessageStream);
 		MessageStream & operator=(const MessageStream & MessageStream);
 		
 		void vMessageTypeReady(void);
+		void vMessageReady(void);
 		
 		boost::shared_ptr< Network::MessageFactory > m_MessageFactory;
 		Network::Value< u_int32_t > m_MessageType;

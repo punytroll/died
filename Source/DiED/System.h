@@ -38,7 +38,7 @@ namespace DiED
 	protected:
 		void vSendMessage(Network::BasicMessage & Message);
 		void vInsertText(DiED::User & User, const Glib::ustring & sString, bool bWriteToEnvironment);
-		virtual void vAccepted(boost::shared_ptr< Network::Socket > Client);
+		virtual void vAccepted(boost::shared_ptr< Network::MessageStream > MessageStream);
 	private:
 		void vAssignClientID(DiED::Client & Client, const DiED::clientid_t & ClientID);
 		void vRegisterClient(boost::shared_ptr< DiED::Client > Client);

@@ -11,7 +11,6 @@ libnetwork_a_SOURCES = \
 	BufferWriter.cxx \
 	CircularBuffer.cxx \
 	MessageStream.cxx \
-	Server.cxx \
 	Socket.cxx \
 	Stream.cxx
 

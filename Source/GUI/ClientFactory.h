@@ -11,8 +11,7 @@ namespace GUI
 	public:
 		ClientFactory(DiED::InternalEnvironment & InternalEnvironment);
 		virtual ~ClientFactory(void);
-		virtual boost::shared_ptr< Network::Socket > GetSocket(void);
-		virtual boost::shared_ptr< Network::Socket > GetSocket(int iSocket);
+		virtual boost::shared_ptr< DiED::Client > GetClient(void);
 	};
 }
 

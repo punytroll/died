@@ -8,12 +8,14 @@ Network::Socket::Socket(void) :
 	m_iSocket(g_iInvalidSocket),
 	m_iError(0)
 {
+	std::cout << "[Network/Socket]: Created socket." << std::endl;
 }
 
 Network::Socket::Socket(int iSocket) :
 	m_iSocket(iSocket),
 	m_iError(0)
 {
+	std::cout << "[Network/Socket]: Created socket from iSocket." << std::endl;
 	vMonitor();
 }
 
@@ -23,6 +25,7 @@ Network::Socket::~Socket(void)
 	{
 		vClose();
 	}
+	std::cout << "[Network/Socket]: Deleted socket." << std::endl;
 }
 
 bool Network::Socket::bIsOpen(void) const
@@ -93,7 +96,7 @@ bool Network::Socket::bNotify(const Glib::IOCondition & Condition)
 	}
 	if((Condition & Glib::IO_NVAL) != 0)
 	{
-		std::cout << "IO_NVAL" << std::endl;
+//~ 		std::cout << "IO_NVAL" << std::endl;
 		
 		return false;
 	}
