@@ -66,7 +66,7 @@ bool DiED::ConnectionRequestMessage::bIsConfirmedBy(boost::shared_ptr< DiED::Con
 {
 	DiED::ConfirmationParameters::iterator iParameter(ConfirmationParameters->find("Type"));
 	
-	if((iParameter == ConfirmationParameters->end()) || (boost::any_cast< int >(iParameter->second) != DiED::_ConnectionAcceptMessage))
+	if((iParameter == ConfirmationParameters->end()) || (boost::any_cast< Network::BasicMessage::type_t >(iParameter->second) != DiED::_ConnectionAcceptMessage))
 	{
 		return false;
 	}
@@ -105,7 +105,7 @@ boost::shared_ptr< DiED::ConfirmationParameters > DiED::ConnectionAcceptMessage:
 {
 	boost::shared_ptr< DiED::ConfirmationParameters > ConfirmationParameters(new DiED::ConfirmationParameters());
 	
-	ConfirmationParameters->insert(std::make_pair("Type", boost::any(static_cast< int >(DiED::_ConnectionAcceptMessage))));
+	ConfirmationParameters->insert(std::make_pair("Type", boost::any(static_cast< Network::BasicMessage::type_t >(DiED::_ConnectionAcceptMessage))));
 	
 	return ConfirmationParameters;
 }
