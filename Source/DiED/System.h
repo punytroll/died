@@ -32,13 +32,13 @@ namespace DiED
 		virtual void vKnownClients(DiED::User & User, const DiED::messageid_t & MessageID, const std::vector< DiED::clientid_t > & ConnectedClientIDs, const std::vector< DiED::clientid_t > & DisconnectedClientIDs);
 		virtual void vClientsRegistered(DiED::User & User, const DiED::messageid_t & MessageID);
 		virtual void vConnectionEstablished(DiED::User & User, const DiED::clientid_t & ClientID, const Network::address_t & ClientAddress, const Network::port_t & ClientPort);
+		virtual void vConnectionLost(DiED::User & User, const DiED::clientid_t & ClientID, const Network::address_t & ClientAddress, const Network::port_t & ClientPort);
 		virtual void vInsertText(DiED::User & User, const Glib::ustring & sString);
 		
 		// helper functions
 		virtual std::vector< DiED::clientid_t > GetConnectedClientIDs(void);
 		virtual std::vector< DiED::clientid_t > GetDisconnectedClientIDs(void);
 		virtual DiED::User::Status GetStatus(const DiED::clientid_t & ClientID1, const DiED::clientid_t & ClientID2);
-		virtual void vSetStatus(const DiED::clientid_t & ClientID1, const DiED::clientid_t & ClientID2, const DiED::User::Status & Status);
 		
 		// signals
 		sigc::signal< void, DiED::Client & > ClientConnected;
@@ -49,6 +49,7 @@ namespace DiED
 	private:
 //~ 		void vAssignClientID(DiED::Client & Client, const DiED::clientid_t & ClientID);
 //~ 		boost::shared_ptr< DiED::Client > RegisterClient(const DiED::clientid_t & ClientID = 0);
+		virtual void vSetStatus(const DiED::clientid_t & ClientID1, const DiED::clientid_t & ClientID2, const DiED::User::Status & Status);
 		
 		boost::shared_ptr< DiED::Client > GetNewPreliminaryClient(void);
 		boost::shared_ptr< DiED::Client > RegisterClient(boost::shared_ptr< DiED::Client > Client, const DiED::clientid_t & _ClientID = 0);

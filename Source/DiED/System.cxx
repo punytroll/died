@@ -394,7 +394,7 @@ void DiED::System::vConnectionEstablished(DiED::User & User, const DiED::clienti
 					
 					continue;
 				}
-				iClient->second->operator<<(boost::shared_ptr< DiED::BasicMessage >(new ConnectionLostMessage(Client->GetClientID())));
+				iClient->second->operator<<(boost::shared_ptr< DiED::BasicMessage >(new ConnectionLostMessage(Client->GetClientID(), Client->GetAddress(), Client->GetPort())));
 				++iClient;
 			}
 		}
@@ -417,6 +417,13 @@ void DiED::System::vConnectionEstablished(DiED::User & User, const DiED::clienti
 			}
 		}
 	}
+}
+
+void DiED::System::vConnectionLost(DiED::User & User, const DiED::clientid_t & ClientID, const Network::address_t & ClientAddress, const Network::port_t & ClientPort)
+{
+	boost::shared_ptr< DiED::Client > Client(RegisterClient(boost::shared_ptr< DiED::Client >(), ClientID));
+	
+	vSetStatus(User.GetClientID(), Client->GetClientID(), DiED::User::Disconnected);
 }
 
 std::vector< DiED::clientid_t > DiED::System::GetConnectedClientIDs(void)

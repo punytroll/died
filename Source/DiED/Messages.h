@@ -94,11 +94,13 @@ namespace DiED
 	{
 	public:
 		ConnectionLostMessage(void);
-		ConnectionLostMessage(const DiED::clientid_t & ClientID);
+		ConnectionLostMessage(const DiED::clientid_t & ClientID, const Network::address_t & ClientAddress, const Network::port_t & ClientPort);
 		virtual void vExecute(DiED::MessageTarget & MessageTarget);
 		virtual Glib::ustring sGetString(void);
 	private:
 		Network::Value< DiED::clientid_t > m_ClientID;
+		Network::Value< Network::address_t > m_ClientAddress;
+		Network::Value< Network::port_t > m_ClientPort;
 	};
 	
 	class PingMessage : public DiED::BasicMessage
