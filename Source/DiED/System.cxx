@@ -408,7 +408,8 @@ void DiED::System::vConnectionEstablished(DiED::User & User, const DiED::clienti
 	{
 	case DiED::Client::Connected:
 		{
-//~ 			std::cout << "TODO: ConnectionEstablishedMessage: Client connected." << std::endl;
+			std::cout << "TODO: ConnectionEstablishedMessage: Client connected." << std::endl;
+			Client->vPing(sigc::bind(sigc::mem_fun(*this, &DiED::System::vPongTimeout), Client));
 			
 			break;
 		}
@@ -431,9 +432,18 @@ void DiED::System::vConnectionEstablished(DiED::User & User, const DiED::clienti
 				{
 					Client->vSetMessageStream(MessageStream);
 					Client->vSetPort(ClientPort);
+					vSetStatus(m_Client->GetID(), Client->GetID(), DiED::User::Connecting);
 					Client->vConnectionRequest(m_Client->GetID(), m_ServicePort);
 				}
 			}
+			
+			break;
+		}
+	case DiED::User::Connecting:
+		{
+			std::cout << "Already connecting to client " << Client->GetID() << std::endl;
+			
+			break;
 		}
 	default:
 		{
@@ -484,8 +494,12 @@ void DiED::System::vConnectionLost(DiED::User & User, const DiED::clientid_t & C
 			{
 				Client->vConnectionEstablished(User.GetID(), UserClient->GetAddress(), UserClient->GetPort());
 			}
-			Client->vPing(sigc::bind(sigc::mem_fun(*this, &DiED::System::vPongReceived), Client));
+			Client->vPing(sigc::bind(sigc::mem_fun(*this, &DiED::System::vPongTimeout), Client));
 			
+			break;
+		}
+	case DiED::User::Connecting:
+		{
 			break;
 		}
 	default:
@@ -498,7 +512,7 @@ void DiED::System::vConnectionLost(DiED::User & User, const DiED::clientid_t & C
 	std::cout << "           ConnectionLost message from " << User.GetID() << '\n' << std::endl;
 }
 
-void DiED::System::vPongReceived(boost::shared_ptr< DiED::Client > Client)
+void DiED::System::vPongTimeout(boost::shared_ptr< DiED::Client > Client)
 {
 //~ 	std::cout << "Pong received from " << Client->GetID() << "." << std::endl;
 }
