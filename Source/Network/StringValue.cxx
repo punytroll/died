@@ -12,7 +12,7 @@ Network::StringValue::StringValue(const Glib::ustring & String) :
 
 size_t Network::StringValue::stGetSize(void) const
 {
-	return m_String.length() + 1;
+	return m_String.bytes() + 1;
 }
 
 void Network::StringValue::vReadFrom(boost::shared_ptr< Network::BasicReader > Reader)
