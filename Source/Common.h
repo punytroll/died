@@ -8,22 +8,44 @@
 
 #include <glibmm/ustring.h>
 
-namespace DiED
+#define NODEBUG
+
+#ifndef NODEBUG
+
+enum LogLevel
 {
-	enum clientstatus_t
-	{
-		Connecting,
-		Connected,
-		Disconnected,
-		Deleted
-	};
-	
-	typedef u_int32_t messageid_t;
-	typedef u_int32_t clientid_t;
-	typedef std::map< Glib::ustring, boost::any > ConfirmationParameters;
-	
-	std::string sStatusToString(const DiED::clientstatus_t & iStatus);
-}
+	Error,
+	Warning,
+	Info,
+	Debug,
+	Object,
+	Verbose,
+	TODO,
+	LogLevels
+};
+
+extern bool g_bLogLevels[LogLevels];
+
+#include <iomanip>
+
+#define LOG(LEVEL, SCOPE, MESSAGE) \
+	if(g_bLogLevels[(LEVEL)] == true) { std::cout << "[" << std::setw(7) << sLogLevelToString((LEVEL)) << "] " << (SCOPE) << ": " << MESSAGE << std::endl; }
+
+#define LOG_NO_NL(LEVEL, SCOPE, MESSAGE) \
+	if(g_bLogLevels[(LEVEL)] == true) { std::cout << "[" << std::setw(7) << sLogLevelToString((LEVEL)) << "] " << (SCOPE) << ": " << MESSAGE; }
+
+#define LOG_PURE(LEVEL, SCOPE, MESSAGE) \
+	if(g_bLogLevels[(LEVEL)] == true) { std::cout << MESSAGE; }
+
+std::string sLogLevelToString(LogLevel LogLevel);
+
+#else
+
+#define LOG(LEVEL, SCOPE, MESSAGE)
+#define LOG_NO_NL(LEVEL, SCOPE, MESSAGE)
+#define LOG_PURE(LEVEL, SCOPE, MESSAGE)
+
+#endif
 
 std::string sErrorCodeToString(int iError);
 

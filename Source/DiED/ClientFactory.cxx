@@ -5,12 +5,12 @@
 DiED::ClientFactory::ClientFactory(DiED::InternalEnvironment & InternalEnvironment) :
 	m_InternalEnvironment(InternalEnvironment)
 {
-//~ 	std::cout << "[DiED/ClientFactory]: Create ClientFactory." << std::endl;
+	LOG(Object, "DiED/ClientFactory", "ClientFactory created.");
 }
 
 DiED::ClientFactory::~ClientFactory(void)
 {
-//~ 	std::cout << "[DiED/ClientFactory]: Delete ClientFactory." << std::endl;
+	LOG(Object, "DiED/ClientFactory", "ClientFactory deleted.");
 }
 
 boost::shared_ptr< DiED::Client > DiED::ClientFactory::GetClient(void)

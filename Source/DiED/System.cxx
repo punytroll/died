@@ -78,13 +78,13 @@ bool DiED::System::bConnectTo(const Network::address_t & ConnectAddress, const N
 	MessageStream->vOpen(ConnectAddress, ConnectPort);
 	if(MessageStream->bIsOpen() == false)
 	{
-		std::cout << "[Client]: Connection failed." << std::endl;
+		LOG(Info, "DiED/System", "Connection failed.");
 		
 		return false;
 	}
 	else
 	{
-//~ 		std::cout << "[Client]: Connected to " << ConnectAddress << ':' << ConnectPort << std::endl;
+		LOG(Info, "DiED/System", "Connected to " << ConnectAddress << ':' << ConnectPort);
 	}
 	
 	boost::shared_ptr< DiED::Client > Client(GetNewPreliminaryClient());
@@ -127,7 +127,7 @@ void DiED::System::vInsertText(DiED::User & User, const Glib::ustring & sString,
 	int iLine(User.iGetLine());
 	int iCharacter(User.iGetCharacter());
 	
-//~ 	std::cout << "LineW = " << iLine << " ; CharacterW = " << iCharacter << std::endl;
+	LOG(Verbose, "DiED/System", "LineW = " << iLine << " ; CharacterW = " << iCharacter);
 	
 	if((m_pExternalEnvironment != 0) && (bWriteToEnvironment == true))
 	{
@@ -149,7 +149,7 @@ void DiED::System::vInsertText(DiED::User & User, const Glib::ustring & sString,
 			++iDeltaCharacter;
 		}
 	}
-//~ 	std::cout << "DeltaLine = " << iDeltaLine << " ; DeltaCharacter = " << iDeltaCharacter << std::endl;
+	LOG(Verbose, "DiED/System", "DeltaLine = " << iDeltaLine << " ; DeltaCharacter = " << iDeltaCharacter);
 	
 	std::map< DiED::clientid_t, boost::shared_ptr< DiED::Client > >::iterator iClient(m_Clients.begin());
 	
@@ -201,7 +201,7 @@ void DiED::System::vInsertText(DiED::User & User, const Glib::ustring & sString,
 
 void DiED::System::vHandleConnectionRequest(DiED::User & User, const DiED::clientid_t & ClientID, const Network::port_t & Port)
 {
-	std::cout << "Processing ConnectionRequest message from " << User.GetID() << std::endl;
+	LOG(Debug, "DiED/System", "Processing ConnectionRequest message from " << User.GetID());
 	
 	// first of all: if we have no ID yet (not connected to a network) and somebody connects to us we have to generate an ID ourself
 	if(m_Client->GetID() == 0)
@@ -223,7 +223,7 @@ void DiED::System::vHandleConnectionRequest(DiED::User & User, const DiED::clien
 	}
 	else
 	{
-		std::cout << "\tConnection request from " << iPreliminaryClient->second->GetAddress() << ':' << iPreliminaryClient->second->GetPort() << std::endl;
+		LOG(Debug, "DiED/System", "\tConnection request from " << iPreliminaryClient->second->GetAddress() << ':' << iPreliminaryClient->second->GetPort());
 	}
 	// NOTE: although after a succeeded ConnectionRequest handling we should erase the iPreliminaryClient from the map
 	//       in this case this is not a good idea because the "second" property contains the only boost::shared_ptr to
@@ -252,7 +252,7 @@ void DiED::System::vHandleConnectionRequest(DiED::User & User, const DiED::clien
 		// => the local client is known in the network it is connecting to
 		if(GetStatus(0, Client->GetID()) == DiED::Connected)
 		{
-			std::cout << "TODO: test connection with ping." << std::endl;
+			LOG(TODO, "DiED/System", "Test connection with ping.");
 		}
 		iClient->second->vSetMessageStream(Client->GetMessageStream());
 		iClient->second->vConnectionAccept(m_Client->GetID(), ClientID);
@@ -260,12 +260,12 @@ void DiED::System::vHandleConnectionRequest(DiED::User & User, const DiED::clien
 		Client->vSetPort(Port);
 		// TODO: what to do with the iPreliminaryClient ... it is invalid and emtpy (no socket) but MUST NOT be deleted from here
 	}
-	std::cout << "           ConnectionRequest message from " << User.GetID() << '\n' << std::endl;
+	LOG(Debug, "DiED/System", "           ConnectionRequest message from " << User.GetID() << '\n');
 }
 
 void DiED::System::vHandleConnectionAccept(DiED::User & User, const DiED::clientid_t & AccepterClientID, const DiED::clientid_t & RequesterClientID)
 {
-	std::cout << "Processing ConnectionAccept message from " << User.GetID() << std::endl;
+	LOG(Debug, "DiED/System", "Processing ConnectionAccept message from " << User.GetID());
 	
 	std::map< DiED::User *, boost::shared_ptr< DiED::Client > >::iterator iPreliminaryClient(m_PreliminaryClients.find(&User));
 	boost::shared_ptr< DiED::Client > Client;
@@ -297,7 +297,7 @@ void DiED::System::vHandleConnectionAccept(DiED::User & User, const DiED::client
 	// if we get assigned a client ID '0' there is nothing for it but to close the socket
 	if(RequesterClientID == 0)
 	{
-		std::cout << "[System]: We got a RequesterClientID == 0." << std::endl;
+		LOG(Warning, "DiED/System", "We got a RequesterClientID == 0.");
 		Client->vSetMessageStream(boost::shared_ptr< Network::MessageStream >());
 	}
 	if(m_Client->GetID() != RequesterClientID)
@@ -307,7 +307,7 @@ void DiED::System::vHandleConnectionAccept(DiED::User & User, const DiED::client
 		{
 			// this seems to be a reconnection to a network and we have a client id, meaning m_Client already is in the client list
 			//  => if this happens we need to examine the case
-			std::cout << "VERY BAD: m_Client->GetID() = " << m_Client->GetID() << " ; RequesterClientID = " << RequesterClientID << "  " << __FILE__ << ':' << __LINE__ << std::endl;
+			LOG(Error, "DiED/System", "VERY BAD: m_Client->GetID() = " << m_Client->GetID() << " ; RequesterClientID = " << RequesterClientID << "  " << __FILE__ << ':' << __LINE__);
 		}
 		else
 		{
@@ -320,12 +320,12 @@ void DiED::System::vHandleConnectionAccept(DiED::User & User, const DiED::client
 		// the local client is not a newling => answer with KnownClients
 		Client->vKnownClients(true);
 	}
-	std::cout << "           ConnectionAccept message from " << User.GetID() << '\n' << std::endl;
+	LOG(Debug, "DiED/System", "           ConnectionAccept message from " << User.GetID() << '\n');
 }
 
 void DiED::System::vHandleKnownClients(DiED::User & User, const DiED::messageid_t & MessageID, const std::vector< ClientInfo > & ClientInfos)
 {
-	std::cout << "Processing KnownClients message from " << User.GetID() << std::endl;
+	LOG(Debug, "DiED/System", "Processing KnownClients message from " << User.GetID());
 	
 	// iterating through the connected list to set the status of the sender to the client ID appropriately
 	std::vector< DiED::ClientInfo >::const_iterator iClientInfo(ClientInfos.begin());
@@ -339,20 +339,20 @@ void DiED::System::vHandleKnownClients(DiED::User & User, const DiED::messageid_
 			Client = RegisterClient(boost::shared_ptr< DiED::Client >(), iClientInfo->ClientID);
 			if(Client.get() == 0)
 			{
-				std::cout << "VERY BAD: " << __FILE__ << ':' << __LINE__ << ": ClientID = " << iClientInfo->ClientID << std::endl;
+				LOG(Error, "DiED/System", "VERY BAD: " << __FILE__ << ':' << __LINE__ << ": ClientID = " << iClientInfo->ClientID);
 			}
 			Client->vSetEventCounter(iClientInfo->EventCounter);
 			// TODO: uncomment these lines, once we transmit the document.
 //~ 			Client->vSetLine(iClientInfo->iLine);
 //~ 			Client->vSetCharacter(iClientInfo->iCharacter);
-			std::cout << "[DiED/System]: New client " << iClientInfo->ClientID << " is ";
+			LOG_NO_NL(Debug, "DiED/System", "New client " << iClientInfo->ClientID << " is ");
 		}
 		else
 		{
 			Client = RegisterClient(boost::shared_ptr< DiED::Client >(), iClientInfo->ClientID);
 			if(Client.get() == 0)
 			{
-				std::cout << "VERY BAD: " << __FILE__ << ':' << __LINE__ << ": ClientID = " << iClientInfo->ClientID << std::endl;
+				LOG(Error, "DiED/System", "VERY BAD: " << __FILE__ << ':' << __LINE__ << ": ClientID = " << iClientInfo->ClientID);
 			}
 			if(iClientInfo->Status == DiED::Deleted)
 			{
@@ -361,9 +361,9 @@ void DiED::System::vHandleKnownClients(DiED::User & User, const DiED::messageid_
 //~ 				Client->vSetLine(iClientInfo->iLine);
 //~ 				Client->vSetCharacter(iClientInfo->iCharacter);
 			}
-			std::cout << "[DiED/System]: Known client " << iClientInfo->ClientID << " is ";
+			LOG(Debug, "DiED/System", "Known client " << iClientInfo->ClientID << " is ");
 		}
-		std::cout << sStatusToString(iClientInfo->Status) << " to client " << User.GetID() << std::endl;
+		LOG_PURE(Debug, "DiED/System", sStatusToString(iClientInfo->Status) << " to client " << User.GetID() << std::endl);
 		if(iClientInfo->Status != DiED::Deleted)
 		{
 			vSetStatus(User.GetID(), Client->GetID(), iClientInfo->Status);
@@ -379,7 +379,7 @@ void DiED::System::vHandleKnownClients(DiED::User & User, const DiED::messageid_
 	
 	if(Client.get() == 0)
 	{
-		std::cout << "VERY BAD: " << __FILE__ << ':' << __LINE__ << ": ClientID = " << iClientInfo->ClientID << std::endl;
+		LOG(Error, "DiED/System", "VERY BAD: " << __FILE__ << ':' << __LINE__ << ": ClientID = " << iClientInfo->ClientID);
 	}
 	if(MessageID == 0)
 	{
@@ -404,12 +404,12 @@ void DiED::System::vHandleKnownClients(DiED::User & User, const DiED::messageid_
 			++iClient;
 		}
 	}
-	std::cout << "           KnownClients message from " << User.GetID() << '\n' << std::endl;
+	LOG(Debug, "DiED/System", "           KnownClients message from " << User.GetID() << '\n');
 }
 
 void DiED::System::vHandleClientsRegistered(DiED::User & User, const DiED::messageid_t & MessageID)
 {
-	std::cout << "Processing ClientsRegistered message from " << User.GetID() << std::endl;
+	LOG(Debug, "DiED/System", "Processing ClientsRegistered message from " << User.GetID());
 	
 	vSetStatus(User.GetID(), m_Client->GetID(), DiED::Connected);
 	
@@ -428,12 +428,12 @@ void DiED::System::vHandleClientsRegistered(DiED::User & User, const DiED::messa
 		iClient->second->vConnectionEstablished(Client->GetID(), Client->GetAddress(), Client->GetPort());
 		++iClient;
 	}
-	std::cout << "           ClientsRegistered message from " << User.GetID() << '\n' << std::endl;
+	LOG(Debug, "DiED/System", "           ClientsRegistered message from " << User.GetID() << '\n');
 }
 
 void DiED::System::vHandleConnectionEstablished(DiED::User & User, const DiED::clientid_t & ClientID, const Network::address_t & ClientAddress, const Network::port_t & ClientPort)
 {
-	std::cout << "Processing ConnectionEstablished message from " << User.GetID() << std::endl;
+	LOG(Debug, "DiED/System", "Processing ConnectionEstablished message from " << User.GetID());
 	
 	boost::shared_ptr< DiED::Client > Client;
 	std::map< DiED::clientid_t, boost::shared_ptr< DiED::Client > >::iterator iClient(m_Clients.find(ClientID));
@@ -443,7 +443,7 @@ void DiED::System::vHandleConnectionEstablished(DiED::User & User, const DiED::c
 		Client = RegisterClient(boost::shared_ptr< DiED::Client >(), ClientID);
 		if(Client.get() == 0)
 		{
-			std::cout << "VERY BAD: " << __FILE__ << ':' << __LINE__ << ": ClientID = " << ClientID << std::endl;
+			LOG(Error, "DiED/System", "VERY BAD: " << __FILE__ << ':' << __LINE__ << ": ClientID = " << ClientID);
 		}
 	}
 	else
@@ -509,7 +509,7 @@ void DiED::System::vHandleConnectionEstablished(DiED::User & User, const DiED::c
 		}
 	case DiED::Connecting:
 		{
-			std::cout << "Already connecting to client " << Client->GetID() << std::endl;
+			LOG(Info, "DiED/System", "Already connecting to client " << Client->GetID());
 			
 			break;
 		}
@@ -518,12 +518,12 @@ void DiED::System::vHandleConnectionEstablished(DiED::User & User, const DiED::c
 			break;
 		}
 	}
-	std::cout << "           ConnectionEstablished message from " << User.GetID() << '\n' << std::endl;
+	LOG(Debug, "DiED/System", "           ConnectionEstablished message from " << User.GetID() << '\n');
 }
 
 void DiED::System::vHandleConnectionLost(DiED::User & User, const DiED::clientid_t & ClientID, const Network::address_t & ClientAddress, const Network::port_t & ClientPort)
 {
-	std::cout << "Processing ConnectionLost message from " << User.GetID() << std::endl;
+	LOG(Debug, "DiED/System", "Processing ConnectionLost message from " << User.GetID());
 	
 	boost::shared_ptr< DiED::Client > Client(RegisterClient(boost::shared_ptr< DiED::Client >(), ClientID));
 	
@@ -541,7 +541,7 @@ void DiED::System::vHandleConnectionLost(DiED::User & User, const DiED::clientid
 				MessageStream->vOpen(ClientAddress, ClientPort);
 				if(MessageStream->bIsOpen() == false)
 				{
-					std::cout << "[Client]: Connecting to " << ClientAddress << ':' << ClientPort << " failed. " << __FILE__ << __LINE__ << std::endl;
+					LOG(Info, "DiED/System", "Connecting to " << ClientAddress << ':' << ClientPort << " failed. " << __FILE__ << __LINE__);
 					
 					std::map< DiED::clientid_t, boost::shared_ptr< DiED::Client > >::iterator iClient(m_Clients.begin());
 					
@@ -583,12 +583,12 @@ void DiED::System::vHandleConnectionLost(DiED::User & User, const DiED::clientid
 		}
 	default:
 		{
-			std::cout << "TODO: " << __FILE__ << ':' << __LINE__ << std::endl;
+			LOG(TODO, "DiED/System", __FILE__ << ':' << __LINE__);
 			
 			break;
 		}
 	}
-	std::cout << "           ConnectionLost message from " << User.GetID() << '\n' << std::endl;
+	LOG(Debug, "DiED/System", "           ConnectionLost message from " << User.GetID() << '\n');
 }
 
 void DiED::System::vHandleInsertText(DiED::User & User, const Glib::ustring & sString)
@@ -598,7 +598,7 @@ void DiED::System::vHandleInsertText(DiED::User & User, const Glib::ustring & sS
 
 void DiED::System::vPongTimeout(boost::shared_ptr< DiED::Client > Client)
 {
-	std::cout << "Pong missing from " << Client->GetID() << "." << std::endl;
+	LOG(Debug, "DiED/System", "Pong missing from " << Client->GetID() << ".");
 }
 
 void DiED::System::vPongTimeoutOnConnectionEstablished(boost::shared_ptr< DiED::Client > Client, const Network::address_t & ClientAddress, const Network::port_t & ClientPort)
@@ -895,7 +895,7 @@ boost::shared_ptr< DiED::Client > DiED::System::GetNewPreliminaryClient(void)
 	boost::shared_ptr< DiED::Client > Client(m_ClientFactory->GetClient());
 	
 	m_PreliminaryClients[Client.get()] = Client;
-//~ 	std::cout << "[DiED/System] Created a preliminary client at " << Client.get() << '.' << std::endl;
+	LOG(Verbose, "DiED/System", "Created a preliminary client at " << Client.get() << '.');
 	
 	return Client;
 }
@@ -934,7 +934,7 @@ boost::shared_ptr< DiED::Client > DiED::System::RegisterClient(boost::shared_ptr
 {
 	DiED::clientid_t ClientID(_ClientID);
 	
-//~ 	std::cout << "[DiED/System] Registering Client " << Client.get() << " with ClientID " << ClientID << std::endl;
+	LOG(Verbose, "DiED/System", "[DiED/System] Registering Client " << Client.get() << " with ClientID " << ClientID);
 	
 	// client ID unspecified?
 	if(ClientID == 0)

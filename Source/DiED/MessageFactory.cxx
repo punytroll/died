@@ -55,8 +55,8 @@ boost::shared_ptr< Network::BasicMessage > DiED::MessageFactory::GetMessage(u_in
 	case DiED::_NoMessage:
 	default:
 		{
-			std::cout << "Encountered undefined message '" << std::hex << u32Type << std::dec << "'." << std::endl;
-			std::cout << "  Trying to ignore." << std::endl;
+			LOG(Warning, "DiED/MessageFactory", "Encountered undefined message '0x" << std::setw(8) << std::setfill('0') << std::hex << u32Type << std::dec << "'.");
+			LOG(Warning, "DiED/MessageFactory", "  Trying to ignore.");
 			
 			return boost::shared_ptr< Network::BasicMessage >(new DiED::NoMessage());
 		}

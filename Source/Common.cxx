@@ -2,7 +2,11 @@
 
 #include <errno.h>
 
-#include "DiED/User.h"
+#include <iostream>
+
+#ifndef NODEBUG
+bool g_bLogLevels[LogLevels] = { true, true, true, true, true, true };
+#endif
 
 std::string sErrorCodeToString(int iError)
 {
@@ -61,19 +65,33 @@ std::string sErrorCodeToString(int iError)
 	}
 }
 
-std::string DiED::sStatusToString(const DiED::clientstatus_t & Status)
+#ifndef NODEBUG
+std::string sLogLevelToString(LogLevel LogLevel)
 {
-	switch(Status)
+	switch(LogLevel)
 	{
-	case DiED::Connected:
-		return "Connected";
-	case DiED::Disconnected:
-		return "Disconnected";
-	case DiED::Connecting:
-		return "Connecting";
-	case DiED::Deleted:
-		return "Deleted";
-	default:
-		return "Unknown";
+	case Error:
+		return "Error";
+	case Warning:
+		return "Warning";
+	case Info:
+		return "Info";
+	case Debug:
+		return "Debug";
+	case Object:
+		return "Object";
+	case Verbose:
+		return "Verbose";
+	case TODO:
+		return "TODO";
+	case LogLevels:
+		{
+			std::cerr << "Wrong LogLevel specified." << std::endl;
+			
+			return "";
+		}
 	}
+	
+	return "";
 }
+#endif
