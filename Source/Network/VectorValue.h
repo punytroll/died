@@ -22,6 +22,11 @@ namespace Network
 		{
 		}
 		
+		size_t stGetSize(void) const
+		{
+			return sizeof(m_stSize) + m_stSize * sizeof(Type);
+		}
+		
 		virtual void vReadFrom(boost::shared_ptr< Network::BasicReader > Reader)
 		{
 			if(m_stSize == 0)

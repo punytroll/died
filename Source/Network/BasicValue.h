@@ -27,6 +27,11 @@ namespace Network
 			return m_bReady;
 		}
 		
+		size_t stGetSize(void) const
+		{
+			return 0;
+		}
+		
 		virtual void vReadFrom(boost::shared_ptr< Network::BasicReader > Reader) = 0;
 		virtual void vWriteTo(boost::shared_ptr< Network::BasicWriter > Writer) const = 0;
 		virtual std::ostream & operator<<(std::ostream & OStream);

@@ -19,6 +19,11 @@ namespace Network
 		{
 		}
 		
+		size_t stGetSize(void) const
+		{
+			return sizeof(Type);
+		}
+		
 		operator const Type &(void) const
 		{
 			return m_Value;
