@@ -25,9 +25,17 @@ Glib::RefPtr< GUI::MessageListStore > GUI::Client::GetMessageListStore(void)
 void GUI::Client::vOnMessageReady(void)
 {
 //~ 	std::cout << "[GUI/Client]: Message ready for Client " << GetClientID() << " with MessageStream " << m_MessageStream.get() << std::endl;
+	Gtk::TreeIter Iterator(m_MessageListStore->children().begin());
+	Gtk::TreeRow Row;
 	
-	Gtk::TreeRow Row(*(m_MessageListStore->children().begin()));
-	
+	while(Iterator != m_MessageListStore->children().end())
+	{
+		if((*Iterator)[m_MessageListStore->Columns.Status] == "Downloading")
+		{
+			Row = *Iterator;
+		}
+		++Iterator;
+	}
 	if(m_MessageStream->size() > 0)
 	{
 //~ 		std::cout << "[GUI/Client]: " << boost::dynamic_pointer_cast< DiED::BasicMessage >(m_MessageStream->back())->sGetString() << std::endl;
@@ -56,7 +64,33 @@ void GUI::Client::vOnMessageBegin(void)
 void GUI::Client::vOnMessageExecuted(void)
 {
 //~ 	std::cout << "Message executed:\n\t" << boost::dynamic_pointer_cast< DiED::BasicMessage >(m_MessageStream->back())->sGetString() << std::endl;
-	Gtk::TreeRow Row(*(m_MessageListStore->children().begin()));
+	Gtk::TreeIter Iterator(m_MessageListStore->children().begin());
+	Gtk::TreeRow Row;
 	
+	while(Iterator != m_MessageListStore->children().end())
+	{
+		if((*Iterator)[m_MessageListStore->Columns.Status] == "Ready")
+		{
+			Row = *Iterator;
+		}
+		++Iterator;
+	}
 	Row[m_MessageListStore->Columns.Status] = "Executed";
+}
+
+bool GUI::Client::bIsHoldingMessagesBack(void) const
+{
+	return m_bHoldMessagesBack;
+}
+
+void GUI::Client::vHoldMessagesBack(bool bHoldMessagesBack)
+{
+	m_bHoldMessagesBack = bHoldMessagesBack;
+	if((m_bHoldMessagesBack == false) && (m_MessageStream.get() != 0))
+	{
+		while(m_MessageStream->size() > 0)
+		{
+			DiED::Client::vOnMessageReady();
+		}
+	}
 }

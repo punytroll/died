@@ -15,6 +15,10 @@ namespace GUI
 		virtual ~Client(void);
 		
 		Glib::RefPtr< GUI::MessageListStore > GUI::Client::GetMessageListStore(void);
+		
+		// messages
+		bool bIsHoldingMessagesBack(void) const;
+		void vHoldMessagesBack(bool bHoldMessagesBack);
 	protected:
 		virtual void vOnMessageReady(void);
 		virtual void vOnMessageBegin(void);

@@ -8,6 +8,8 @@
 
 #include <DiED/System.h>
 
+#include "Client.h"
+
 namespace GUI
 {
 	class MainWindow : public Gtk::Window, public DiED::ExternalEnvironment
@@ -24,6 +26,8 @@ namespace GUI
 		
 		// callbacks
 		void vClientIDChanged(boost::reference_wrapper< DiED::Client > Client, Gtk::Widget * pClientWidget);
+		void vHoldFlowButtonClicked(Gtk::Button * pHoldFlowButton, Gtk::Button * pNextButton, boost::reference_wrapper< GUI::Client > Client);
+		void vNextButtonClicked(boost::reference_wrapper< GUI::Client > Client);
 	private:
 		DiED::System & m_System;
 		Gtk::VPaned m_Pane;
