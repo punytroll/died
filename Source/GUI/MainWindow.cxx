@@ -46,10 +46,12 @@ void GUI::MainWindow::vClientConnected(DiED::Client & DiEDClient)
 	
 	ssName << Client.GetClientID();
 	pClientView->append_column("Name", Client.GetMessageListStore()->Columns.Name);
+	pClientView->append_column("Status", Client.GetMessageListStore()->Columns.Status);
 	pClientView->show();
 	pScrolledWindow->add(*pClientView);
 	pScrolledWindow->show();
 	m_Notebook.append_page(*pScrolledWindow, ssName.str());
+	DiEDClient.ClientIDChanged.connect(sigc::bind(sigc::mem_fun(*this, &GUI::MainWindow::vClientIDChanged), boost::ref(DiEDClient), pScrolledWindow));
 }
 
 void GUI::MainWindow::vInsertText(const Glib::ustring & sString, int iLine, int iCharacter)
@@ -62,4 +64,14 @@ void GUI::MainWindow::vInsertText(const Glib::ustring & sString, int iLine, int 
 	m_TextBuffer->place_cursor(Marker->get_iter());
 	m_TextBuffer->delete_mark(Marker);
 	m_InsertConnection.unblock();
+}
+
+void GUI::MainWindow::vClientIDChanged(boost::reference_wrapper< DiED::Client > Client, Gtk::Widget * pClientWidget)
+{
+	std::stringstream ssName;
+	
+	ssName << Client.get().GetClientID();
+	m_Notebook.set_tab_label_text(*pClientWidget, ssName.str());
+	
+	
 }

@@ -21,6 +21,9 @@ namespace GUI
 		// implementation of DiED::ExternalEnvironment
 		virtual void vClientConnected(DiED::Client & Client);
 		virtual void vInsertText(const Glib::ustring & sString, int iLine, int iCharacter);
+		
+		// callbacks
+		void vClientIDChanged(boost::reference_wrapper< DiED::Client > Client, Gtk::Widget * pClientWidget);
 	private:
 		DiED::System & m_System;
 		Gtk::VPaned m_Pane;
