@@ -1,14 +1,18 @@
 #ifndef DIED_CLIENT_H
 #define DIED_CLIENT_H
 
+#include <list>
+
 #include <Network/MessageStream.h>
 #include <Common.h>
 
+#include "Messages.h"
 #include "InternalEnvironment.h"
+#include "MessageTarget.h"
 
 namespace DiED
 {
-	class Client : public DiED::User
+	class Client : public DiED::User, public DiED::MessageTarget
 	{
 	public:
 		// constructor and destructor
@@ -23,15 +27,15 @@ namespace DiED
 		Network::port_t GetPort(void);
 		Network::address_t GetAddress(void);
 		
-		void vInsertText(const Glib::ustring & sString);
-		void vConnectionRequest(const DiED::clientid_t & ClientID, const Network::port_t & Port);
-		void vConnectionAccept(const DiED::clientid_t & LocalClientID, const DiED::clientid_t & RemoteClientID);
-		void vKnownClients(const DiED::messageid_t & MessageID, const std::vector< DiED::clientid_t > & ConnectedClientIDs, const std::vector< DiED::clientid_t > & DisconnectedClientIDs);
-		void vClientsRegistered(const DiED::messageid_t & MessageID);
-		void vConnectionEstablished(const DiED::clientid_t & ClientID, const Network::address_t & ClientAddress, const Network::port_t & ClientPort);
+		virtual void vInsertText(const Glib::ustring & sString);
+		virtual void vConnectionRequest(const DiED::clientid_t & ClientID, const Network::port_t & Port);
+		virtual void vConnectionAccept(const DiED::clientid_t & LocalClientID, const DiED::clientid_t & RemoteClientID);
+		virtual void vKnownClients(const DiED::messageid_t & MessageID, const std::vector< DiED::clientid_t > & ConnectedClientIDs, const std::vector< DiED::clientid_t > & DisconnectedClientIDs);
+		virtual void vClientsRegistered(const DiED::messageid_t & MessageID);
+		virtual void vConnectionEstablished(const DiED::clientid_t & ClientID, const Network::address_t & ClientAddress, const Network::port_t & ClientPort);
 		
 		// messages
-		DiED::Client & operator<<(boost::shared_ptr< Network::BasicMessage > Message);
+		DiED::Client & operator<<(boost::shared_ptr< DiED::BasicMessage > Message);
 		virtual void vExecuteTopMessage(void);
 		
 		u_int32_t m_u32KnownClientsMessageID;
@@ -55,7 +59,10 @@ namespace DiED
 		sigc::connection m_BytesSentConnection;
 		sigc::connection m_MessageBeginConnection;
 		sigc::connection m_MessageReadyConnection;
-		std::deque< boost::shared_ptr< Network::BasicMessage > > m_MessageQueue;
+		
+		// message queues
+		std::deque< boost::shared_ptr< DiED::BasicMessage > > m_AwaitingConfirmationQueue;
+		std::deque< boost::shared_ptr< DiED::EventMessage > > m_EventQueue;
 	};
 }
 
