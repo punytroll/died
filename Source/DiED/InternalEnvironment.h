@@ -19,7 +19,7 @@ namespace DiED
 		// messages and events for the environment
 		virtual void vHandleConnectionRequest(DiED::User & User, const DiED::clientid_t & ClientID, const Network::port_t & Port) = 0;
 		virtual void vHandleConnectionAccept(DiED::User & User, const DiED::clientid_t & AccepterClientID, const DiED::clientid_t & RequesterClientID) = 0;
-		virtual void vHandleKnownClients(DiED::User & User, const DiED::messageid_t & MessageID, const std::vector< ClientInfo > & ClientInfos) = 0;
+		virtual void vHandleSessionSnapshot(DiED::User & User, const DiED::messageid_t & MessageID, const std::vector< ClientInfo > & ClientInfos, bool bDocumentValid, const Glib::ustring & sDocument) = 0;
 		virtual void vHandleClientsRegistered(DiED::User & User, const DiED::messageid_t & MessageID) = 0;
 		virtual void vHandleConnectionEstablished(DiED::User & User, const DiED::clientid_t & ClientID, const Network::address_t & ClientAddress, const Network::port_t & ClientPort) = 0;
 		virtual void vHandleConnectionLost(DiED::User & User, const DiED::clientid_t & ClientID, const Network::address_t & ClientAddress, const Network::port_t & ClientPort) = 0;

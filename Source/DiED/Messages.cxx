@@ -137,33 +137,39 @@ Glib::ustring DiED::ConnectionAcceptMessage::sGetString(void)
 ///                                     KnownClientsMessage                                     ///
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 
-DiED::KnownClientsMessage::KnownClientsMessage(void) :
-	DiED::BasicMessage(DiED::_KnownClientsMessage)
+DiED::SessionSnapshotMessage::SessionSnapshotMessage(void) :
+	DiED::BasicMessage(DiED::_SessionSnapshotMessage)
 {
 	vRegisterValue(m_MessageID);
 	vRegisterValue(m_ClientInfos);
+	vRegisterValue(m_DocumentValid);
+	vRegisterValue(m_Document);
 }
 
-DiED::KnownClientsMessage::KnownClientsMessage(DiED::messageid_t MessageID, std::vector< DiED::ClientInfo > ClientInfos) :
-	DiED::BasicMessage(DiED::_KnownClientsMessage),
+DiED::SessionSnapshotMessage::SessionSnapshotMessage(DiED::messageid_t MessageID, std::vector< DiED::ClientInfo > ClientInfos, bool bDocumentValid, const Glib::ustring & sDocument) :
+	DiED::BasicMessage(DiED::_SessionSnapshotMessage),
 	m_MessageID(MessageID),
-	m_ClientInfos(ClientInfos)
+	m_ClientInfos(ClientInfos),
+	m_DocumentValid(bDocumentValid),
+	m_Document(sDocument)
 {
 	vRegisterValue(m_MessageID);
 	vRegisterValue(m_ClientInfos);
+	vRegisterValue(m_DocumentValid);
+	vRegisterValue(m_Document);
 }
 
-void DiED::KnownClientsMessage::vExecute(DiED::MessageTarget & MessageTarget)
+void DiED::SessionSnapshotMessage::vExecute(DiED::MessageTarget & MessageTarget)
 {
-	MessageTarget.vHandleKnownClients(m_MessageID, m_ClientInfos);
+	MessageTarget.vHandleSessionSnapshot(m_MessageID, m_ClientInfos, m_DocumentValid, m_Document);
 }
 
-bool DiED::KnownClientsMessage::bRequiresConfirmation(void)
+bool DiED::SessionSnapshotMessage::bRequiresConfirmation(void)
 {
 	return true;
 }
 
-bool DiED::KnownClientsMessage::bIsConfirmedBy(boost::shared_ptr< DiED::ConfirmationParameters > ConfirmationParameters)
+bool DiED::SessionSnapshotMessage::bIsConfirmedBy(boost::shared_ptr< DiED::ConfirmationParameters > ConfirmationParameters)
 {
 	if(m_MessageID == 0)
 	{
@@ -174,7 +180,7 @@ bool DiED::KnownClientsMessage::bIsConfirmedBy(boost::shared_ptr< DiED::Confirma
 		
 		DiED::ConfirmationParameters::iterator iParameter(ConfirmationParameters->find("Type"));
 		
-		if((iParameter == ConfirmationParameters->end()) || (boost::any_cast< Network::BasicMessage::type_t >(iParameter->second) != DiED::_KnownClientsMessage))
+		if((iParameter == ConfirmationParameters->end()) || (boost::any_cast< Network::BasicMessage::type_t >(iParameter->second) != DiED::_SessionSnapshotMessage))
 		{
 			return false;
 		}
@@ -202,7 +208,7 @@ bool DiED::KnownClientsMessage::bIsConfirmedBy(boost::shared_ptr< DiED::Confirma
 	return true;
 }
 
-bool DiED::KnownClientsMessage::bOnTimeout(DiED::MessageTarget * pMessageTarget)
+bool DiED::SessionSnapshotMessage::bOnTimeout(DiED::MessageTarget * pMessageTarget)
 {
 	if(pMessageTarget != 0)
 	{
@@ -210,33 +216,33 @@ bool DiED::KnownClientsMessage::bOnTimeout(DiED::MessageTarget * pMessageTarget)
 		
 		if(m_MessageID == 0)
 		{
-			ConfirmationParameters->insert(std::make_pair("Type", boost::any(static_cast< Network::BasicMessage::type_t >(DiED::_KnownClientsMessage))));
+			ConfirmationParameters->insert(std::make_pair("Type", boost::any(static_cast< Network::BasicMessage::type_t >(DiED::_SessionSnapshotMessage))));
 		}
 		else
 		{
 			ConfirmationParameters->insert(std::make_pair("Type", boost::any(static_cast< Network::BasicMessage::type_t >(DiED::_ClientsRegisteredMessage))));
 			ConfirmationParameters->insert(std::make_pair("MassageID", boost::any(static_cast< DiED::messageid_t >(m_MessageID))));
 		}
-		pMessageTarget->vHandleKnownClientsConfirmationTimeout(ConfirmationParameters);
+		pMessageTarget->vHandleSessionSnapshotConfirmationTimeout(ConfirmationParameters);
 	}
 	
 	return false;
 }
 
-boost::shared_ptr< DiED::ConfirmationParameters > DiED::KnownClientsMessage::GetConfirmationParameters(void)
+boost::shared_ptr< DiED::ConfirmationParameters > DiED::SessionSnapshotMessage::GetConfirmationParameters(void)
 {
 	boost::shared_ptr< DiED::ConfirmationParameters > ConfirmationParameters(new DiED::ConfirmationParameters());
 	
-	ConfirmationParameters->insert(std::make_pair("Type", boost::any(static_cast< Network::BasicMessage::type_t >(DiED::_KnownClientsMessage))));
+	ConfirmationParameters->insert(std::make_pair("Type", boost::any(static_cast< Network::BasicMessage::type_t >(DiED::_SessionSnapshotMessage))));
 	
 	return ConfirmationParameters;
 }
 
-Glib::ustring DiED::KnownClientsMessage::sGetString(void)
+Glib::ustring DiED::SessionSnapshotMessage::sGetString(void)
 {
 	std::stringstream ssString;
 	
-	ssString << "KnownClients [MessageID = " << m_MessageID << " ; #Clients = " << m_ClientInfos.size() << "]";
+	ssString << "SessionSnapshot [MessageID = " << m_MessageID << " ; #Clients = " << m_ClientInfos.size() << ((m_DocumentValid == true) ? (Glib::ustring(" ; Document = ") + m_Document) : ("")) << "]";
 	
 	return ssString.str();
 }

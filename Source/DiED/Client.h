@@ -41,7 +41,7 @@ namespace DiED
 		void vSend(boost::shared_ptr< DiED::BasicMessage > Message);
 		void vConnectionRequest(const DiED::clientid_t & ClientID, const Network::port_t & Port);
 		void vConnectionAccept(const DiED::clientid_t & AccepterClientID, const DiED::clientid_t & RequesterClientID);
-		void vKnownClients(bool bAskForKnownClients = false);
+		void vSessionSnapshot(bool bDocumentValid, const Glib::ustring & sDocument, bool bAskForSessionSnapshot = false);
 		void vClientsRegistered(const DiED::messageid_t & MessageID);
 		void vConnectionEstablished(const DiED::clientid_t & ClientID, const Network::address_t & ClientAddress, const Network::port_t & ClientPort);
 		void vConnectionLost(const DiED::clientid_t & ClientID, const Network::address_t & ClientAddress, const Network::port_t & ClientPort);
@@ -73,7 +73,7 @@ namespace DiED
 		// message handler
 		virtual void vHandleConnectionRequest(const DiED::clientid_t & ClientID, const Network::port_t & Port);
 		virtual void vHandleConnectionAccept(const DiED::clientid_t & AccepterClientID, const DiED::clientid_t & RequesterClientID);
-		virtual void vHandleKnownClients(const DiED::messageid_t & MessageID, const std::vector< DiED::ClientInfo > & ClientInfos);
+		virtual void vHandleSessionSnapshot(const DiED::messageid_t & MessageID, const std::vector< DiED::ClientInfo > & ClientInfos, bool bDocumentValid, const Glib::ustring & sDocument);
 		virtual void vHandleClientsRegistered(const DiED::messageid_t & MessageID);
 		virtual void vHandleConnectionEstablished(const DiED::messageid_t & MessageID, const DiED::clientid_t & ClientID, const Network::address_t & ClientAddress, const Network::port_t & ClientPort);
 		virtual void vHandleConnectionLost(const DiED::messageid_t & MessageID, const DiED::clientid_t & ClientID, const Network::address_t & ClientAddress, const Network::port_t & ClientPort);
@@ -88,7 +88,7 @@ namespace DiED
 		
 		// timeout callbacks
 		virtual void vHandleConnectionRequestConfirmationTimeout(boost::shared_ptr< DiED::ConfirmationParameters > ConfirmationParameters);
-		virtual void vHandleKnownClientsConfirmationTimeout(boost::shared_ptr< DiED::ConfirmationParameters > ConfirmationParameters);
+		virtual void vHandleSessionSnapshotConfirmationTimeout(boost::shared_ptr< DiED::ConfirmationParameters > ConfirmationParameters);
 		virtual void vHandleConnectionEstablishedConfirmationTimeout(boost::shared_ptr< DiED::ConfirmationParameters > ConfirmationParameters);
 		virtual void vHandleConnectionLostConfirmationTimeout(boost::shared_ptr< DiED::ConfirmationParameters > ConfirmationParameters);
 		virtual void vHandlePingConfirmationTimeout(boost::shared_ptr< DiED::ConfirmationParameters > ConfirmationParameters);

@@ -211,7 +211,7 @@ void DiED::System::vDelete(int iLine, int iCharacter)
 	}
 	if(iLineRelative < 0)
 	{
-		iLineAbsolute = iLineRelative - m_Client->iGetLine();
+		iLineAbsolute = -(iLineRelative + m_Client->iGetLine());
 	}
 	else
 	{
@@ -219,6 +219,7 @@ void DiED::System::vDelete(int iLine, int iCharacter)
 	}
 	if(iCharacterRelative < 0)
 	{
+		// TODO: can this be wrong???
 		iCharacterAbsolute = - iCharacterRelative - m_Client->iGetCharacter();
 	}
 	else
@@ -370,6 +371,10 @@ void DiED::System::vHandleConnectionRequest(DiED::User & User, const DiED::clien
 		//  => NO client has the client ID '0'
 		//  => the only exception is the local client _BEFORE_ any network interaction with other clients occures
 		RegisterClient(m_Client);
+		// this is a hack
+		// TODO: work out something that even involves m_Client creation
+		m_Client->vSetLine(m_pExternalEnvironment->iGetLine());
+		m_Client->vSetCharacter(m_pExternalEnvironment->iGetCharacter());
 	}
 	
 	// ConnectionRequest messages are not allowed if the client is not in the PreliminaryClients map
@@ -405,7 +410,7 @@ void DiED::System::vHandleConnectionRequest(DiED::User & User, const DiED::clien
 		// now we can answer the message with ConnectionAccept according to specification
 		Client->vConnectionAccept(m_Client->GetID(), Client->GetID());
 		// send KnownClients to this client
-		Client->vKnownClients();
+		Client->vSessionSnapshot(true, m_pExternalEnvironment->sGetDocument());
 	}
 	else
 	{
@@ -478,14 +483,14 @@ void DiED::System::vHandleConnectionAccept(DiED::User & User, const DiED::client
 	else
 	{
 		// the local client is not a newling => answer with KnownClients
-		Client->vKnownClients(true);
+		Client->vSessionSnapshot(false, "", true);
 	}
 	LOG(Debug, "DiED/System", "           ConnectionAccept message from " << User.GetID() << '\n');
 }
 
-void DiED::System::vHandleKnownClients(DiED::User & User, const DiED::messageid_t & MessageID, const std::vector< ClientInfo > & ClientInfos)
+void DiED::System::vHandleSessionSnapshot(DiED::User & User, const DiED::messageid_t & MessageID, const std::vector< ClientInfo > & ClientInfos, bool bDocumentValid, const Glib::ustring & sDocument)
 {
-	LOG(Debug, "DiED/System", "Processing KnownClients message from " << User.GetID());
+	LOG(Debug, "DiED/System", "Processing SessionSnapshot message from " << User.GetID());
 	
 	// iterating through the connected list to set the status of the sender to the client ID appropriately
 	std::vector< DiED::ClientInfo >::const_iterator iClientInfo(ClientInfos.begin());
@@ -502,9 +507,9 @@ void DiED::System::vHandleKnownClients(DiED::User & User, const DiED::messageid_
 				LOG(Error, "DiED/System", "VERY BAD: " << __FILE__ << ':' << __LINE__ << ": ClientID = " << iClientInfo->ClientID);
 			}
 			Client->vSetEventCounter(iClientInfo->EventCounter);
-			// TODO: uncomment these lines, once we transmit the document.
-//~ 			Client->vSetLine(iClientInfo->iLine);
-//~ 			Client->vSetCharacter(iClientInfo->iCharacter);
+			LOG(DebugSystem, "DiED/System", "ClientID = " << iClientInfo->ClientID << " ; Line = " << iClientInfo->iLine << " ; Character = " << iClientInfo->iCharacter);
+			Client->vSetLine(iClientInfo->iLine);
+			Client->vSetCharacter(iClientInfo->iCharacter);
 			LOG_NO_NL(Debug, "DiED/System", "New client " << iClientInfo->ClientID << " is ");
 		}
 		else
@@ -514,12 +519,12 @@ void DiED::System::vHandleKnownClients(DiED::User & User, const DiED::messageid_
 			{
 				LOG(Error, "DiED/System", "VERY BAD: " << __FILE__ << ':' << __LINE__ << ": ClientID = " << iClientInfo->ClientID);
 			}
+			LOG(DebugCurrent, "DiED/System", "ClientID = " << iClientInfo->ClientID << " ; Status = " << sStatusToString(iClientInfo->Status) << " ; Line = " << iClientInfo->iLine << " ; Character = " << iClientInfo->iCharacter);
 			if(iClientInfo->Status == DiED::Deleted)
 			{
 				Client->vSetEventCounter(iClientInfo->EventCounter);
-				// TODO: uncomment these lines, once we transmit the document.
-//~ 				Client->vSetLine(iClientInfo->iLine);
-//~ 				Client->vSetCharacter(iClientInfo->iCharacter);
+				Client->vSetLine(iClientInfo->iLine);
+				Client->vSetCharacter(iClientInfo->iCharacter);
 			}
 			LOG_NO_NL(Debug, "DiED/System", "Known client " << iClientInfo->ClientID << " is ");
 		}
@@ -543,7 +548,7 @@ void DiED::System::vHandleKnownClients(DiED::User & User, const DiED::messageid_
 	}
 	if(MessageID == 0)
 	{
-		Client->vKnownClients();
+		Client->vSessionSnapshot(false, "");
 	}
 	else
 	{
@@ -564,7 +569,11 @@ void DiED::System::vHandleKnownClients(DiED::User & User, const DiED::messageid_
 			++iClient;
 		}
 	}
-	LOG(Debug, "DiED/System", "           KnownClients message from " << User.GetID() << '\n');
+	if(bDocumentValid == true)
+	{
+		m_pExternalEnvironment->vSetDocument(sDocument);
+	}
+	LOG(Debug, "DiED/System", "           SessionSnapshot message from " << User.GetID() << '\n');
 }
 
 void DiED::System::vHandleClientsRegistered(DiED::User & User, const DiED::messageid_t & MessageID)

@@ -109,10 +109,10 @@ void DiED::Client::vHandleConnectionAccept(const DiED::clientid_t & AccepterClie
 	m_InternalEnvironment.vHandleConnectionAccept(*this, AccepterClientID, RequesterClientID);
 }
 
-void DiED::Client::vHandleKnownClients(const DiED::messageid_t & MessageID, const std::vector< DiED::ClientInfo > & ClientInfos)
+void DiED::Client::vHandleSessionSnapshot(const DiED::messageid_t & MessageID, const std::vector< DiED::ClientInfo > & ClientInfos, bool bDocumentValid, const Glib::ustring & sDocument)
 {
 	vHandleAnswer();
-	m_InternalEnvironment.vHandleKnownClients(*this, MessageID, ClientInfos);
+	m_InternalEnvironment.vHandleSessionSnapshot(*this, MessageID, ClientInfos, bDocumentValid, sDocument);
 }
 
 void DiED::Client::vHandleClientsRegistered(const DiED::messageid_t & MessageID)
@@ -468,7 +468,7 @@ void DiED::Client::vConnectionAccept(const DiED::clientid_t & AccepterClientID, 
 	vSend(boost::shared_ptr< DiED::BasicMessage >(new DiED::ConnectionAcceptMessage(AccepterClientID, RequesterClientID)));
 }
 
-void DiED::Client::vKnownClients(bool bAskForKnownClients)
+void DiED::Client::vSessionSnapshot(bool bDocumentValid, const Glib::ustring & sDocument, bool bAskForSessionSnapshot)
 {
 	std::vector< DiED::ClientInfo > ClientInfos(m_InternalEnvironment.GetClientInfos());
 	std::vector< DiED::ClientInfo >::iterator iClientInfo(ClientInfos.begin());
@@ -486,7 +486,7 @@ void DiED::Client::vKnownClients(bool bAskForKnownClients)
 		}
 		++iClientInfo;
 	}
-	vSend(boost::shared_ptr< DiED::BasicMessage >(new DiED::KnownClientsMessage(((bAskForKnownClients == true) ? (0) : (rand())), ClientInfos)));
+	vSend(boost::shared_ptr< DiED::BasicMessage >(new DiED::SessionSnapshotMessage(((bAskForSessionSnapshot == true) ? (0) : (rand())), ClientInfos, bDocumentValid, sDocument)));
 }
 
 void DiED::Client::vClientsRegistered(const DiED::messageid_t & MessageID)
@@ -606,7 +606,7 @@ void DiED::Client::vHandleConnectionRequestConfirmationTimeout(boost::shared_ptr
 	}
 }
 
-void DiED::Client::vHandleKnownClientsConfirmationTimeout(boost::shared_ptr< DiED::ConfirmationParameters > ConfirmationParameters)
+void DiED::Client::vHandleSessionSnapshotConfirmationTimeout(boost::shared_ptr< DiED::ConfirmationParameters > ConfirmationParameters)
 {
 	DiED::Client::WaitingMessage WaitingMessage(RemoveWaitingMessage(ConfirmationParameters));
 	

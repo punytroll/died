@@ -16,9 +16,9 @@ boost::shared_ptr< Network::BasicMessage > DiED::MessageFactory::GetMessage(u_in
 		{
 			return boost::shared_ptr< Network::BasicMessage >(new DiED::ConnectionAcceptMessage());
 		}
-	case DiED::_KnownClientsMessage:
+	case DiED::_SessionSnapshotMessage:
 		{
-			return boost::shared_ptr< Network::BasicMessage >(new DiED::KnownClientsMessage());
+			return boost::shared_ptr< Network::BasicMessage >(new DiED::SessionSnapshotMessage());
 		}
 	case DiED::_ClientsRegisteredMessage:
 		{

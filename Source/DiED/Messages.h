@@ -14,7 +14,7 @@ namespace DiED
 		_NoMessage,
 		_ConnectionRequestMessage,
 		_ConnectionAcceptMessage,
-		_KnownClientsMessage,
+		_SessionSnapshotMessage,
 		_ClientsRegisteredMessage,
 		_ConnectionEstablishedMessage,
 		_ConnectionLostMessage,
@@ -63,11 +63,11 @@ namespace DiED
 		Network::Value< DiED::clientid_t > m_RequesterClientID;
 	};
 	
-	class KnownClientsMessage : public DiED::BasicMessage
+	class SessionSnapshotMessage : public DiED::BasicMessage
 	{
 	public:
-		KnownClientsMessage(void);
-		KnownClientsMessage(DiED::messageid_t MessageID, std::vector< DiED::ClientInfo > ClientInfos);
+		SessionSnapshotMessage(void);
+		SessionSnapshotMessage(DiED::messageid_t MessageID, std::vector< DiED::ClientInfo > ClientInfos, bool bDocumentValid, const Glib::ustring & sDocument);
 		virtual void vExecute(DiED::MessageTarget & MessageTarget);
 		virtual bool bRequiresConfirmation(void);
 		virtual bool bIsConfirmedBy(boost::shared_ptr< DiED::ConfirmationParameters > ConfirmationParameters);
@@ -77,6 +77,8 @@ namespace DiED
 	private:
 		Network::Value< DiED::messageid_t > m_MessageID;
 		Network::VectorValue< DiED::ClientInfo > m_ClientInfos;
+		Network::Value< bool > m_DocumentValid;
+		Network::Value< Glib::ustring > m_Document;
 	};
 	
 	class ClientsRegisteredMessage : public DiED::BasicMessage
