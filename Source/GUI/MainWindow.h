@@ -13,18 +13,29 @@
 
 namespace GUI
 {
+	class MainWindow;
+	
+	void vDeleteRange(GtkTextBuffer * pTextBuffer, GtkTextIter * pBeginIterator, GtkTextIter * pEndIterator, GUI::MainWindow * pMainWindow);
+	void vInsertText(GtkTextBuffer * pTextBuffer, GtkTextIter * pIterator, char * pcData, int, GUI::MainWindow * pMainWindow);
+	
 	class MainWindow : public Gtk::Window, public DiED::ExternalEnvironment
 	{
+		friend void vDeleteRange(GtkTextBuffer * pTextBuffer, GtkTextIter * pBeginIterator, GtkTextIter * pEndIterator, GUI::MainWindow * pMainWindow);
+		friend void vInsertText(GtkTextBuffer * pTextBuffer, GtkTextIter * pIterator, char * pcData, int, GUI::MainWindow * pMainWindow);
 	public:
 		MainWindow(DiED::System & System);
 		~MainWindow(void);
 	protected:
 		void vInserted(const Gtk::TextBuffer::iterator & Iterator, const Glib::ustring & sString, int);
+		void vErase(const Gtk::TextBuffer::iterator & BeginIterator, const Gtk::TextBuffer::iterator & EndIterator);
 		bool bKeyPressed(GdkEventKey * pEvent);
+		void vMarkSet(const Gtk::TextIter & Iterator, const Glib::RefPtr< Gtk::TextMark > & Mark);
+		void vChanged(void);
 		
 		// implementation of DiED::ExternalEnvironment
 		virtual void vNewClient(DiED::Client & Client);
-		virtual void vInsertText(const Glib::ustring & sString, int iLine, int iCharacter);
+		virtual void vInsert(const Glib::ustring & sString, int iLine, int iCharacter);
+		virtual void vDelete(int iFromLine, int iFromCharacter, int iToLine, int iToCharacter);
 		virtual int iGetNumberOfLines(void);
 		virtual int iGetLengthOfLine(int iLine);
 		
@@ -41,8 +52,11 @@ namespace GUI
 		Gtk::TextView m_TextView;
 		Glib::RefPtr< Gtk::TextBuffer > m_TextBuffer;
 		sigc::connection m_KeyPressedConnection;
-		sigc::connection m_InsertConnection;
+//~ 		sigc::connection m_InsertConnection;
+//~ 		sigc::connection m_EraseConnection;
 		sigc::connection m_StatusChangedConnection;
+		gulong m_ulInsertTextHandlerID;
+		gulong m_ulDeleteRangeHandlerID;
 	};
 }
 

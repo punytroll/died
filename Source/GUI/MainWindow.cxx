@@ -3,6 +3,8 @@
 #include <iostream>
 #include <sstream>
 
+#include <gtk/gtktextbuffer.h>
+
 #include <gtkmm/box.h>
 #include <gtkmm/buttonbox.h>
 #include <gtkmm/scrolledwindow.h>
@@ -15,11 +17,57 @@ GdkColor Connected = { 0x0000, 0x0000, 0x8080, 0x0000 };
 GdkColor Disconnected = { 0x0000, 0x8080, 0x0000, 0x0000 };
 GdkColor Deleted = { 0x0000, 0x6060, 0x6060, 0x6060 };
 
+void GUI::vDeleteRange(GtkTextBuffer * pTextBuffer, GtkTextIter * pBeginIterator, GtkTextIter * pEndIterator, GUI::MainWindow * pMainWindow)
+{
+	LOG(Verbose, "GUI/MainWindow", "Erase signal: from iterator @ " << gtk_text_iter_get_line(pBeginIterator) << "; " << gtk_text_iter_get_line_offset(pBeginIterator));
+	LOG(Verbose, "GUI/MainWindow", "Erase signal:   to iterator @ " << gtk_text_iter_get_line(pEndIterator) << "; " << gtk_text_iter_get_line_offset(pEndIterator));
+	GtkTextIter InsertIterator;
+	
+	gtk_text_buffer_get_iter_at_mark(pTextBuffer, &InsertIterator, gtk_text_buffer_get_insert(pTextBuffer));
+	if(gtk_text_iter_equal(pEndIterator, &InsertIterator) == true)
+	{
+		pMainWindow->m_System.vDelete(gtk_text_iter_get_line(pBeginIterator), gtk_text_iter_get_line_offset(pBeginIterator));
+	}
+	else
+	{
+		if(gtk_text_iter_equal(pBeginIterator, &InsertIterator) == true)
+		{
+			pMainWindow->m_System.vDelete(gtk_text_iter_get_line(pEndIterator), gtk_text_iter_get_line_offset(pEndIterator));
+		}
+		else
+		{
+			pMainWindow->m_System.vPosition(gtk_text_iter_get_line(pBeginIterator), gtk_text_iter_get_line_offset(pBeginIterator));
+			pMainWindow->m_System.vDelete(gtk_text_iter_get_line(pEndIterator), gtk_text_iter_get_line_offset(pEndIterator));
+			pMainWindow->m_System.vPosition(gtk_text_iter_get_line(&InsertIterator), gtk_text_iter_get_line_offset(&InsertIterator));
+		}
+	}
+}
+
+void GUI::vInsertText(GtkTextBuffer * pTextBuffer, GtkTextIter * pIterator, char * pcData, int, GUI::MainWindow * pMainWindow)
+{
+	GtkTextIter InsertIterator;
+	
+	gtk_text_buffer_get_iter_at_mark(pTextBuffer, &InsertIterator, gtk_text_buffer_get_insert(pTextBuffer));
+	LOG(Verbose, "GUI/MainWindow", "Inserted signal: \"insert\" mark @ " << gtk_text_iter_get_line(&InsertIterator) << "; " << gtk_text_iter_get_line_offset(&InsertIterator));
+	LOG(Verbose, "GUI/MainWindow", "Inserted signal: iterator      @ " << gtk_text_iter_get_line(pIterator) << "; " << gtk_text_iter_get_line_offset(pIterator));
+	if(gtk_text_iter_equal(pIterator, &InsertIterator) == false)
+	{
+		pMainWindow->m_System.vPosition(gtk_text_iter_get_line(pIterator),  gtk_text_iter_get_line_offset(pIterator));
+		pMainWindow->m_System.vInsert(pcData);
+		// the correct position will be set by MarkSet.
+	}
+	else
+	{
+		pMainWindow->m_System.vInsert(pcData);
+	}
+}
+
 GUI::MainWindow::MainWindow(DiED::System & System) :
 	m_System(System),
 	m_TextBuffer(m_TextView.get_buffer()),
 	m_KeyPressedConnection(m_TextView.signal_key_press_event().connect(sigc::mem_fun(*this, &GUI::MainWindow::bKeyPressed), false)),
-	m_InsertConnection(m_TextBuffer->signal_insert().connect(sigc::mem_fun(*this, &GUI::MainWindow::vInserted)))
+	m_ulInsertTextHandlerID(g_signal_connect(m_TextBuffer->gobj(), "insert-text", GCallback(GUI::vInsertText), this)),
+	m_ulDeleteRangeHandlerID(g_signal_connect(m_TextBuffer->gobj(), "delete-range", GCallback(GUI::vDeleteRange), this))
 {
 	m_System.vSetExternalEnvironment(this);
 	
@@ -34,6 +82,8 @@ GUI::MainWindow::MainWindow(DiED::System & System) :
 	add(m_Pane);
 	set_default_size(500, 300);
 	show_all();
+	m_TextBuffer->signal_mark_set().connect(sigc::mem_fun(*this, &GUI::MainWindow::vMarkSet));
+	m_TextBuffer->signal_changed().connect(sigc::mem_fun(*this, &GUI::MainWindow::vChanged));
 }
 
 GUI::MainWindow::~MainWindow(void)
@@ -41,16 +91,21 @@ GUI::MainWindow::~MainWindow(void)
 	m_StatusChangedConnection.disconnect();
 }
 
-void GUI::MainWindow::vInserted(const Gtk::TextBuffer::iterator & Iterator, const Glib::ustring & sString, int)
-{
-//~ 	std::cout << "Inserted text: \"" << sString << "\" [" << sString.length() << ']' << std::endl;
-	// TODO: handle input at positions other than "insert" mark
-	m_System.vInput(sString);
-}
-
 bool GUI::MainWindow::bKeyPressed(GdkEventKey * pEvent)
 {
 	return false;
+}
+
+void GUI::MainWindow::vMarkSet(const Gtk::TextIter & Iterator, const Glib::RefPtr< Gtk::TextMark > & Mark)
+{
+	Gtk::TextIter InsertIterator(m_TextBuffer->get_iter_at_mark(m_TextBuffer->get_insert()));
+	
+	LOG(Verbose, "GUI/MainWindow", "MarkSet signal: \"insert\" mark @ " << InsertIterator.get_line() << "; " << InsertIterator.get_line_offset());
+	m_System.vPosition(InsertIterator.get_line(), InsertIterator.get_line_offset());
+}
+
+void GUI::MainWindow::vChanged(void)
+{
 }
 
 void GUI::MainWindow::vNewClient(DiED::Client & DiEDClient)
@@ -110,16 +165,36 @@ void GUI::MainWindow::vNewClient(DiED::Client & DiEDClient)
 	vClientStatusChanged(DiEDClient.GetID(), DiEDClient.GetStatus(m_System.GetLocalClientID()), boost::ref(DiEDClient));
 }
 
-void GUI::MainWindow::vInsertText(const Glib::ustring & sString, int iLine, int iCharacter)
+void GUI::MainWindow::vInsert(const Glib::ustring & sString, int iLine, int iCharacter)
 {
-	m_InsertConnection.block();
+//~ 	m_InsertConnection.block();
+	g_signal_handler_block(m_TextBuffer->gobj(), m_ulInsertTextHandlerID);
 	
+	// construct a left-gravity save for the cursor
 	Glib::RefPtr< Gtk::TextMark > Marker(m_TextBuffer->create_mark("insert-save", m_TextBuffer->get_insert()->get_iter(), true));
 	
 	m_TextBuffer->insert(m_TextBuffer->get_iter_at_line_offset(iLine, iCharacter), sString);
 	m_TextBuffer->place_cursor(Marker->get_iter());
 	m_TextBuffer->delete_mark(Marker);
-	m_InsertConnection.unblock();
+	g_signal_handler_unblock(m_TextBuffer->gobj(), m_ulInsertTextHandlerID);
+//~ 	m_InsertConnection.unblock();
+}
+
+void GUI::MainWindow::vDelete(int iFromLine, int iFromCharacter, int iToLine, int iToCharacter)
+{
+//~ 	m_EraseConnection.block();
+	g_signal_handler_block(m_TextBuffer->gobj(), m_ulDeleteRangeHandlerID);
+	
+	// construct a left-gravity save for the cursor
+	Glib::RefPtr< Gtk::TextMark > Marker(m_TextBuffer->create_mark("insert-save", m_TextBuffer->get_insert()->get_iter(), true));
+	Gtk::TextIter FromIterator(m_TextBuffer->get_iter_at_line_offset(iFromLine, iFromCharacter));
+	Gtk::TextIter ToIterator(m_TextBuffer->get_iter_at_line_offset(iToLine, iToCharacter));
+	
+	m_TextBuffer->erase(FromIterator, ToIterator);
+	m_TextBuffer->place_cursor(Marker->get_iter());
+	m_TextBuffer->delete_mark(Marker);
+	g_signal_handler_unblock(m_TextBuffer->gobj(), m_ulDeleteRangeHandlerID);
+//~ 	m_EraseConnection.unblock();
 }
 
 int GUI::MainWindow::iGetNumberOfLines(void)
