@@ -57,6 +57,23 @@ Glib::ustring DiED::ConnectionRequestMessage::sGetString(void)
 	return ssString.str();
 }
 
+bool DiED::ConnectionRequestMessage::bRequiresConfirmation(void)
+{
+	return true;
+}
+
+bool DiED::ConnectionRequestMessage::bIsConfirmedBy(boost::shared_ptr< DiED::ConfirmationParameters > ConfirmationParameters)
+{
+	DiED::ConfirmationParameters::iterator iParameter(ConfirmationParameters->find("Type"));
+	
+	if((iParameter == ConfirmationParameters->end()) || (boost::any_cast< int >(iParameter->second) != DiED::_ConnectionAcceptMessage))
+	{
+		return false;
+	}
+	
+	return true;
+}
+
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 ///                                   ConnectionAcceptMessage                                   ///
@@ -82,6 +99,15 @@ void DiED::ConnectionAcceptMessage::vExecute(DiED::MessageTarget & MessageTarget
 {
 //~ 	std::cout << "Executing a ConnectionAccept message with parameters:\n\tRemoteClientID = " << m_RemoteClientID << "\n\tLocalClientID = " << m_LocalClientID << std::endl;
 	MessageTarget.vHandleConnectionAccept(m_RemoteClientID, m_LocalClientID);
+}
+
+boost::shared_ptr< DiED::ConfirmationParameters > DiED::ConnectionAcceptMessage::GetConfirmationParameters(void)
+{
+	boost::shared_ptr< DiED::ConfirmationParameters > ConfirmationParameters(new DiED::ConfirmationParameters());
+	
+	ConfirmationParameters->insert(std::make_pair("Type", boost::any(static_cast< int >(DiED::_ConnectionAcceptMessage))));
+	
+	return ConfirmationParameters;
 }
 
 Glib::ustring DiED::ConnectionAcceptMessage::sGetString(void)
@@ -274,6 +300,23 @@ Glib::ustring DiED::PingMessage::sGetString(void)
 	return ssString.str();
 }
 
+bool DiED::PingMessage::bRequiresConfirmation(void)
+{
+	return true;
+}
+
+bool DiED::PingMessage::bIsConfirmedBy(boost::shared_ptr< DiED::ConfirmationParameters > ConfirmationParameters)
+{
+	DiED::ConfirmationParameters::iterator iParameter(ConfirmationParameters->find("PingID"));
+	
+	if((iParameter == ConfirmationParameters->end()) || (boost::any_cast< DiED::messageid_t >(iParameter->second) != m_PingID))
+	{
+		return false;
+	}
+	
+	return true;
+}
+
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 ///                                         PongMessage                                         ///
@@ -304,6 +347,15 @@ Glib::ustring DiED::PongMessage::sGetString(void)
 	ssString << "PongMessage [ PingID = " << m_PingID << " ]";
 	
 	return ssString.str();
+}
+
+boost::shared_ptr< DiED::ConfirmationParameters > DiED::PongMessage::GetConfirmationParameters(void)
+{
+	boost::shared_ptr< DiED::ConfirmationParameters > ConfirmationParameters(new DiED::ConfirmationParameters());
+	
+	ConfirmationParameters->insert(std::make_pair("PingID", boost::any(static_cast< DiED::messageid_t >(m_PingID))));
+	
+	return ConfirmationParameters;
 }
 
 
@@ -384,7 +436,7 @@ bool DiED::EventMessage::bIsConfirmedBy(boost::shared_ptr< DiED::ConfirmationPar
 		return false;
 	}
 	iParameter = ConfirmationParameters->find("EventID");
-	if((iParameter == ConfirmationParameters->end()) || (boost::any_cast< DiED::clientid_t >(iParameter->second) != m_EventID))
+	if((iParameter == ConfirmationParameters->end()) || (boost::any_cast< DiED::messageid_t >(iParameter->second) != m_EventID))
 	{
 		return false;
 	}
