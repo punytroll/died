@@ -1,0 +1,493 @@
+(************** Content-type: application/mathematica **************
+                     CreatedBy='Mathematica 5.0'
+
+                    Mathematica-Compatible Notebook
+
+This notebook can be used with any Mathematica-compatible
+application, such as Mathematica, MathReader or Publicon. The data
+for the notebook starts with the line containing stars above.
+
+To get the notebook into a Mathematica-compatible application, do
+one of the following:
+
+* Save the data starting with the line of stars above into a file
+  with a name ending in .nb, then open the file inside the
+  application;
+
+* Copy the data starting with the line of stars above to the
+  clipboard, then use the Paste menu command inside the application.
+
+Data for notebooks contains only printable 7-bit ASCII and can be
+sent directly in email or through ftp in text mode.  Newlines can be
+CR, LF or CRLF (Unix, Macintosh or MS-DOS style).
+
+NOTE: If you modify the data for this notebook not in a Mathematica-
+compatible application, you must delete the line below containing
+the word CacheID, otherwise Mathematica-compatible applications may
+try to use invalid cache data.
+
+For more information on notebooks and Mathematica-compatible 
+applications, contact Wolfram Research:
+  web: http://www.wolfram.com
+  email: info@wolfram.com
+  phone: +1-217-398-0700 (U.S.)
+
+Notebook reader applications are available free of charge from 
+Wolfram Research.
+*******************************************************************)
+
+(*CacheID: 232*)
+
+
+(*NotebookFileLineBreakTest
+NotebookFileLineBreakTest*)
+(*NotebookOptionsPosition[     12790,        387]*)
+(*NotebookOutlinePosition[     13450,        410]*)
+(*  CellTagsIndexPosition[     13406,        406]*)
+(*WindowFrame->Normal*)
+
+
+
+Notebook[{
+Cell["\<\
+Wann immer wir von einem angeschlossenen Client die Nachricht \
+erhalten Text einzuf\[UDoubleDot]gen, m\[UDoubleDot]ssen wir die Positionen \
+der Carets aller Clients modifizieren. Von der Menge aller Clients lassen \
+sich gl\[UDoubleDot]cklicherweise einige ausschlie\[SZ]en.  Die \
+f\[UDoubleDot]r diesen Ausschlussprozess notwendigen Daten sind \
+folgende:\
+\>", "Text"],
+
+Cell["\<\
+\[Bullet] \[CapitalDelta]Zeile
+\[Bullet] \[CapitalDelta]Zeichen
+\[Bullet] Zeilenposition des Schreibers
+\[Bullet] Zeichenposition des Schreibers
+\[Bullet] Zeilenposition des betrachteten Clients
+\[Bullet] Zeichenposition des betrachteten Clients\
+\>", "Text"],
+
+Cell[CellGroupData[{
+
+Cell["\[CapitalDelta]Zeile und \[CapitalDelta]Zeichen", "Section 1"],
+
+Cell[TextData[{
+  "Diese Werte sind aus dem einzuf\[UDoubleDot]genden String zu berechnen. In \
+DiED wird von normalisierten Strings ausgegangen, d.h. ein Zeilenumbruch muss \
+mit einem ",
+  StyleBox["'\\n'", "Program"],
+  " kodiert werden. Indem man nun zeichenweise durch den \
+\[UDoubleDot]bertragenen String iteriert kann die Anzahl der Zeilenumbr\
+\[UDoubleDot]che, also \[CapitalDelta]Zeile ermittelt werden. \
+\[CapitalDelta]Zeichen wird bei jedem Zeilenumbruch auf Null \
+zur\[UDoubleDot]ckgesetzt. Der Wert \[CapitalDelta]Zeichen bestimmt also, wie \
+viele Zeichen in der letzten Zeile eingef\[UDoubleDot]gt werden."
+}], "Text"]
+}, Open  ]],
+
+Cell[CellGroupData[{
+
+Cell["Zeilen- und Zeichenposition des Schreibers", "Section 1"],
+
+Cell[TextData[{
+  "Da im Verlaufe der Modifikation alle Clients, auch der Schreiber, einmal \
+modifiziert werden und die Reihenfolge der Clients nicht festgelegt ist, \
+insbesondere der Schreiber also nicht der letzte Client sein muss sondern \
+auch der erste sein kann, ist es erforderlich die Zeilen- und Zeichenposition \
+des Schreibers vor der Modifikation des ersten Clients zwischenzuspeichern. \
+Die Werte werden im Folgenden mit ",
+  Cell[BoxData[
+      \(TraditionalForm\`Zeile\_S\)]],
+  " und ",
+  Cell[BoxData[
+      \(TraditionalForm\`Zeichen\_S\)]],
+  " bezeichnet."
+}], "Text"]
+}, Open  ]],
+
+Cell[CellGroupData[{
+
+Cell["Zeilen- und Zeichenposition des betrachteten Clients", "Section 1"],
+
+Cell[TextData[{
+  "Die Werte hiervon sind Eigenschaften des Client Objektes und \
+k\[ODoubleDot]nnen per Funktionsaufruf ermittelt werden. Die Werte werden im \
+Folgenden als ",
+  Cell[BoxData[
+      \(TraditionalForm\`Zeile\_C\)]],
+  " und ",
+  Cell[BoxData[
+      \(TraditionalForm\`Zeichen\_C\)]],
+  " bezeichnet."
+}], "Text"]
+}, Open  ]],
+
+Cell[CellGroupData[{
+
+Cell["Gravit\[ADoubleDot]t der Carets", "Section 1"],
+
+Cell[TextData[{
+  "Die Gravit\[ADoubleDot]t des Carets besagt, wohin der Cursor verschoben \
+wird, wenn Text an der Stelle des Carets eingef\[UDoubleDot]gt wird. Der \
+Wertebereich der Gravit\[ADoubleDot]t eines Carets ist {",
+  StyleBox["links",
+    FontWeight->"Bold",
+    FontSlant->"Italic"],
+  ", ",
+  StyleBox["rechts",
+    FontWeight->"Bold",
+    FontSlant->"Italic"],
+  "}. In einem normalen Textprogramm ist die Gravit\[ADoubleDot]t des Carets \
+immer ",
+  StyleBox["rechts",
+    FontWeight->"Bold",
+    FontSlant->"Italic"],
+  ". Demzufolge verschiebt sich der Caret nach rechts, wenn Text an seiner \
+Position eingef\[UDoubleDot]gt wird. Das ist auch gut so, da man den Text \
+sonst \"hinter\" den Caret schreiben w\[UDoubleDot]rde. Generell sollte in \
+jedem Textprogramm die Gravit\[ADoubleDot]t des Carets des Schreibers ",
+  StyleBox["rechts",
+    FontWeight->"Bold",
+    FontSlant->"Italic"],
+  " sein, damit nach dem Schreibevorgang der Caret am hinteren Ende des \
+geschriebenen Textes steht. Genauso geschieht es auch in DiED: Die Gravit\
+\[ADoubleDot]t des Carets des Schreibers ist ",
+  StyleBox["rechts",
+    FontWeight->"Bold",
+    FontSlant->"Italic"],
+  "."
+}], "Text"],
+
+Cell[TextData[{
+  "Die Frage bleibt nun: Stehen die Carets zweier Clienten an der gleichen \
+Stelle und einer von beiden gibt Text ein, wohin verschiebt sich dann der \
+andere Caret? Beide L\[ODoubleDot]sungen sind m\[ODoubleDot]glich, keine ist \
+falsch und beide lassen sich rationalisieren. Wir haben uns f\[UDoubleDot]r \
+die statische L\[ODoubleDot]sung entschieden. Die Gravit\[ADoubleDot]t der \
+Carets aller Clients, die nicht der Schreiber sind ist ",
+  StyleBox["links",
+    FontWeight->"Bold",
+    FontSlant->"Italic"],
+  ". Statisch hei\[SZ]t diese L\[ODoubleDot]sung deswegen, weil der Caret \
+einfach stehen bleibt."
+}], "Text"]
+}, Open  ]],
+
+Cell[CellGroupData[{
+
+Cell["Grober Ausschluss", "Section 1"],
+
+Cell["\<\
+Um nicht alle Caret Positionen modifizieren zu m\[UDoubleDot]ssen, \
+lohnt es sich Betrachtungen anzustellen, welche Carets von der Modifikation \
+ausgeschlossen werden k\[ODoubleDot]nnen. Das sind solche, deren Position vom \
+Einf\[UDoubleDot]gen des Textes nicht betroffen sind.\
+\>", "Text"],
+
+Cell[TextData[{
+  "Als erstes l\[ADoubleDot]\[SZ]t sich sehr leicht schlie\[SZ]en, dass alle \
+Carets, die \[UDoubleDot]ber dem schreibenden Caret stehen, nicht ver\
+\[ADoubleDot]ndert werden. Ist also ",
+  Cell[BoxData[
+      \(TraditionalForm\`Zeile\_C\)]],
+  " echt kleiner als ",
+  Cell[BoxData[
+      \(TraditionalForm\`Zeile\_S\)]],
+  ", so muss die Position des betrachteten Clients definitiv nicht ver\
+\[ADoubleDot]ndert werden."
+}], "Text"]
+}, Open  ]],
+
+Cell[CellGroupData[{
+
+Cell["Halber Ausschluss", "Section 1"],
+
+Cell["\<\
+Durch den groben Ausschluss haben wir im Durchschnitt bereits die H\
+\[ADoubleDot]lfte des Dokumentes von der Modifikation ausgeschlossen. Als \
+zweites lohnt sich der Blick auf den Bereich unter dem schreibenden \
+Caret.\
+\>", "Text"],
+
+Cell[TextData[{
+  "Ist ",
+  Cell[BoxData[
+      \(TraditionalForm\`Zeile\_C\)]],
+  " echt gr\[ODoubleDot]\[SZ]er als ",
+  Cell[BoxData[
+      \(TraditionalForm\`Zeile\_S\)]],
+  ", so m\[UDoubleDot]ssen wir zwar die Zeile, nicht jedoch das Zeichen des \
+Carets des betrachteten Clients ver\[ADoubleDot]ndern. ",
+  Cell[BoxData[
+      \(TraditionalForm\`Zeile\_C\)]],
+  " wird um \[CapitalDelta]Zeile ver\[ADoubleDot]ndert."
+}], "Text"]
+}, Open  ]],
+
+Cell[CellGroupData[{
+
+Cell["Der Sonderfall", "Section 1"],
+
+Cell[TextData[{
+  "Als letztes betrachten wir den Fall ",
+  Cell[BoxData[
+      \(TraditionalForm\`Zeile\_C\)]],
+  " gleich ",
+  Cell[BoxData[
+      \(TraditionalForm\`Zeile\_S\)]],
+  ". Hier spielt nun das erstemal auch die Zeichenposition eine Rolle und vor \
+allem \[CapitalDelta]Zeile und \[CapitalDelta]Zeichen."
+}], "Text"]
+}, Open  ]],
+
+Cell[CellGroupData[{
+
+Cell["Der einfach Sonderfall", "Section"],
+
+Cell[TextData[{
+  "Sollte ",
+  Cell[BoxData[
+      \(TraditionalForm\`Zeile\_C\)]],
+  " gleich ",
+  Cell[BoxData[
+      \(TraditionalForm\`Zeile\_S\)]],
+  " gelten, kann im Durchschnitt immer noch die H\[ADoubleDot]lfte der Zeile \
+vernachl\[ADoubleDot]ssigt werden, n\[ADoubleDot]mlich dann, wenn ",
+  Cell[BoxData[
+      \(TraditionalForm\`Zeichen\_C\)]],
+  " echt kleiner als ",
+  Cell[BoxData[
+      \(TraditionalForm\`Zeichen\_S\)]],
+  " ist. Die Begr\[UDoubleDot]ndung hierf\[UDoubleDot]r ist sehr einfach: \
+eine \[CapitalADoubleDot]nderung am Ende der Zeile beeinflu\[SZ]t keine \
+Position am Beginn der Zeile."
+}], "Text"]
+}, Open  ]],
+
+Cell[CellGroupData[{
+
+Cell["Der komplizierte Sonderfall", "Section"],
+
+Cell["\<\
+Kommen wir nun zu dem Fall, dass betrachteter Client und Schreiber \
+in einer Zeile stehen und die Zeichenposition des betrachteten Clients gr\
+\[ODoubleDot]\[SZ]er oder gleich der Zeichenposition des Schreibers ist. Wir \
+zerlegen auch diesen Fall noch in seine einzelnen Bestandteile:\
+\>", "Text"],
+
+Cell[CellGroupData[{
+
+Cell[TextData[{
+  Cell[BoxData[
+      \(TraditionalForm\`Zeichen\_C\)]],
+  " gleich ",
+  Cell[BoxData[
+      \(TraditionalForm\`Zeichen\_S\)]]
+}], "Subsection"],
+
+Cell[TextData[{
+  "In diesem Fall greift die Gravit\[ADoubleDot]t des Carets. Und diese ist \
+",
+  StyleBox["links",
+    FontWeight->"Bold",
+    FontSlant->"Italic"],
+  " f\[UDoubleDot]r alle Clients au\[SZ]er f\[UDoubleDot]r den Schreiber. Ist \
+also der betrachtete Client nicht der Schreiber, wird nichts getan. Ist der \
+betrachtete Client gleich dem Schreiber, so wird ",
+  Cell[BoxData[
+      \(TraditionalForm\`Zeile\_C\)]],
+  " um \[CapitalDelta]Zeile ver\[ADoubleDot]ndert."
+}], "Text"],
+
+Cell[TextData[{
+  "Wie wird ",
+  Cell[BoxData[
+      \(TraditionalForm\`Zeichen\_C\)]],
+  " ver\[ADoubleDot]ndert? Die Frage wird unten beantwortet."
+}], "Text"]
+}, Open  ]],
+
+Cell[CellGroupData[{
+
+Cell[TextData[{
+  Cell[BoxData[
+      \(TraditionalForm\`Zeichen\_C\)]],
+  " echt gr\[ODoubleDot]\[SZ]er als ",
+  Cell[BoxData[
+      \(TraditionalForm\`Zeichen\_S\)]]
+}], "Subsection"],
+
+Cell[TextData[{
+  "F\[UDoubleDot]r den Fall, dass der betrachtete Client und der Schreiber in \
+einer Zeile stehen und der betrachtete Client hinter dem Schreiber steht, \
+muss auf jeden Fall ",
+  Cell[BoxData[
+      \(TraditionalForm\`Zeile\_C\)]],
+  " um \[CapitalDelta]Zeile ver\[ADoubleDot]ndert werden."
+}], "Text"],
+
+Cell[TextData[{
+  "Die komplizierte Frage ist, was mit ",
+  Cell[BoxData[
+      \(TraditionalForm\`Zeichen\_C\)]],
+  " passiert? Die Antwort liegt hinter einer weiteren Fallunterscheidung:"
+}], "Text"],
+
+Cell[CellGroupData[{
+
+Cell["\[CapitalDelta]Zeile ist gleich Null", "Subsubsection"],
+
+Cell[TextData[{
+  "Ist die Anzahl der eingef\[UDoubleDot]gten Zeilenumbr\[UDoubleDot]che \
+gleich Null so wurden einfach \[CapitalDelta]Zeichen Zeichen vor der Position \
+des Carets eingef\[UDoubleDot]gt. ",
+  Cell[BoxData[
+      \(TraditionalForm\`Zeichen\_C\)]],
+  " muss also einfach um \[CapitalDelta]Zeichen ver\[ADoubleDot]ndert \
+werden."
+}], "Text"]
+}, Open  ]],
+
+Cell[CellGroupData[{
+
+Cell["\[CapitalDelta]Zeile ist echt gr\[ODoubleDot]\[SZ]er Null", \
+"Subsubsection"],
+
+Cell[TextData[{
+  "In diesem Fall wird es wirklich etwas komplizierter. Obwohl \
+n\[ADoubleDot]mlich Zeichen vor dem Caret eingef\[UDoubleDot]gt wurden wird \
+",
+  Cell[BoxData[
+      \(TraditionalForm\`Zeichen\_C\)]],
+  " eventuell kleiner. Zum Beispiel n\[ADoubleDot]mlich dann, wenn das letzte \
+Zeichen im einzuf\[UDoubleDot]genden Text ein Zeilenumbruch ist. In diesem \
+Fall muss ",
+  Cell[BoxData[
+      \(TraditionalForm\`Zeichen\_C\)]],
+  " um so viel zur\[UDoubleDot]ckgesetzt werden, wie Zeichen vor dem \
+Zeilenumbruch waren, also um ",
+  Cell[BoxData[
+      \(TraditionalForm\`Zeichen\_S\)]],
+  ". Es interessiert an dieser Stelle nicht mehr, wie viele Zeichen vor \
+diesem Zeilenumbruch standen, insbesondere interessiert uns auch nicht die \
+Anzahl der Zeilenumbr\[UDoubleDot]che. Was uns aber interessieren muss ist \
+die Anzahl der Zeichen nach dem letzten Zeilenumbruch, denn diese muss noch \
+dazu addiert werden. Die Anzahl der Zeichen in der letzten Zeile des einzuf\
+\[UDoubleDot]genden Textes ist \[CapitalDelta]Zeichen. Es muss ",
+  Cell[BoxData[
+      \(TraditionalForm\`Zeichen\_C\)]],
+  " also um \[CapitalDelta]Zeichen erh\[ODoubleDot]ht werden und um ",
+  Cell[BoxData[
+      \(TraditionalForm\`Zeichen\_S\)]],
+  " vermindert."
+}], "Text"]
+}, Open  ]]
+}, Open  ]]
+}, Open  ]]
+},
+FrontEndVersion->"5.0 for X",
+ScreenRectangle->{{0, 1152}, {0, 864}},
+WindowSize->{946, 784},
+WindowMargins->{{0, Automatic}, {Automatic, 0}},
+StyleDefinitions -> "Report.nb"
+]
+
+(*******************************************************************
+Cached data follows.  If you edit this Notebook file directly, not
+using Mathematica, you must remove the line containing CacheID at
+the top of  the file.  The cache data will then be recreated when
+you save this file from within Mathematica.
+*******************************************************************)
+
+(*CellTagsOutline
+CellTagsIndex->{}
+*)
+
+(*CellTagsIndex
+CellTagsIndex->{}
+*)
+
+(*NotebookFileOutline
+Notebook[{
+Cell[1754, 51, 383, 7, 75, "Text"],
+Cell[2140, 60, 269, 7, 138, "Text"],
+
+Cell[CellGroupData[{
+Cell[2434, 71, 68, 0, 70, "Section 1"],
+Cell[2505, 73, 637, 11, 117, "Text"]
+}, Open  ]],
+
+Cell[CellGroupData[{
+Cell[3179, 89, 63, 0, 70, "Section 1"],
+Cell[3245, 91, 591, 13, 96, "Text"]
+}, Open  ]],
+
+Cell[CellGroupData[{
+Cell[3873, 109, 73, 0, 70, "Section 1"],
+Cell[3949, 111, 329, 10, 54, "Text"]
+}, Open  ]],
+
+Cell[CellGroupData[{
+Cell[4315, 126, 52, 0, 70, "Section 1"],
+Cell[4370, 128, 1194, 30, 159, "Text"],
+Cell[5567, 160, 642, 12, 96, "Text"]
+}, Open  ]],
+
+Cell[CellGroupData[{
+Cell[6246, 177, 38, 0, 70, "Section 1"],
+Cell[6287, 179, 304, 5, 75, "Text"],
+Cell[6594, 186, 450, 11, 75, "Text"]
+}, Open  ]],
+
+Cell[CellGroupData[{
+Cell[7081, 202, 38, 0, 70, "Section 1"],
+Cell[7122, 204, 245, 5, 54, "Text"],
+Cell[7370, 211, 434, 12, 54, "Text"]
+}, Open  ]],
+
+Cell[CellGroupData[{
+Cell[7841, 228, 35, 0, 70, "Section 1"],
+Cell[7879, 230, 329, 9, 54, "Text"]
+}, Open  ]],
+
+Cell[CellGroupData[{
+Cell[8245, 244, 41, 0, 67, "Section"],
+Cell[8289, 246, 631, 17, 75, "Text"]
+}, Open  ]],
+
+Cell[CellGroupData[{
+Cell[8957, 268, 46, 0, 67, "Section"],
+Cell[9006, 270, 310, 5, 75, "Text"],
+
+Cell[CellGroupData[{
+Cell[9341, 279, 160, 6, 39, "Subsection"],
+Cell[9504, 287, 495, 12, 75, "Text"],
+Cell[10002, 301, 161, 5, 33, "Text"]
+}, Open  ]],
+
+Cell[CellGroupData[{
+Cell[10200, 311, 185, 6, 39, "Subsection"],
+Cell[10388, 319, 320, 7, 54, "Text"],
+Cell[10711, 328, 201, 5, 54, "Text"],
+
+Cell[CellGroupData[{
+Cell[10937, 337, 61, 0, 30, "Subsubsection"],
+Cell[11001, 339, 357, 8, 54, "Text"]
+}, Open  ]],
+
+Cell[CellGroupData[{
+Cell[11395, 352, 84, 1, 30, "Subsubsection"],
+Cell[11482, 355, 1268, 27, 180, "Text"]
+}, Open  ]]
+}, Open  ]]
+}, Open  ]]
+}
+]
+*)
+
+
+
+(*******************************************************************
+End of Mathematica Notebook file.
+*******************************************************************)
+
