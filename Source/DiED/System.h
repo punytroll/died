@@ -43,7 +43,7 @@ namespace DiED
 		// signals
 		sigc::signal< void, DiED::Client & > ClientConnected;
 	protected:
-		void vSendMessage(boost::shared_ptr< DiED::BasicMessage > Message);
+		void vSendMessage(boost::shared_ptr< DiED::BasicMessage > Message, bool bSendOnlyToConnected = false);
 		void vInsertText(DiED::User & User, const Glib::ustring & sString, bool bWriteToEnvironment);
 		virtual void vAccepted(boost::shared_ptr< Network::MessageStream > MessageStream);
 	private:
