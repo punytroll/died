@@ -12,7 +12,7 @@ libdied_a_SOURCES = \
 	Messages.cxx \
 	Server.cxx
 
-EXTRA_dist = \
+EXTRA_DIST = \
 	Client.h \
 	ClientFactory.h \
 	MessageFactory.h \
