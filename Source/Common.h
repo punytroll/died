@@ -23,10 +23,10 @@ enum LogLevel
 	Object,
 	Verbose,
 	TODO,
-	LogLevels
+	NumberOfLogLevels
 };
 
-extern bool g_bLogLevels[LogLevels];
+extern bool g_bLogLevels[NumberOfLogLevels];
 
 #include <iomanip>
 
@@ -43,6 +43,7 @@ std::string sLogLevelToString(LogLevel LogLevel);
 
 #else
 
+// define all logging to nothing :)
 #define LOG(LEVEL, SCOPE, MESSAGE)
 #define LOG_NO_NL(LEVEL, SCOPE, MESSAGE)
 #define LOG_PURE(LEVEL, SCOPE, MESSAGE)

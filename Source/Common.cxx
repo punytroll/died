@@ -5,7 +5,7 @@
 #include <iostream>
 
 #ifndef NODEBUG
-bool g_bLogLevels[LogLevels] = { true, true, true, true, true, true };
+bool g_bLogLevels[NumberOfLogLevels] = { false, false, false, false, false, false, false, false, false };
 #endif
 
 std::string sErrorCodeToString(int iError)
@@ -88,7 +88,7 @@ std::string sLogLevelToString(LogLevel LogLevel)
 		return "Verbose";
 	case TODO:
 		return "TODO";
-	case LogLevels:
+	case NumberOfLogLevels:
 		{
 			std::cerr << "Wrong LogLevel specified." << std::endl;
 			
