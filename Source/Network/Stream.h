@@ -29,6 +29,7 @@ namespace Network
 		void vRead(Network::BasicValue & Value);
 		virtual void vOnIn(void);
 		virtual void vOnOut(void);
+		virtual void vBytesSent(size_t stSize);
 	private:
 		u_int8_t * m_pu8Buffer;
 		Network::CircularBuffer m_IBuffer;

@@ -31,7 +31,7 @@ namespace DiED
 		void vConnectionEstablished(const DiED::clientid_t & ClientID, const Network::address_t & ClientAddress, const Network::port_t & ClientPort);
 		
 		// messages
-		DiED::Client & operator<<(const Network::BasicMessage & Message);
+		DiED::Client & operator<<(boost::shared_ptr< Network::BasicMessage > Message);
 		
 		u_int32_t m_u32KnownClientsMessageID;
 		

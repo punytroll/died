@@ -108,11 +108,11 @@ void DiED::Client::vExecuteTopMessage(void)
 	MessageStream->pop_front();
 }
 
-DiED::Client & DiED::Client::operator<<(const Network::BasicMessage & Message)
+DiED::Client & DiED::Client::operator<<(boost::shared_ptr< Network::BasicMessage > Message)
 {
 	if(m_MessageStream.get() != 0)
 	{
-		m_MessageStream->operator<<(Message);
+		m_MessageStream->operator<<(*Message);
 	}
 	
 	return *this;

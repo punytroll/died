@@ -264,7 +264,7 @@ void DiED::PingMessage::vWriteToInternal(Network::Stream & Stream) const
 
 void DiED::PingMessage::vExecute(DiED::Client & Client)
 {
-	Client << DiED::PongMessage();
+	Client << boost::shared_ptr< Network::BasicMessage >(new DiED::PongMessage());
 }
 
 Glib::ustring DiED::PingMessage::sGetString(void)
