@@ -399,7 +399,7 @@ void DiED::System::vConnectionEstablished(DiED::User & User, const DiED::clienti
 				MessageStream->vOpen(ClientAddress, ClientPort);
 				if(MessageStream->bIsOpen() == false)
 				{
-					std::cout << "[Client]: Connection failed. TODO: Send ConnectionLostMessage." << std::endl;
+					vSendMessage(boost::shared_ptr< DiED::BasicMessage >(new ConnectionLostMessage(Client->GetClientID(), ClientAddress, ClientPort)), true);
 				}
 				else
 				{
@@ -425,7 +425,7 @@ void DiED::System::vConnectionLost(DiED::User & User, const DiED::clientid_t & C
 	case DiED::User::Disconnected:
 		{
 			// if we are disconnected to the specific client
-			if((ClientAddress != Client->GetAddress()) || ((ClientPort != 0) && (ClientPort != Client->GetPort())))
+			if((ClientPort != 0) && ((ClientAddress != Client->GetAddress()) || ClientPort != Client->GetPort()))
 			{
 				// only if something in the connection parameters changed we will retry a connection
 				boost::shared_ptr< Network::MessageStream > MessageStream(new Network::MessageStream(m_MessageFactory));
@@ -433,7 +433,7 @@ void DiED::System::vConnectionLost(DiED::User & User, const DiED::clientid_t & C
 				MessageStream->vOpen(ClientAddress, ClientPort);
 				if(MessageStream->bIsOpen() == false)
 				{
-					std::cout << "[Client]: Connecting to " << ClientAddress << ':' << ClientPort << " failed." << std::endl;
+					std::cout << "[Client]: Connecting to " << ClientAddress << ':' << ClientPort << " failed. " << __FILE__ << __LINE__ << std::endl;
 					vSendMessage(boost::shared_ptr< DiED::BasicMessage >(new DiED::ConnectionLostMessage(Client->GetClientID(), ClientAddress, ClientPort)), true);
 				}
 				else
