@@ -67,19 +67,14 @@ void Network::Stream::vOpen(const Network::address_t & ConnectAddress, const Net
 			return;
 		}
     }
-	if(::fcntl(m_iSocket, F_SETFL, O_NONBLOCK) == -1)
-	{
-		vClose();
-		vGetError();
-		
-		return;
-	}
+	std::cout << "Beginning ::connect. This may block for some time." << std::endl;
 	if(::connect(m_iSocket, &SocketAddress, sizeof(sockaddr_in)) == -1)
 	{
 		vGetError();
 		if(m_iError != EINPROGRESS)
 		{
 			vClose();
+			std::cout << "Ended ::connect." << std::endl;
 			
 			return;
 		}
@@ -88,6 +83,14 @@ void Network::Stream::vOpen(const Network::address_t & ConnectAddress, const Net
 			m_bConnectingInProgress = true;
 			vRequestOnOut();
 		}
+	}
+	std::cout << "Ended ::connect." << std::endl;
+	if(::fcntl(m_iSocket, F_SETFL, O_NONBLOCK) == -1)
+	{
+		vClose();
+		vGetError();
+		
+		return;
 	}
 	OnConnected();
 	m_bOnDisconnected = true;
