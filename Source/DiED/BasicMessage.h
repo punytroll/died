@@ -21,6 +21,7 @@ namespace DiED
 		virtual Glib::ustring sGetString(void) = 0;
 		virtual bool bIsEventMessage(void);
 		virtual bool bRequiresConfirmation(void);
+		virtual bool bOnTimeout(DiED::MessageTarget * pMessageTarget);
 	};
 }
 

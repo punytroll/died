@@ -140,6 +140,7 @@ namespace DiED
 		virtual Glib::ustring sGetString(void);
 		virtual bool bRequiresConfirmation(void);
 		virtual bool bIsConfirmedBy(boost::shared_ptr< DiED::ConfirmationParameters > ConfirmationParameters);
+		virtual bool bOnTimeout(DiED::MessageTarget * pMessageTarget);
 	private:
 		Network::Value< DiED::messageid_t > m_PingID;
 	};
