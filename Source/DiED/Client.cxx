@@ -95,7 +95,14 @@ void DiED::Client::vOnMessageExecuted(void)
 
 void DiED::Client::vExecuteTopMessage(void)
 {
-	boost::shared_ptr< Network::BasicMessage > Message(m_MessageStream->front());
+	std::deque< boost::shared_ptr< Network::BasicMessage > >::iterator iMessage(m_MessageStream->begin());
+	
+	if(iMessage == m_MessageStream->end())
+	{
+		return;
+	}
+	
+	boost::shared_ptr< Network::BasicMessage > Message(*iMessage);
 	DiED::BasicMessage & DiEDMessage = dynamic_cast< DiED::BasicMessage & >(*Message);
 	
 	// this seems awkward but see below
