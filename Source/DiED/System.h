@@ -30,7 +30,7 @@ namespace DiED
 		// implementation of the InternalEnvironment interface
 		virtual void vConnectionRequest(DiED::User & User, const DiED::clientid_t & ClientID, const Network::port_t & Port);
 		virtual void vConnectionAccept(DiED::User & User, const DiED::clientid_t & AccepterClientID, const DiED::clientid_t & RequesterClientID);
-		virtual void vKnownClients(DiED::User & User, const DiED::messageid_t & MessageID, const std::vector< DiED::clientid_t > & ConnectedClientIDs, const std::vector< DiED::clientid_t > & DisconnectedClientIDs);
+		virtual void vKnownClients(DiED::User & User, const DiED::messageid_t & MessageID, const std::vector< ClientInfo > & ClientInfos);
 		virtual void vClientsRegistered(DiED::User & User, const DiED::messageid_t & MessageID);
 		virtual void vConnectionEstablished(DiED::User & User, const DiED::clientid_t & ClientID, const Network::address_t & ClientAddress, const Network::port_t & ClientPort);
 		virtual void vConnectionLost(DiED::User & User, const DiED::clientid_t & ClientID, const Network::address_t & ClientAddress, const Network::port_t & ClientPort);
@@ -39,6 +39,7 @@ namespace DiED
 		// helper functions
 		virtual std::set< DiED::clientid_t > GetConnectedClientIDs(void);
 		virtual std::set< DiED::clientid_t > GetDisconnectedClientIDs(void);
+		virtual std::vector< DiED::ClientInfo > GetClientInfos(void);
 		virtual DiED::clientstatus_t GetStatus(const DiED::clientid_t & ClientID1, const DiED::clientid_t & ClientID2);
 		virtual DiED::Client * pGetClient(const DiED::clientid_t & ClientID);
 		

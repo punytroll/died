@@ -328,39 +328,64 @@ void DiED::System::vConnectionAccept(DiED::User & User, const DiED::clientid_t &
 	std::cout << "           ConnectionAccept message from " << User.GetID() << '\n' << std::endl;
 }
 
-void DiED::System::vKnownClients(DiED::User & User, const DiED::messageid_t & MessageID, const std::vector< DiED::clientid_t > & ConnectedClientIDs, const std::vector< DiED::clientid_t > & DisconnectedClientIDs)
+void DiED::System::vKnownClients(DiED::User & User, const DiED::messageid_t & MessageID, const std::vector< ClientInfo > & ClientInfos)
 {
 	std::cout << "Processing KnownClients message from " << User.GetID() << std::endl;
 	
 	// iterating through the connected list to set the status of the sender to the client ID appropriately
-	std::vector< DiED::clientid_t >::const_iterator iClient(ConnectedClientIDs.begin());
+	std::vector< DiED::ClientInfo >::const_iterator iClientInfo(ClientInfos.begin());
 	
-	while(iClient != ConnectedClientIDs.end())
+	while(iClientInfo != ClientInfos.end())
 	{
-		boost::shared_ptr< DiED::Client > Client(RegisterClient(boost::shared_ptr< DiED::Client >(), *iClient));
+		boost::shared_ptr< DiED::Client > Client;
 		
-		if(Client.get() == 0)
+		if(pGetClient(iClientInfo->ClientID) == 0)
 		{
-			std::cout << "VERY BAD: " << __FILE__ << ':' << __LINE__ << ": ClientID = " << *iClient << std::endl;
+			Client = RegisterClient(boost::shared_ptr< DiED::Client >(), iClientInfo->ClientID);
+			if(Client.get() == 0)
+			{
+				std::cout << "VERY BAD: " << __FILE__ << ':' << __LINE__ << ": ClientID = " << iClientInfo->ClientID << std::endl;
+			}
+			Client->vSetEventCounter(iClientInfo->EventCounter);
+			// TODO: uncomment these lines, once we transmit the document.
+//~ 			Client->vSetLine(iClientInfo->iLine);
+//~ 			Client->vSetCharacter(iClientInfo->iCharacter);
+			std::cout << "[DiED/System]: New client " << iClientInfo->ClientID << " is ";
 		}
-		// RegisterClient will give a client that is Disconnected to ALL clients.
-		vSetStatus(User.GetID(), Client->GetID(), DiED::Connected);
-		++iClient;
-	}
-	iClient = DisconnectedClientIDs.begin();
-	while(iClient != DisconnectedClientIDs.end())
-	{
-		boost::shared_ptr< DiED::Client > Client(RegisterClient(boost::shared_ptr< DiED::Client >(), *iClient));
-		
-		if(Client.get() == 0)
+		else
 		{
-			std::cout << "VERY BAD: " << __FILE__ << ':' << __LINE__ << ": ClientID = " << *iClient << std::endl;
+			Client = RegisterClient(boost::shared_ptr< DiED::Client >(), iClientInfo->ClientID);
+			if(Client.get() == 0)
+			{
+				std::cout << "VERY BAD: " << __FILE__ << ':' << __LINE__ << ": ClientID = " << iClientInfo->ClientID << std::endl;
+			}
+			if(iClientInfo->Status == DiED::Deleted)
+			{
+				Client->vSetEventCounter(iClientInfo->EventCounter);
+				// TODO: uncomment these lines, once we transmit the document.
+//~ 				Client->vSetLine(iClientInfo->iLine);
+//~ 				Client->vSetCharacter(iClientInfo->iCharacter);
+			}
+			std::cout << "[DiED/System]: Known client " << iClientInfo->ClientID << " is ";
 		}
-		++iClient;
+		std::cout << sStatusToString(iClientInfo->Status) << " to client " << User.GetID() << std::endl;
+		if(iClientInfo->Status != DiED::Deleted)
+		{
+			vSetStatus(User.GetID(), Client->GetID(), iClientInfo->Status);
+		}
+		else
+		{
+			vSetStatus(User.GetID(), Client->GetID(), DiED::Disconnected);
+		}
+		++iClientInfo;
 	}
 	
 	boost::shared_ptr< DiED::Client > Client(m_Clients.find(User.GetID())->second);
 	
+	if(Client.get() == 0)
+	{
+		std::cout << "VERY BAD: " << __FILE__ << ':' << __LINE__ << ": ClientID = " << iClientInfo->ClientID << std::endl;
+	}
 	if(MessageID == 0)
 	{
 		Client->vKnownClients();
@@ -629,13 +654,46 @@ std::set< DiED::clientid_t > DiED::System::GetDisconnectedClientIDs(void)
 	return m_Client->GetDisconnectedClientIDs();
 }
 
-DiED::clientstatus_t DiED::System::GetStatus(const DiED::clientid_t & ClientID1, const DiED::clientid_t & ClientID2)
+std::vector< DiED::ClientInfo > DiED::System::GetClientInfos(void)
 {
-	boost::shared_ptr< DiED::Client > Client2;
+	std::map< DiED::clientid_t, boost::shared_ptr< DiED::Client > >::iterator iClient(m_Clients.begin());
+	std::vector< DiED::ClientInfo > ClientInfos;
 	
+	while(iClient != m_Clients.end())
+	{
+		ClientInfos.push_back(iClient->second->GetClientInfo());
+		++iClient;
+	}
+	
+	return ClientInfos;
+}
+
+DiED::clientstatus_t DiED::System::GetStatus(const DiED::clientid_t & _ClientID1, const DiED::clientid_t & _ClientID2)
+{
+	boost::shared_ptr< DiED::Client > Client1;
+	boost::shared_ptr< DiED::Client > Client2;
+	DiED::clientid_t ClientID1(_ClientID1);
+	DiED::clientid_t ClientID2(_ClientID2);
+	
+	if(ClientID1 == 0)
+	{
+		Client1 = m_Client;
+		ClientID1 = m_Client->GetID();
+	}
+	else
+	{
+		std::map< DiED::clientid_t, boost::shared_ptr< DiED::Client > >::iterator iClient(m_Clients.find(ClientID1));
+		
+		if(iClient == m_Clients.end())
+		{
+			return DiED::Deleted;
+		}
+		Client1 = iClient->second;
+	}
 	if(ClientID2 == 0)
 	{
 		Client2 = m_Client;
+		ClientID2 = m_Client->GetID();
 	}
 	else
 	{
@@ -646,6 +704,10 @@ DiED::clientstatus_t DiED::System::GetStatus(const DiED::clientid_t & ClientID1,
 			return DiED::Deleted;
 		}
 		Client2 = iClient->second;
+	}
+	if((Client1.get() == 0) || (Client2.get() == 0) || (Client1 == Client2))
+	{
+		return DiED::Deleted;
 	}
 	
 	return Client2->GetStatus(ClientID1);

@@ -141,36 +141,21 @@ DiED::KnownClientsMessage::KnownClientsMessage(void) :
 	DiED::BasicMessage(DiED::_KnownClientsMessage)
 {
 	vRegisterValue(m_MessageID);
-	vRegisterValue(m_ConnectedClientIDs);
-	vRegisterValue(m_DisconnectedClientIDs);
+	vRegisterValue(m_ClientInfos);
 }
 
-DiED::KnownClientsMessage::KnownClientsMessage(u_int32_t u32MessageID, std::vector< DiED::clientid_t > ConnectedClientIDs, std::vector< DiED::clientid_t > DisconnectedClientIDs) :
+DiED::KnownClientsMessage::KnownClientsMessage(DiED::messageid_t MessageID, std::vector< DiED::ClientInfo > ClientInfos) :
 	DiED::BasicMessage(DiED::_KnownClientsMessage),
-	m_MessageID(u32MessageID),
-	m_ConnectedClientIDs(ConnectedClientIDs),
-	m_DisconnectedClientIDs(DisconnectedClientIDs)
+	m_MessageID(MessageID),
+	m_ClientInfos(ClientInfos)
 {
 	vRegisterValue(m_MessageID);
-	vRegisterValue(m_ConnectedClientIDs);
-	vRegisterValue(m_DisconnectedClientIDs);
-}
-
-DiED::KnownClientsMessage::KnownClientsMessage(u_int32_t u32MessageID, std::set< DiED::clientid_t > ConnectedClientIDs, std::set< DiED::clientid_t > DisconnectedClientIDs) :
-	DiED::BasicMessage(DiED::_KnownClientsMessage),
-	m_MessageID(u32MessageID),
-	m_ConnectedClientIDs(ConnectedClientIDs),
-	m_DisconnectedClientIDs(DisconnectedClientIDs)
-{
-	vRegisterValue(m_MessageID);
-	vRegisterValue(m_ConnectedClientIDs);
-	vRegisterValue(m_DisconnectedClientIDs);
+	vRegisterValue(m_ClientInfos);
 }
 
 void DiED::KnownClientsMessage::vExecute(DiED::MessageTarget & MessageTarget)
 {
-//~ 	std::cout << "KnownClientsMessage [MessageID = " << m_MessageID << " ; #Connected = " << m_ConnectedClientIDs.size() << " ; #Disconnected = " << m_DisconnectedClientIDs.size() << "]" << std::endl;
-	MessageTarget.vHandleKnownClients(m_MessageID, m_ConnectedClientIDs, m_DisconnectedClientIDs);
+	MessageTarget.vHandleKnownClients(m_MessageID, m_ClientInfos);
 }
 
 bool DiED::KnownClientsMessage::bRequiresConfirmation(void)
@@ -251,7 +236,7 @@ Glib::ustring DiED::KnownClientsMessage::sGetString(void)
 {
 	std::stringstream ssString;
 	
-	ssString << "KnownClients [MessageID = " << m_MessageID << " ; #Connected = " << m_ConnectedClientIDs.size() << " ; #Disconnected = " << m_DisconnectedClientIDs.size() << "]";
+	ssString << "KnownClients [MessageID = " << m_MessageID << " ; #Clients = " << m_ClientInfos.size() << "]";
 	
 	return ssString.str();
 }
