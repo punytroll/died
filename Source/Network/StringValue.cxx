@@ -33,14 +33,14 @@ size_t Network::StringValue::stGetSize(void) const
 	return m_String.bytes() + 1;
 }
 
-void Network::StringValue::vReadFrom(boost::shared_ptr< Network::BasicReader > Reader)
+void Network::StringValue::vReadFrom(Network::BasicReader & Reader)
 {
-	vSetReady(Reader->bRead(m_String));
+	vSetReady(Reader.bRead(m_String));
 }
 
-void Network::StringValue::vWriteTo(boost::shared_ptr< Network::BasicWriter > Writer) const
+void Network::StringValue::vWriteTo(Network::BasicWriter & Writer) const
 {
-	Writer->bWrite(m_String);
+	Writer.bWrite(m_String);
 }
 
 Network::StringValue::operator const Glib::ustring &(void) const

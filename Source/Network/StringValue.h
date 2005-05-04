@@ -29,8 +29,8 @@ namespace Network
 		StringValue(void);
 		StringValue(const Glib::ustring & Value);
 		virtual size_t stGetSize(void) const;
-		virtual void vReadFrom(boost::shared_ptr< Network::BasicReader > Reader);
-		virtual void vWriteTo(boost::shared_ptr< Network::BasicWriter > Writer) const;
+		virtual void vReadFrom(Network::BasicReader & Reader);
+		virtual void vWriteTo(Network::BasicWriter & Writer) const;
 		operator const Glib::ustring &(void) const;
 		const Glib::ustring & Get(void) const;
 	protected:

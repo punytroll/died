@@ -35,8 +35,8 @@ namespace Network
 		virtual ~BasicValue(void);
 		bool bIsReady(void) const;
 		virtual size_t stGetSize(void) const;
-		virtual void vReadFrom(boost::shared_ptr< Network::BasicReader > Reader) = 0;
-		virtual void vWriteTo(boost::shared_ptr< Network::BasicWriter > Writer) const = 0;
+		virtual void vReadFrom(Network::BasicReader & Reader) = 0;
+		virtual void vWriteTo(Network::BasicWriter & Writer) const = 0;
 		
 		sigc::signal< void > Ready;
 	protected:

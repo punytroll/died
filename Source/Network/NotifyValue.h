@@ -36,12 +36,12 @@ namespace Network
 		{
 		}
 		
-		virtual void vReadFrom(boost::shared_ptr< Network::BasicReader > Reader)
+		virtual void vReadFrom(Network::BasicReader & Reader)
 		{
 			vSetReady(true);
 		}
 		
-		virtual void vWriteTo(boost::shared_ptr< Network::BasicWriter > Writer) const
+		virtual void vWriteTo(Network::BasicWriter & Writer) const
 		{
 		}
 	};
