@@ -30,16 +30,6 @@ Network::CircularBuffer::CircularBuffer(size_t stSize) :
 {
 }
 
-boost::shared_ptr< Network::BufferReader > Network::CircularBuffer::GetReader(void)
-{
-	return boost::shared_ptr< Network::BufferReader >(new BufferReader(*this));
-}
-
-boost::shared_ptr< Network::BufferWriter > Network::CircularBuffer::GetWriter(void)
-{
-	return boost::shared_ptr< Network::BufferWriter >(new BufferWriter(*this));
-}
-
 size_t Network::CircularBuffer::stGetCapacity(void)
 {
 	return m_pu8StorageEnd - m_pu8StorageBegin;
@@ -55,11 +45,6 @@ size_t Network::CircularBuffer::stGetSize(void)
 	{
 		return (m_pu8StorageEnd - m_pu8DataBegin) + (m_pu8DataEnd - m_pu8StorageBegin);
 	}
-}
-
-size_t Network::CircularBuffer::stGetFree(void)
-{
-	return stGetCapacity() - stGetSize();
 }
 
 size_t Network::CircularBuffer::stRead(u_int8_t * pu8Memory, size_t stSize)

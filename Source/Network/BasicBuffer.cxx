@@ -16,53 +16,22 @@
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
  */
 
-#ifndef VALUE_H
-#define VALUE_H
+#include "BasicBuffer.h"
 
-#include <Common.h>
+#include "BufferReader.h"
+#include "BufferWriter.h"
 
-#include "BasicValue.h"
-
-namespace Network
+Network::BasicBuffer::size_type Network::BasicBuffer::stGetFree(void)
 {
-	template < typename Type >
-	class Value : public Network::BasicValue
-	{
-	public:
-		Value(void) :
-			m_Value()
-		{
-		}
-		
-		Value(const Type & Value) :
-			m_Value(Value)
-		{
-		}
-		
-		virtual size_t stGetSize(void) const
-		{
-			LOG(Verbose, "Network/Value", std::string(typeid(Type).name()) << ": " << sizeof(Type));
-			
-			return sizeof(Type);
-		}
-		
-		operator const Type &(void) const
-		{
-			return m_Value;
-		}
-		
-		virtual void vReadFrom(Network::BasicReader & Reader)
-		{
-			vSetReady(Reader.bRead(m_Value));
-		}
-		
-		virtual void vWriteTo(Network::BasicWriter & Writer) const
-		{
-			Writer.bWrite(m_Value);
-		}
-	protected:
-		Type m_Value;
-	};
+	return stGetCapacity() - stGetSize();
 }
 
-#endif
+Network::BufferReader Network::BasicBuffer::GetReader(void)
+{
+	return BufferReader(*this);
+}
+
+Network::BufferWriter Network::BasicBuffer::GetWriter(void)
+{
+	return BufferWriter(*this);
+}

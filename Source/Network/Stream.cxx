@@ -27,6 +27,8 @@
 #include <iostream>
 
 #include "../Common.h"
+#include "BufferWriter.h"
+#include "BufferReader.h"
 
 const size_t g_stInitialBufferSize = 32687;
 
@@ -167,7 +169,9 @@ Network::Stream & Network::Stream::operator>>(Network::BasicValue & Value)
 
 Network::Stream & Network::Stream::operator<<(const Network::BasicValue & Value)
 {
-	Value.vWriteTo(m_OBuffer.GetWriter());
+	Network::BufferWriter Writer(m_OBuffer.GetWriter());
+	
+	Value.vWriteTo(Writer);
 	
 	return *this;
 }
@@ -288,5 +292,7 @@ void Network::Stream::vOnOut(void)
 
 void Network::Stream::vRead(Network::BasicValue & Value)
 {
-	Value.vReadFrom(m_IBuffer.GetReader());
+	Network::BufferReader Reader(m_IBuffer.GetReader());
+	
+	Value.vReadFrom(Reader);
 }

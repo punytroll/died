@@ -23,13 +23,22 @@
 
 namespace Network
 {
+	class BufferReader;
+	class BufferWriter;
+	
 	class BasicBuffer
 	{
 	public:
-		static const size_t npos = 0xFFFFFFFF;
-		virtual size_t stGetSize(void) = 0;
-		virtual size_t stRead(u_int8_t * pu8Memory, size_t stSize) = 0;
-		virtual void vWrite(const u_int8_t * pu8Memory, size_t stSize) = 0;
+		typedef size_t size_type;
+		
+		static const size_type npos = 0xFFFFFFFF;
+		virtual size_type stGetCapacity(void) = 0;
+		virtual size_type stGetSize(void) = 0;
+		virtual size_type stGetFree(void);
+		virtual size_type stRead(u_int8_t * pu8Memory, size_type stSize) = 0;
+		virtual void vWrite(const u_int8_t * pu8Memory, size_type stSize) = 0;
+		Network::BufferReader GetReader(void);
+		Network::BufferWriter GetWriter(void);
 	};
 }
 

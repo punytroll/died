@@ -58,11 +58,11 @@ namespace Network
 			return sizeof(size_t) + size() * sizeof(Type);
 		}
 		
-		virtual void vReadFrom(boost::shared_ptr< Network::BasicReader > Reader)
+		virtual void vReadFrom(Network::BasicReader & Reader)
 		{
 			if(m_stSize == 0)
 			{
-				if(Reader->bRead(m_stSize) == true)
+				if(Reader.bRead(m_stSize) == true)
 				{
 					if(m_stSize == 0)
 					{
@@ -80,7 +80,7 @@ namespace Network
 			{
 				Type Value;
 				
-				if(Reader->bRead(&Value, sizeof(Type)) == true)
+				if(Reader.bRead(&Value, sizeof(Type)) == true)
 				{
 					push_back(Value);
 				}
@@ -92,17 +92,17 @@ namespace Network
 			vSetReady(true);
 		}
 		
-		virtual void vWriteTo(boost::shared_ptr< Network::BasicWriter > Writer) const
+		virtual void vWriteTo(Network::BasicWriter & Writer) const
 		{
 			// TODO: Problem of reentrance when the buffer was full last time
-			Writer->bWrite(size());
+			Writer.bWrite(size());
 			
 			typename std::vector< Type >::const_iterator iValue(begin());
 			
 			while(iValue != end())
 			{
 				// Write returns false if nothing is written -> abort and wait for reentrance
-				Writer->bWrite(&*iValue, sizeof(Type));
+				Writer.bWrite(&*iValue, sizeof(Type));
 				++iValue;
 			}
 		}

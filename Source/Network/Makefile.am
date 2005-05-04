@@ -6,6 +6,7 @@ noinst_LIBRARIES = \
 	libnetwork.a
 
 libnetwork_a_SOURCES = \
+	BasicBuffer.cxx \
 	BasicMessage.cxx \
 	BasicValue.cxx \
 	BufferReader.cxx \

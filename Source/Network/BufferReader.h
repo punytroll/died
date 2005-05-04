@@ -23,7 +23,7 @@
 #include "BasicReader.h"
 
 namespace Network
-{	
+{
 	class BufferReader : public Network::BasicReader
 	{
 	public:

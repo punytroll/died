@@ -30,6 +30,11 @@ namespace Network
 	typedef Glib::ustring address_t;
 	typedef u_int16_t port_t;
 	
+	/**
+	 * @brief A class encapsulating a socket.
+	 * 
+	 * This class provides C++ access to standard UNIX sockets.
+	 **/
 	class Socket : virtual public sigc::trackable
 	{
 	public:
