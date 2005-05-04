@@ -25,7 +25,7 @@
 #include <boost/shared_ptr.hpp>
 
 #include "BasicValue.h"
-#include "CircularBuffer.h"
+#include "CircularBufferStd.h"
 #include "Socket.h"
 
 namespace Network
