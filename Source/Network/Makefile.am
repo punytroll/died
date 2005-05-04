@@ -12,6 +12,7 @@ libnetwork_a_SOURCES = \
 	BufferReader.cxx \
 	BufferWriter.cxx \
 	CircularBuffer.cxx \
+	CircularBufferStd.cxx \
 	MessageStream.cxx \
 	Socket.cxx \
 	Stream.cxx \
@@ -31,6 +32,7 @@ EXTRA_DIST = \
 	BufferReader.h \
 	BufferWriter.h \
 	CircularBuffer.h \
+	CircularBufferStd.h \
 	MessageFactory.h \
 	MessageStream.h \
 	NotifyValue.h \
