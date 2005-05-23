@@ -98,7 +98,7 @@ GUI::MainWindow::MainWindow(DiED::System & System, bool bShowMessageList) :
 	m_Notebook.show();
 	m_Pane.show();
 	m_Pane.pack1(*pScrolledWindow, true, true);
-	m_Pane.pack2(m_Notebook, true, true);
+	m_Pane.pack2(m_Notebook, false, false);
 	add(m_Pane);
 #else
 	add(*pScrolledWindow);
