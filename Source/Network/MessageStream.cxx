@@ -68,6 +68,12 @@ Network::MessageStream & Network::MessageStream::operator<<(const Network::Basic
 	return *this;
 }
 
+void Network::MessageStream::vOnDisconnected(void)
+{
+	Network::Stream::vOnDisconnected();
+	OnDisconnected();
+}
+
 void Network::MessageStream::vMessageTypeReady(void)
 {
 //~ 	std::cout << "MessageType " << m_MessageType << " read." << std::endl;

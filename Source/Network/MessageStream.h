@@ -37,12 +37,18 @@ namespace Network
 		MessageStream(int iSocket, boost::shared_ptr< Network::MessageFactory > MessageFactory);
 		MessageStream & operator>>(boost::shared_ptr< Network::BasicMessage > Message);
 		MessageStream & operator<<(const Network::BasicMessage & Message);
+		
+		sigc::signal< void > OnDisconnected;
+		
 		sigc::signal< void > MessageBegin;
 		sigc::signal< void > MessageReady;
 	private:
 		// no copy and assignment for streams
 		MessageStream(const MessageStream & MessageStream);
 		MessageStream & operator=(const MessageStream & MessageStream);
+		
+		// override vOnDisconnected from Network::Socket
+		void vOnDisconnected(void);
 		
 		void vMessageTypeReady(void);
 		void vMessageReady(void);
