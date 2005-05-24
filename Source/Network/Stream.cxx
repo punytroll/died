@@ -155,7 +155,7 @@ void Network::Stream::vOpen(const Network::address_t & ConnectAddress, const Net
 		return;
 	}
 	LOG(Debug, "Network/Socket",  __FILE__ << ':' << __LINE__ << " Ended ::connect.");
-	OnConnected();
+	vOnConnected();
 	m_bOnDisconnected = true;
 	vMonitor();
 }

@@ -70,7 +70,7 @@ void Network::Socket::vClose(void)
 	m_iSocket = g_iInvalidSocket;
 	if(m_bOnDisconnected == true)
 	{
-		OnDisconnected();
+		vOnDisconnected();
 	}
 }
 
@@ -136,6 +136,22 @@ bool Network::Socket::bNotify(const Glib::IOCondition & Condition)
 	}
 	
 	return true;
+}
+
+void Network::Socket::vOnConnecting(void)
+{
+}
+
+void Network::Socket::vOnConnected(void)
+{
+}
+
+void Network::Socket::vOnDisconnecting(void)
+{
+}
+
+void Network::Socket::vOnDisconnected(void)
+{
 }
 
 void Network::Socket::vOnIn(void)

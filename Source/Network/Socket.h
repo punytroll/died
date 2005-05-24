@@ -47,10 +47,6 @@ namespace Network
 		void vSetSocket(int iSocket);
 		Network::address_t GetAddress(void);
 		Network::port_t GetPort(void);
-		
-		// signals emitted after successfull connection establishing or disconnecting
-		sigc::signal< void > OnConnected;
-		sigc::signal< void > OnDisconnected;
 	protected:
 		void vMonitor(void);
 		void vRequestOnOut(void);
@@ -58,6 +54,14 @@ namespace Network
 		void vGetError(void);
 		
 		// virtual functions to make inherited classes act on socket events
+		virtual void vOnConnecting(void);
+		virtual void vOnConnected(void);
+		virtual void vOnDisconnecting(void);
+		
+		/**
+		 * @brief Virtual funtion that indicates that the socket has gone in DISCONNECTED state.
+		 **/
+		virtual void vOnDisconnected(void);
 		virtual void vOnIn(void);
 		virtual void vOnOut(void);
 		
