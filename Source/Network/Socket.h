@@ -38,6 +38,15 @@ namespace Network
 	class Socket : virtual public sigc::trackable
 	{
 	public:
+		enum Status
+		{
+			DISCONNECTED,
+			CONNECTING,
+			CONNECTED,
+			DISCONNECTING,
+			LISTENING
+		};
+		
 		Socket(void);
 		Socket(int iSocket);
 		virtual ~Socket(void);
@@ -47,6 +56,14 @@ namespace Network
 		void vSetSocket(int iSocket);
 		Network::address_t GetAddress(void);
 		Network::port_t GetPort(void);
+		
+		/**
+		 * @brief Opens a listening socket on a specified port.
+		 * @param ServicePort The port that the service should be listening on.
+		 * 
+		 * This call performs a sequence of actions necessary for setting up a listening port.
+		 **/
+		void vOpen(const Network::port_t & ServicePort);
 	protected:
 		void vMonitor(void);
 		void vRequestOnOut(void);
@@ -67,7 +84,6 @@ namespace Network
 		
 		int m_iSocket;
 		int m_iError;
-		bool m_bOnDisconnected;
 	private:
 		bool bNotify(const Glib::IOCondition & Condition);
 		Glib::RefPtr< Glib::IOSource > m_OSource;

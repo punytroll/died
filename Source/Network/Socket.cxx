@@ -19,6 +19,7 @@
 #include "Socket.h"
 
 #include <arpa/inet.h>
+#include <fcntl.h>
 #include <netinet/ip.h>
 #include <sys/socket.h>
 
@@ -30,8 +31,7 @@ const int Network::g_iInvalidSocket = -1;
 
 Network::Socket::Socket(void) :
 	m_iSocket(g_iInvalidSocket),
-	m_iError(0),
-	m_bOnDisconnected(true)
+	m_iError(0)
 {
 	LOG(Object, "Network/Socket", "Created.");
 }
@@ -68,10 +68,7 @@ void Network::Socket::vClose(void)
 	vIgnoreOnOut();
 	close(m_iSocket);
 	m_iSocket = g_iInvalidSocket;
-	if(m_bOnDisconnected == true)
-	{
-		vOnDisconnected();
-	}
+	vOnDisconnected();
 }
 
 void Network::Socket::vMonitor(void)
@@ -218,4 +215,52 @@ Network::port_t Network::Socket::GetPort(void)
 	}
 	
 	return 0;
+}
+
+void Network::Socket::vOpen(const Network::port_t & ServicePort)
+{
+	if(bIsOpen() == true)
+	{
+		return;
+	}
+	// -1 instead of g_iInvalidSocket because the two things are not connected to each other
+	if((m_iSocket = ::socket(PF_INET, SOCK_STREAM, 0)) == -1)
+	{
+		m_iSocket = g_iInvalidSocket;
+		vGetError();
+		
+		return;
+	}
+	
+	sockaddr SocketAddress;
+	sockaddr_in & SocketInformation = reinterpret_cast< sockaddr_in & >(SocketAddress);
+	
+	SocketInformation.sin_family = PF_INET;
+	SocketInformation.sin_port = htons(ServicePort);
+	SocketInformation.sin_addr.s_addr = INADDR_ANY;
+	if(::bind(m_iSocket, &SocketAddress, sizeof(sockaddr_in)) == -1)
+	{
+		::close(m_iSocket);
+		m_iSocket = g_iInvalidSocket;
+		vGetError();
+		
+		return;
+	}
+	if(::listen(m_iSocket, 5) == -1)
+	{
+		::close(m_iSocket);
+		m_iSocket = g_iInvalidSocket;
+		vGetError();
+		
+		return;
+	}
+	if(::fcntl(m_iSocket, F_SETFL, O_NONBLOCK) == -1)
+	{
+		::close(m_iSocket);
+		m_iSocket = g_iInvalidSocket;
+		vGetError();
+		
+		return;
+	}
+	vMonitor();
 }

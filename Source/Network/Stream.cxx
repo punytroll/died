@@ -38,7 +38,6 @@ Network::Stream::Stream(void) :
 	m_OBuffer(g_stInitialBufferSize),
 	m_bConnectingInProgress(false)
 {
-	m_bOnDisconnected = true;
 }
 
 Network::Stream::Stream(int iSocket) :
@@ -48,7 +47,6 @@ Network::Stream::Stream(int iSocket) :
 	m_OBuffer(g_stInitialBufferSize),
 	m_bConnectingInProgress(false)
 {
-	m_bOnDisconnected = true;
 }
 
 void Network::Stream::vOpen(const Network::address_t & ConnectAddress, const Network::port_t & ConnectPort)
@@ -57,7 +55,6 @@ void Network::Stream::vOpen(const Network::address_t & ConnectAddress, const Net
 	{
 		return;
 	}
-	m_bOnDisconnected = false;
 	// -1 instead of g_iInvalidSocket because the two things are not connected to each other
 	if((m_iSocket = ::socket(PF_INET, SOCK_STREAM, 0)) == -1)
 	{
@@ -108,7 +105,6 @@ void Network::Stream::vOpen(const Network::address_t & ConnectAddress, const Net
 		else
 		{
 			m_bConnectingInProgress = true;
-//~ 			vRequestOnOut();
 		}
 	}
 	
@@ -156,7 +152,6 @@ void Network::Stream::vOpen(const Network::address_t & ConnectAddress, const Net
 	}
 	LOG(Debug, "Network/Socket",  __FILE__ << ':' << __LINE__ << " Ended ::connect.");
 	vOnConnected();
-	m_bOnDisconnected = true;
 	vMonitor();
 }
 
