@@ -10,6 +10,11 @@ autoheader
 echo "Done. [Return = $?]"
 echo
 
+echo "Running aclocal ..."
+aclocal
+echo "Done. [Return = $?]"
+echo
+
 echo "Running autoconf ..."
 autoconf
 echo "Done. [Return = $?]"
