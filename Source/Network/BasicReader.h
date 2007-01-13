@@ -28,6 +28,10 @@ namespace Network
 	class BasicReader
 	{
 	public:
+		virtual ~BasicReader(void)
+		{
+		}
+		
 		virtual bool bRead(bool & bValue) = 0;
 		virtual bool bRead(u_int8_t & u8Value) = 0;
 		virtual bool bRead(int8_t & s8Value) = 0;

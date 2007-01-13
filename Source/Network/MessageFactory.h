@@ -28,6 +28,10 @@ namespace Network
 	class MessageFactory
 	{
 	public:
+		virtual ~MessageFactory(void)
+		{
+		}
+		
 		virtual boost::shared_ptr< Network::BasicMessage > GetMessage(u_int32_t u32Type) = 0;
 	};
 }

@@ -19,6 +19,7 @@
 #ifndef NETWORK_BASICVALUE_H
 #define NETWORK_BASICVALUE_H
 
+#include <iostream>
 #include <boost/shared_ptr.hpp>
 
 #include <sigc++/signal.h>

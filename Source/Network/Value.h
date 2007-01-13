@@ -20,6 +20,7 @@
 #define VALUE_H
 
 #include <Common.h>
+#include <iostream>
 
 #include "BasicValue.h"
 

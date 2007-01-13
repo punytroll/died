@@ -32,6 +32,11 @@ namespace Network
 		typedef size_t size_type;
 		
 		static const size_type npos = 0xFFFFFFFF;
+		
+		virtual ~BasicBuffer(void)
+		{
+		}
+		
 		virtual size_type stGetCapacity(void) = 0;
 		virtual size_type stGetSize(void) = 0;
 		virtual size_type stGetFree(void);

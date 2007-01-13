@@ -28,6 +28,10 @@ namespace Network
 	class BasicWriter
 	{
 	public:
+		virtual ~BasicWriter(void)
+		{
+		}
+		
 		virtual bool bWrite(const bool & bValue) = 0;
 		virtual bool bWrite(const u_int8_t & u8Value) = 0;
 		virtual bool bWrite(const int8_t & s8Value) = 0;
