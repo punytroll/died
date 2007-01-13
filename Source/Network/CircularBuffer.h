@@ -29,6 +29,7 @@ namespace Network
 	{
 	public:
 		CircularBuffer(size_t stSize);
+		virtual ~CircularBuffer(void);
 		virtual size_t stGetCapacity(void);
 		virtual size_t stGetSize(void);
 		virtual size_t stRead(u_int8_t * pu8Memory, size_t stSize);

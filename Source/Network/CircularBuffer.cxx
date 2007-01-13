@@ -30,6 +30,10 @@ Network::CircularBuffer::CircularBuffer(size_t stSize) :
 {
 }
 
+Network::CircularBuffer::~CircularBuffer(void)
+{
+}
+
 size_t Network::CircularBuffer::stGetCapacity(void)
 {
 	return m_pu8StorageEnd - m_pu8StorageBegin;

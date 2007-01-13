@@ -32,6 +32,10 @@ namespace DiED
 	class InternalEnvironment
 	{
 	public:
+		virtual ~InternalEnvironment(void)
+		{
+		}
+		
 		virtual boost::shared_ptr< Network::MessageFactory > GetMessageFactory(void) = 0;
 		
 		// messages and events for the environment
