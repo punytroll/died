@@ -21,6 +21,7 @@
 
 #include <map>
 #include <string>
+#include <iostream>
 
 #include <boost/any.hpp>
 

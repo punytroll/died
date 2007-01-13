@@ -34,7 +34,7 @@ namespace GUI
 		Client(int iSocket, DiED::InternalEnvironment & InternalEnvironment);
 		virtual ~Client(void);
 		
-		Glib::RefPtr< GUI::MessageListStore > GUI::Client::GetMessageListStore(void);
+		Glib::RefPtr< GUI::MessageListStore > GetMessageListStore(void);
 		void vSetWidget(Gtk::Widget * pWidget);
 		Gtk::Widget * pGetWidget(void);
 		

@@ -55,7 +55,7 @@ namespace Network
 		
 		virtual size_t stGetSize(void) const
 		{
-			return sizeof(size_t) + size() * sizeof(Type);
+			return sizeof(size_t) + std::vector< Type >::size() * sizeof(Type);
 		}
 		
 		virtual void vReadFrom(Network::BasicReader & Reader)
@@ -76,7 +76,7 @@ namespace Network
 					return;
 				}
 			}
-			while(size() < m_stSize)
+			while(std::vector< Type >::size() < m_stSize)
 			{
 				Type Value;
 				
@@ -95,11 +95,11 @@ namespace Network
 		virtual void vWriteTo(Network::BasicWriter & Writer) const
 		{
 			// TODO: Problem of reentrance when the buffer was full last time
-			Writer.bWrite(size());
+			Writer.bWrite(std::vector< Type >::size());
 			
-			typename std::vector< Type >::const_iterator iValue(begin());
+			typename std::vector< Type >::const_iterator iValue(std::vector< Type >::begin());
 			
-			while(iValue != end())
+			while(iValue != std::vector< Type >::end())
 			{
 				// Write returns false if nothing is written -> abort and wait for reentrance
 				Writer.bWrite(&*iValue, sizeof(Type));
