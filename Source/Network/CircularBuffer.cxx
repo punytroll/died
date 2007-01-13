@@ -56,7 +56,7 @@ size_t Network::CircularBuffer::stRead(u_int8_t * pu8Memory, size_t stSize)
 		m_pu8DataBegin = m_pu8StorageBegin;
 	}
 	
-	size_t stReturn = stGetSize() <? stSize;
+	size_t stReturn = ((stGetSize() < stSize) ? (stGetSize()) : (stSize));
 	
 	if(m_pu8DataBegin <= m_pu8DataEnd)
 	{
