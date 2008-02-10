@@ -95,7 +95,7 @@ namespace Network
 		virtual void vWriteTo(Network::BasicWriter & Writer) const
 		{
 			// TODO: Problem of reentrance when the buffer was full last time
-			Writer.bWrite(std::vector< Type >::size());
+			Writer.bWrite(static_cast< u_int32_t >(std::vector< Type >::size()));
 			
 			typename std::vector< Type >::const_iterator iValue(std::vector< Type >::begin());
 			
@@ -107,7 +107,7 @@ namespace Network
 			}
 		}
 	private:
-		size_t m_stSize;
+		u_int32_t m_stSize;
 	};
 }
 
