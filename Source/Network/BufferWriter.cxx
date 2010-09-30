@@ -18,6 +18,8 @@
 
 #include "BufferWriter.h"
 
+#include <string.h>
+
 #include <iostream>
 
 Network::BufferWriter::BufferWriter(Network::BasicBuffer & Buffer) :

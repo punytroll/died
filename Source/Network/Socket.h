@@ -19,6 +19,8 @@
 #ifndef NETWORK_SOCKET_H
 #define NETWORK_SOCKET_H
 
+#include <stdint.h>
+
 #include <sigc++/sigc++.h>
 
 #include <glibmm/iochannel.h>
@@ -28,7 +30,7 @@ namespace Network
 	extern const int g_iInvalidSocket;
 	
 	typedef Glib::ustring address_t;
-	typedef u_int16_t port_t;
+	typedef uint16_t port_t;
 	
 	/**
 	 * @brief A class encapsulating a socket.
