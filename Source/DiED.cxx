@@ -26,17 +26,10 @@
 #include "GUI/ClientFactory.h"
 #include "GUI/MainWindow.h"
 
-bool g_bDone = false;
-
 int main(int argc, char ** argv)
 {
-#ifndef NODEBUG
-	g_bLogLevels[DebugCurrent] = true;
-	g_bLogLevels[Info] = true;
-	g_bLogLevels[Error] = true;
-	g_bLogLevels[TODO] = true;
-	bool bDebugWindow = false;
-#endif
+	bool bDebugWindow = true;
+	
 	srand(time(0));
 	
 	Network::port_t ServerPort = 5867;
@@ -69,9 +62,17 @@ int main(int argc, char ** argv)
 				ConnectAddress = ConnectAddress.substr(0, stPort);
 			}
 		}
-		else if(std::string(argv[iI]) == "--debug")
+		else if(std::string(argv[iI]) == "--no-debug")
 		{
-			bDebugWindow = true;
+			bDebugWindow = false;
+		}
+		else if(std::string(argv[iI]) == "--help")
+		{
+			std::cout << "The following options are recognized:\n";
+			std::cout << "  --serve <port>\n";
+			std::cout << "  --connect <hostname:port>\n";
+			std::cout << "  --no-debug" << std::endl;
+			exit(0);
 		}
 		++iI;
 	}

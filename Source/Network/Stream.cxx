@@ -16,20 +16,21 @@
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
  */
 
-#include "Stream.h"
-
 #include <arpa/inet.h>
 #include <errno.h>
 #include <fcntl.h>
 #include <netdb.h>
 #include <netinet/ip.h>
+#include <string.h>
 #include <sys/socket.h>
 
 #include <iostream>
 
-#include "../Common.h"
-#include "BufferWriter.h"
+#include <Common.h>
+
 #include "BufferReader.h"
+#include "BufferWriter.h"
+#include "Stream.h"
 
 const size_t g_stInitialBufferSize = 32687;
 

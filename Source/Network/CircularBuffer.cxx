@@ -16,11 +16,13 @@
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
  */
 
-#include "CircularBuffer.h"
+#include <string.h>
 
 #include <iostream>
 
 #include <Common.h>
+
+#include "CircularBuffer.h"
 
 Network::CircularBuffer::CircularBuffer(size_t stSize) :
 	m_pu8StorageBegin(new u_int8_t[stSize]),

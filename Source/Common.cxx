@@ -23,7 +23,7 @@
 #include <iostream>
 
 #ifndef NODEBUG
-bool g_bLogLevels[NumberOfLogLevels] = { false, false, false, false, false, false, false, false, false, false };
+bool g_bLogLevels[NumberOfLogLevels] = { true, true, true, true, true, true, true, true, true, true };
 #endif
 
 std::string sErrorCodeToString(int iError)
