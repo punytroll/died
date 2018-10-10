@@ -1,4 +1,4 @@
-INCLUDES = \
+AM_CPPFLAGS = \
 	@GLIBMM_CFLAGS@ \
 	-I..
 
@@ -18,7 +18,9 @@ libdied_a_SOURCES = \
 	User.cxx
 	
 libdied_a_CXXFLAGS = \
+	-std=c++17 \
 	-Wall \
+	-Werror \
 	-O0 \
 	-g
 

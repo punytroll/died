@@ -3,7 +3,7 @@ SUBDIRS = \
 	GUI \
 	Network
 
-INCLUDES = \
+AM_CPPFLAGS = \
 	@GTKMM_CFLAGS@
 	
 bin_PROGRAMS = \
@@ -14,6 +14,7 @@ died_SOURCES = \
 	DiED.cxx
 	
 died_CXXFLAGS = \
+	-std=c++17
 	-Wall \
 	-O0 \
 	-g

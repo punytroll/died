@@ -1,4 +1,4 @@
-INCLUDES = \
+AM_CPPFLAGS = \
 	@GTKMM_CFLAGS@ \
 	-I..
 
@@ -12,7 +12,9 @@ libgui_a_SOURCES = \
 	MessageListStore.cxx
 	
 libgui_a_CXXFLAGS = \
+	-std=c++17 \
 	-Wall \
+	-Werror \
 	-O0 \
 	-g
 
