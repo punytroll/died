@@ -1,4 +1,4 @@
-INCLUDES = \
+AM_CPPFLAGS = \
 	-I.. \
 	@GLIBMM_CFLAGS@
 
@@ -19,7 +19,9 @@ libnetwork_a_SOURCES = \
 	StringValue.cxx
 	
 libnetwork_a_CXXFLAGS = \
+	-std=c++17 \
 	-Wall \
+	-Werror \
 	-O0 \
 	-g
 
