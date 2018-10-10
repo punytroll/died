@@ -1,5 +1,5 @@
 /* DiED - A distributed Editor.
- * Copyright (C) 2005 Hagen Möbius & Aram Altschudjian
+ * Copyright (C) 2005 Hagen MÃ¶bius & Aram Altschudjian
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -32,6 +32,11 @@ namespace Network
 		typedef size_t size_type;
 		
 		static const size_type npos = 0xFFFFFFFF;
+		
+		virtual ~BasicBuffer(void)
+		{
+		}
+		
 		virtual size_type stGetCapacity(void) = 0;
 		virtual size_type stGetSize(void) = 0;
 		virtual size_type stGetFree(void);

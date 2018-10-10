@@ -1,5 +1,5 @@
 /* DiED - A distributed Editor.
- * Copyright (C) 2005 Hagen Möbius & Aram Altschudjian
+ * Copyright (C) 2005 Hagen MÃ¶bius & Aram Altschudjian
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -31,6 +31,10 @@ namespace DiED
 	class MessageTarget
 	{
 	public:
+		virtual ~MessageTarget(void)
+		{
+		}
+		
 		virtual void vHandleConnectionRequest(const DiED::clientid_t & ClientID, const Network::port_t & Port) = 0;
 		virtual void vHandleConnectionAccept(const DiED::clientid_t & AccepterClientID, const DiED::clientid_t & RequesterClientID) = 0;
 		virtual void vHandleSessionSnapshot(const DiED::messageid_t & MessageID, const std::vector< DiED::ClientInfo > & ClientInfos, bool bDocumentValid, const Glib::ustring & sDocument) = 0;

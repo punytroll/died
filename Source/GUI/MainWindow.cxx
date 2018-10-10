@@ -1,5 +1,5 @@
 /* DiED - A distributed Editor.
- * Copyright (C) 2005 Hagen Möbius & Aram Altschudjian
+ * Copyright (C) 2005 Hagen MÃ¶bius & Aram Altschudjian
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -98,7 +98,7 @@ GUI::MainWindow::MainWindow(DiED::System & System, bool bShowMessageList) :
 	m_Notebook.show();
 	m_Pane.show();
 	m_Pane.pack1(*pScrolledWindow, true, true);
-	m_Pane.pack2(m_Notebook, false, false);
+	m_Pane.pack2(m_Notebook, true, true);
 	add(m_Pane);
 #else
 	add(*pScrolledWindow);

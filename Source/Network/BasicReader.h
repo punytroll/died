@@ -1,5 +1,5 @@
 /* DiED - A distributed Editor.
- * Copyright (C) 2005 Hagen Möbius & Aram Altschudjian
+ * Copyright (C) 2005 Hagen MÃ¶bius & Aram Altschudjian
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -28,6 +28,10 @@ namespace Network
 	class BasicReader
 	{
 	public:
+		virtual ~BasicReader(void)
+		{
+		}
+		
 		virtual bool bRead(bool & bValue) = 0;
 		virtual bool bRead(u_int8_t & u8Value) = 0;
 		virtual bool bRead(int8_t & s8Value) = 0;

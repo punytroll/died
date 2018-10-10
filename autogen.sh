@@ -1,8 +1,8 @@
-#!/bin/sh
+#!/bin/bash
 cd `dirname "$0"`
 
 echo -e "Welcome ...
-This is the autogen.sh script to help you build \"died\" from CVS sources."
+This is the autogen.sh script to help you build \"died\" from repository sources."
 echo
 
 echo "Running autoheader ..."
@@ -11,7 +11,7 @@ echo "Done. [Return = $?]"
 echo
 
 echo "Running aclocal ..."
-WANT_AUTOMAKE="1.8" aclocal
+aclocal
 echo "Done. [Return = $?]"
 echo
 
@@ -35,11 +35,7 @@ automake --copy --add-missing
 echo "Done. [Return = $?]"
 echo
 
-echo "Running" ./configure
-echo -e "\tOptions are:"
-echo -e "\t\t" "$@"
-./configure "$@"
-echo "Done. [Return = $?]"
+echo "You may run ./configure now."
 echo
 
 exit

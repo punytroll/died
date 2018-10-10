@@ -1,5 +1,5 @@
 /* DiED - A distributed Editor.
- * Copyright (C) 2005 Hagen Möbius & Aram Altschudjian
+ * Copyright (C) 2005 Hagen MÃ¶bius & Aram Altschudjian
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -55,7 +55,7 @@ namespace Network
 		
 		virtual size_t stGetSize(void) const
 		{
-			return sizeof(size_t) + size() * sizeof(Type);
+			return sizeof(size_t) + std::vector< Type >::size() * sizeof(Type);
 		}
 		
 		virtual void vReadFrom(Network::BasicReader & Reader)
@@ -76,13 +76,13 @@ namespace Network
 					return;
 				}
 			}
-			while(size() < m_stSize)
+			while(std::vector< Type >::size() < m_stSize)
 			{
 				Type Value;
 				
 				if(Reader.bRead(&Value, sizeof(Type)) == true)
 				{
-					push_back(Value);
+					this->push_back(Value);
 				}
 				else
 				{
@@ -95,11 +95,11 @@ namespace Network
 		virtual void vWriteTo(Network::BasicWriter & Writer) const
 		{
 			// TODO: Problem of reentrance when the buffer was full last time
-			Writer.bWrite(size());
+			Writer.bWrite(static_cast< u_int32_t >(std::vector< Type >::size()));
 			
-			typename std::vector< Type >::const_iterator iValue(begin());
+			typename std::vector< Type >::const_iterator iValue(std::vector< Type >::begin());
 			
-			while(iValue != end())
+			while(iValue != std::vector< Type >::end())
 			{
 				// Write returns false if nothing is written -> abort and wait for reentrance
 				Writer.bWrite(&*iValue, sizeof(Type));
@@ -107,7 +107,7 @@ namespace Network
 			}
 		}
 	private:
-		size_t m_stSize;
+		u_int32_t m_stSize;
 	};
 }
 

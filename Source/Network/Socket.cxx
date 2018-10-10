@@ -1,5 +1,5 @@
 /* DiED - A distributed Editor.
- * Copyright (C) 2005 Hagen Möbius & Aram Altschudjian
+ * Copyright (C) 2005 Hagen MÃ¶bius & Aram Altschudjian
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -19,10 +19,15 @@
 #include "Socket.h"
 
 #include <arpa/inet.h>
+#include <errno.h>
+#include <fcntl.h>
 #include <netinet/ip.h>
 #include <sys/socket.h>
+#include <unistd.h>
 
 #include <iostream>
+
+#include <glibmm/main.h>
 
 #include <Common.h>
 
@@ -30,8 +35,7 @@ const int Network::g_iInvalidSocket = -1;
 
 Network::Socket::Socket(void) :
 	m_iSocket(g_iInvalidSocket),
-	m_iError(0),
-	m_bOnDisconnected(true)
+	m_iError(0)
 {
 	LOG(Object, "Network/Socket", "Created.");
 }
@@ -66,12 +70,9 @@ int Network::Socket::iGetError(void) const
 void Network::Socket::vClose(void)
 {
 	vIgnoreOnOut();
-	close(m_iSocket);
+	::close(m_iSocket);
 	m_iSocket = g_iInvalidSocket;
-	if(m_bOnDisconnected == true)
-	{
-		OnDisconnected();
-	}
+	vOnDisconnected();
 }
 
 void Network::Socket::vMonitor(void)
@@ -84,7 +85,7 @@ void Network::Socket::vMonitor(void)
 
 void Network::Socket::vRequestOnOut(void)
 {
-	if(m_OSource == false)
+	if(!m_OSource)
 	{
 //~ 		std::cout << "[Socket]: OnOut requested." << std::endl;
 		m_OSource = Glib::IOSource::create(m_iSocket, Glib::IO_OUT);
@@ -96,7 +97,7 @@ void Network::Socket::vRequestOnOut(void)
 void Network::Socket::vIgnoreOnOut(void)
 {
 //~ 	std::cout << "[Socket]: OnOut ignored." << std::endl;
-	if(m_OSource == true)
+	if(m_OSource)
 	{
 		m_OSource->destroy();
 		m_OSource.clear();
@@ -136,6 +137,22 @@ bool Network::Socket::bNotify(const Glib::IOCondition & Condition)
 	}
 	
 	return true;
+}
+
+void Network::Socket::vOnConnecting(void)
+{
+}
+
+void Network::Socket::vOnConnected(void)
+{
+}
+
+void Network::Socket::vOnDisconnecting(void)
+{
+}
+
+void Network::Socket::vOnDisconnected(void)
+{
 }
 
 void Network::Socket::vOnIn(void)
@@ -202,4 +219,52 @@ Network::port_t Network::Socket::GetPort(void)
 	}
 	
 	return 0;
+}
+
+void Network::Socket::vOpen(const Network::port_t & ServicePort)
+{
+	if(bIsOpen() == true)
+	{
+		return;
+	}
+	// -1 instead of g_iInvalidSocket because the two things are not connected to each other
+	if((m_iSocket = ::socket(PF_INET, SOCK_STREAM, 0)) == -1)
+	{
+		m_iSocket = g_iInvalidSocket;
+		vGetError();
+		
+		return;
+	}
+	
+	sockaddr SocketAddress;
+	sockaddr_in & SocketInformation = reinterpret_cast< sockaddr_in & >(SocketAddress);
+	
+	SocketInformation.sin_family = PF_INET;
+	SocketInformation.sin_port = htons(ServicePort);
+	SocketInformation.sin_addr.s_addr = INADDR_ANY;
+	if(::bind(m_iSocket, &SocketAddress, sizeof(sockaddr_in)) == -1)
+	{
+		::close(m_iSocket);
+		m_iSocket = g_iInvalidSocket;
+		vGetError();
+		
+		return;
+	}
+	if(::listen(m_iSocket, 5) == -1)
+	{
+		::close(m_iSocket);
+		m_iSocket = g_iInvalidSocket;
+		vGetError();
+		
+		return;
+	}
+	if(::fcntl(m_iSocket, F_SETFL, O_NONBLOCK) == -1)
+	{
+		::close(m_iSocket);
+		m_iSocket = g_iInvalidSocket;
+		vGetError();
+		
+		return;
+	}
+	vMonitor();
 }

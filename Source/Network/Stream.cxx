@@ -1,5 +1,5 @@
 /* DiED - A distributed Editor.
- * Copyright (C) 2005 Hagen Möbius & Aram Altschudjian
+ * Copyright (C) 2005 Hagen MÃ¶bius & Aram Altschudjian
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -16,19 +16,21 @@
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
  */
 
-#include "Stream.h"
-
 #include <arpa/inet.h>
+#include <errno.h>
 #include <fcntl.h>
 #include <netdb.h>
 #include <netinet/ip.h>
+#include <string.h>
 #include <sys/socket.h>
 
 #include <iostream>
 
-#include "../Common.h"
-#include "BufferWriter.h"
+#include <Common.h>
+
 #include "BufferReader.h"
+#include "BufferWriter.h"
+#include "Stream.h"
 
 const size_t g_stInitialBufferSize = 32687;
 
@@ -38,7 +40,6 @@ Network::Stream::Stream(void) :
 	m_OBuffer(g_stInitialBufferSize),
 	m_bConnectingInProgress(false)
 {
-	m_bOnDisconnected = true;
 }
 
 Network::Stream::Stream(int iSocket) :
@@ -48,7 +49,6 @@ Network::Stream::Stream(int iSocket) :
 	m_OBuffer(g_stInitialBufferSize),
 	m_bConnectingInProgress(false)
 {
-	m_bOnDisconnected = true;
 }
 
 void Network::Stream::vOpen(const Network::address_t & ConnectAddress, const Network::port_t & ConnectPort)
@@ -57,7 +57,6 @@ void Network::Stream::vOpen(const Network::address_t & ConnectAddress, const Net
 	{
 		return;
 	}
-	m_bOnDisconnected = false;
 	// -1 instead of g_iInvalidSocket because the two things are not connected to each other
 	if((m_iSocket = ::socket(PF_INET, SOCK_STREAM, 0)) == -1)
 	{
@@ -108,7 +107,6 @@ void Network::Stream::vOpen(const Network::address_t & ConnectAddress, const Net
 		else
 		{
 			m_bConnectingInProgress = true;
-//~ 			vRequestOnOut();
 		}
 	}
 	
@@ -155,8 +153,7 @@ void Network::Stream::vOpen(const Network::address_t & ConnectAddress, const Net
 		return;
 	}
 	LOG(Debug, "Network/Socket",  __FILE__ << ':' << __LINE__ << " Ended ::connect.");
-	OnConnected();
-	m_bOnDisconnected = true;
+	vOnConnected();
 	vMonitor();
 }
 
