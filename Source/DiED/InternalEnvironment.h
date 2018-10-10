@@ -1,5 +1,5 @@
 /* DiED - A distributed Editor.
- * Copyright (C) 2005 Hagen Möbius & Aram Altschudjian
+ * Copyright (C) 2005 Hagen MÃ¶bius & Aram Altschudjian
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -32,6 +32,10 @@ namespace DiED
 	class InternalEnvironment
 	{
 	public:
+		virtual ~InternalEnvironment(void)
+		{
+		}
+		
 		virtual boost::shared_ptr< Network::MessageFactory > GetMessageFactory(void) = 0;
 		
 		// messages and events for the environment

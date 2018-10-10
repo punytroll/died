@@ -1,5 +1,5 @@
 /* DiED - A distributed Editor.
- * Copyright (C) 2005 Hagen Möbius & Aram Altschudjian
+ * Copyright (C) 2005 Hagen MÃ¶bius & Aram Altschudjian
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -37,12 +37,18 @@ namespace Network
 		MessageStream(int iSocket, boost::shared_ptr< Network::MessageFactory > MessageFactory);
 		MessageStream & operator>>(boost::shared_ptr< Network::BasicMessage > Message);
 		MessageStream & operator<<(const Network::BasicMessage & Message);
+		
+		sigc::signal< void > OnDisconnected;
+		
 		sigc::signal< void > MessageBegin;
 		sigc::signal< void > MessageReady;
 	private:
 		// no copy and assignment for streams
 		MessageStream(const MessageStream & MessageStream);
 		MessageStream & operator=(const MessageStream & MessageStream);
+		
+		// override vOnDisconnected from Network::Socket
+		void vOnDisconnected(void);
 		
 		void vMessageTypeReady(void);
 		void vMessageReady(void);

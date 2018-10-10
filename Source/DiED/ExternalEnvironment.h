@@ -1,5 +1,5 @@
 /* DiED - A distributed Editor.
- * Copyright (C) 2005 Hagen Möbius & Aram Altschudjian
+ * Copyright (C) 2005 Hagen MÃ¶bius & Aram Altschudjian
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -26,6 +26,10 @@ namespace DiED
 	class ExternalEnvironment
 	{
 	public:
+		virtual ~ExternalEnvironment(void)
+		{
+		}
+		
 		virtual void vNewClient(DiED::Client & DiEDClient) = 0;
 		virtual void vInsert(const Glib::ustring & sString, int iLine, int iCharacter) = 0;
 		virtual void vDelete(int iFromLine, int iFromCharacter, int iToLine, int iToCharacter) = 0;

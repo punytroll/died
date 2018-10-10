@@ -1,5 +1,5 @@
 /* DiED - A distributed Editor.
- * Copyright (C) 2005 Hagen Möbius & Aram Altschudjian
+ * Copyright (C) 2005 Hagen MÃ¶bius & Aram Altschudjian
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -29,6 +29,7 @@ namespace Network
 	{
 	public:
 		CircularBuffer(size_t stSize);
+		virtual ~CircularBuffer(void);
 		virtual size_t stGetCapacity(void);
 		virtual size_t stGetSize(void);
 		virtual size_t stRead(u_int8_t * pu8Memory, size_t stSize);

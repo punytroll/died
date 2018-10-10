@@ -1,5 +1,5 @@
 /* DiED - A distributed Editor.
- * Copyright (C) 2005 Hagen Möbius & Aram Altschudjian
+ * Copyright (C) 2005 Hagen MÃ¶bius & Aram Altschudjian
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -21,6 +21,8 @@
 #include <iostream>
 
 #include <boost/weak_ptr.hpp>
+
+#include <glibmm/main.h>
 
 #include "BasicMessage.h"
 

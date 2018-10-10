@@ -1,5 +1,5 @@
 /* DiED - A distributed Editor.
- * Copyright (C) 2005 Hagen Möbius & Aram Altschudjian
+ * Copyright (C) 2005 Hagen MÃ¶bius & Aram Altschudjian
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -17,9 +17,6 @@
  */
 
 #include "System.h"
-
-#include <iomanip>
-#include <iostream>
 
 #include "../Common.h"
 #include "Client.h"
@@ -73,12 +70,13 @@ bool DiED::System::bListen(const Network::port_t & ServicePort)
 	m_Server.vOpen(ServicePort);
 	if(m_Server.bIsOpen() == false)
 	{
-		std::cerr << "[Server]: Error setting up the server. [" << sErrorCodeToString(m_Server.iGetError()) << "]." << std::endl;
+		LOG(Error, "DiED/System", "[Server]: Error setting up the server. [" << sErrorCodeToString(m_Server.iGetError()) << "].");
 		
 		return false;
 	}
 	else
 	{
+		LOG(Info, "DiED/System", "Listening to port " << ServicePort);
 		m_ServicePort = ServicePort;
 		m_Server.Accepted.connect(sigc::mem_fun(*this, &DiED::System::vAccepted));
 	}
@@ -491,7 +489,7 @@ void DiED::System::vHandleConnectionAccept(DiED::User & User, const DiED::client
 		if(iClient == m_Clients.end())
 		{
 			// this is very bad indeed
-			std::cout << "VERY BAD: " << __FILE__ << ':' << __LINE__ << " ; AccepterClientID = " << AccepterClientID << " ; User.ClientID = " << User.GetID() << std::endl;
+			LOG(Error, "DiED/System", "VERY BAD: " << __FILE__ << ':' << __LINE__ << " ; AccepterClientID = " << AccepterClientID << " ; User.ClientID = " << User.GetID());
 			
 			throw;
 		}

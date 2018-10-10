@@ -1,5 +1,5 @@
 /* DiED - A distributed Editor.
- * Copyright (C) 2005 Hagen Möbius & Aram Altschudjian
+ * Copyright (C) 2005 Hagen MÃ¶bius & Aram Altschudjian
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -34,7 +34,7 @@ namespace GUI
 		Client(int iSocket, DiED::InternalEnvironment & InternalEnvironment);
 		virtual ~Client(void);
 		
-		Glib::RefPtr< GUI::MessageListStore > GUI::Client::GetMessageListStore(void);
+		Glib::RefPtr< GUI::MessageListStore > GetMessageListStore(void);
 		void vSetWidget(Gtk::Widget * pWidget);
 		Gtk::Widget * pGetWidget(void);
 		

@@ -1,5 +1,5 @@
 /* DiED - A distributed Editor.
- * Copyright (C) 2005 Hagen Möbius & Aram Altschudjian
+ * Copyright (C) 2005 Hagen MÃ¶bius & Aram Altschudjian
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -16,17 +16,23 @@
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
  */
 
-#include "CircularBuffer.h"
+#include <string.h>
 
 #include <iostream>
 
 #include <Common.h>
+
+#include "CircularBuffer.h"
 
 Network::CircularBuffer::CircularBuffer(size_t stSize) :
 	m_pu8StorageBegin(new u_int8_t[stSize]),
 	m_pu8StorageEnd(m_pu8StorageBegin + stSize),
 	m_pu8DataBegin(m_pu8StorageBegin),
 	m_pu8DataEnd(m_pu8StorageBegin)
+{
+}
+
+Network::CircularBuffer::~CircularBuffer(void)
 {
 }
 
@@ -56,7 +62,7 @@ size_t Network::CircularBuffer::stRead(u_int8_t * pu8Memory, size_t stSize)
 		m_pu8DataBegin = m_pu8StorageBegin;
 	}
 	
-	size_t stReturn = stGetSize() <? stSize;
+	size_t stReturn = ((stGetSize() < stSize) ? (stGetSize()) : (stSize));
 	
 	if(m_pu8DataBegin <= m_pu8DataEnd)
 	{

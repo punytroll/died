@@ -1,5 +1,5 @@
 /* DiED - A distributed Editor.
- * Copyright (C) 2005 Hagen Möbius & Aram Altschudjian
+ * Copyright (C) 2005 Hagen MÃ¶bius & Aram Altschudjian
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -23,7 +23,7 @@
 #include <iostream>
 
 #ifndef NODEBUG
-bool g_bLogLevels[NumberOfLogLevels] = { false, false, false, false, false, false, false, false, false, false };
+bool g_bLogLevels[NumberOfLogLevels] = { true, true, true, true, true, true, true, true, true, true };
 #endif
 
 std::string sErrorCodeToString(int iError)

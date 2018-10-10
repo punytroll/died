@@ -1,5 +1,5 @@
 /* DiED - A distributed Editor.
- * Copyright (C) 2005 Hagen Möbius & Aram Altschudjian
+ * Copyright (C) 2005 Hagen MÃ¶bius & Aram Altschudjian
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -19,6 +19,8 @@
 #ifndef NETWORK_SOCKET_H
 #define NETWORK_SOCKET_H
 
+#include <stdint.h>
+
 #include <sigc++/sigc++.h>
 
 #include <glibmm/iochannel.h>
@@ -28,7 +30,7 @@ namespace Network
 	extern const int g_iInvalidSocket;
 	
 	typedef Glib::ustring address_t;
-	typedef u_int16_t port_t;
+	typedef uint16_t port_t;
 	
 	/**
 	 * @brief A class encapsulating a socket.
@@ -38,6 +40,15 @@ namespace Network
 	class Socket : virtual public sigc::trackable
 	{
 	public:
+		enum Status
+		{
+			DISCONNECTED,
+			CONNECTING,
+			CONNECTED,
+			DISCONNECTING,
+			LISTENING
+		};
+		
 		Socket(void);
 		Socket(int iSocket);
 		virtual ~Socket(void);
@@ -48,9 +59,13 @@ namespace Network
 		Network::address_t GetAddress(void);
 		Network::port_t GetPort(void);
 		
-		// signals emitted after successfull connection establishing or disconnecting
-		sigc::signal< void > OnConnected;
-		sigc::signal< void > OnDisconnected;
+		/**
+		 * @brief Opens a listening socket on a specified port.
+		 * @param ServicePort The port that the service should be listening on.
+		 * 
+		 * This call performs a sequence of actions necessary for setting up a listening port.
+		 **/
+		void vOpen(const Network::port_t & ServicePort);
 	protected:
 		void vMonitor(void);
 		void vRequestOnOut(void);
@@ -58,12 +73,19 @@ namespace Network
 		void vGetError(void);
 		
 		// virtual functions to make inherited classes act on socket events
+		virtual void vOnConnecting(void);
+		virtual void vOnConnected(void);
+		virtual void vOnDisconnecting(void);
+		
+		/**
+		 * @brief Virtual funtion that indicates that the socket has gone in DISCONNECTED state.
+		 **/
+		virtual void vOnDisconnected(void);
 		virtual void vOnIn(void);
 		virtual void vOnOut(void);
 		
 		int m_iSocket;
 		int m_iError;
-		bool m_bOnDisconnected;
 	private:
 		bool bNotify(const Glib::IOCondition & Condition);
 		Glib::RefPtr< Glib::IOSource > m_OSource;
