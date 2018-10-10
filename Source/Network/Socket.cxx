@@ -23,8 +23,11 @@
 #include <fcntl.h>
 #include <netinet/ip.h>
 #include <sys/socket.h>
+#include <unistd.h>
 
 #include <iostream>
+
+#include <glibmm/main.h>
 
 #include <Common.h>
 
@@ -67,7 +70,7 @@ int Network::Socket::iGetError(void) const
 void Network::Socket::vClose(void)
 {
 	vIgnoreOnOut();
-	close(m_iSocket);
+	::close(m_iSocket);
 	m_iSocket = g_iInvalidSocket;
 	vOnDisconnected();
 }
@@ -82,7 +85,7 @@ void Network::Socket::vMonitor(void)
 
 void Network::Socket::vRequestOnOut(void)
 {
-	if(m_OSource == false)
+	if(!m_OSource)
 	{
 //~ 		std::cout << "[Socket]: OnOut requested." << std::endl;
 		m_OSource = Glib::IOSource::create(m_iSocket, Glib::IO_OUT);
@@ -94,7 +97,7 @@ void Network::Socket::vRequestOnOut(void)
 void Network::Socket::vIgnoreOnOut(void)
 {
 //~ 	std::cout << "[Socket]: OnOut ignored." << std::endl;
-	if(m_OSource == true)
+	if(m_OSource)
 	{
 		m_OSource->destroy();
 		m_OSource.clear();

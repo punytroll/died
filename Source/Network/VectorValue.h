@@ -82,7 +82,7 @@ namespace Network
 				
 				if(Reader.bRead(&Value, sizeof(Type)) == true)
 				{
-					push_back(Value);
+					this->push_back(Value);
 				}
 				else
 				{

@@ -22,6 +22,8 @@
 
 #include <boost/weak_ptr.hpp>
 
+#include <glibmm/main.h>
+
 #include "BasicMessage.h"
 
 const u_int16_t g_u16TimeOutMilliSeconds = 2000;
