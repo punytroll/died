@@ -19,6 +19,8 @@
 #ifndef NETWORK_MESSAGE_H
 #define NETWORK_MESSAGE_H
 
+#include <vector>
+
 #include "Stream.h"
 #include "Value.h"
 

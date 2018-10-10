@@ -20,6 +20,8 @@
 
 #include <iostream>
 
+#include <glibmm/main.h>
+
 DiED::BasicMessage::BasicMessage(const Network::BasicMessage::type_t & Type) :
 	Network::BasicMessage(Type)
 {
